@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_pressao_atm_click" android:state_pressed="true" />
+
+<!--
+    <item android:drawable="@drawable/ic_barometro" android:state_focused="true" />
+-->
+    <item android:drawable="@drawable/ic_pressao_atm" >
+
+    </item>
+</selector>

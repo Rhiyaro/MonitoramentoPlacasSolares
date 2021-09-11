@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF0A497E</color>
+    <color name="colorPrimaryDark">#0A497E</color>
+    <color name="colorAccent">#219602</color>
+    <color name="corApp">#0A497E</color>
+    <color name="preto">#000000</color>
+    <color name="branco">#FFFFFF</color>
+    <color name="tabcolor">#3F6F96</color>
+    <color name="none">#00000000</color>
+    <color name="link">#B5DEFF</color>
+</resources>

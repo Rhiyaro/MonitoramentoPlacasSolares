@@ -1,0 +1,100 @@
+<resources>
+    <string name="app_name">Monitoramento Placas Solares</string>
+    <string name="title_activity_graficos">Graficos</string>
+    <string name="title_activity_dados">Base de Dados</string>
+    <string name="title_activity_home">Monitoramento Placas Solares</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Placas Solares</string>
+    <string name="nav_header_subtitle">CEFET-RJ/NI</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="txtValoresAtuais">Valores Atuais</string>
+    <string name="txtLumi">Luminosidade</string>
+    <string name="txtTempPlaca">Temp. Placa</string>
+    <string name="txtTensao">Tensão</string>
+    <string name="txtCorrente">Corrente</string>
+    <string name="txtPressao">Pressão</string>
+    <string name="txtTemp">Temperatura</string>
+    <string name="txtUmid">Umidade</string>
+    <string name="txtChuva">Chuva</string>
+    <string name="txtLumiD">Lumin</string>
+    <string name="txtTempPlacaD">TPlaca</string>
+    <string name="txtTensaoD">Tensão</string>
+    <string name="txtCorrenteD">Corren</string>
+    <string name="txtPressaoD">Press</string>
+    <string name="txtTempD">Tempe</string>
+    <string name="txtUmidD">Umida</string>
+    <string name="txtChuvaD">Chuva</string>
+    <string name="strMenuMainDados">Dados</string>
+    <string name="strMenuMainGraficos">Gráficos</string>
+    <string-array name="strSpDia">
+        <item>01</item>
+        <item>02</item>
+        <item>03</item>
+        <item>04</item>
+        <item>05</item>
+        <item>06</item>
+        <item>07</item>
+        <item>08</item>
+        <item>09</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>26</item>
+        <item>27</item>
+        <item>28</item>
+        <item>29</item>
+        <item>30</item>
+        <item>31</item>
+    </string-array>
+
+    <string-array name="strSpMes">
+        <item>01</item>
+        <item>02</item>
+        <item>03</item>
+        <item>04</item>
+        <item>05</item>
+        <item>06</item>
+        <item>07</item>
+        <item>08</item>
+        <item>09</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
+
+    <string-array name="strSpDados">
+        <item>Luminosidade</item>
+        <item>TPlaca</item>
+        <item>TempCaixa</item>
+        <item>Umidade</item>
+        <item>Pessão</item>
+        <item>Chuva</item>
+    </string-array>
+
+    <string-array name="tabTitles">
+        <item>Valores Atuais</item>
+        <item>Produtividade</item>
+    </string-array>
+
+    <string-array name="locais">
+        <item>CEFET-NI/RJ</item>
+        <item>CEFET-RJ/RJ</item>
+        <item>UFRRJ-NI/RJ</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "772990209213",
+    "firebase_url": "https://monitoramento-placas-sol-4777b.firebaseio.com",
+    "project_id": "monitoramento-placas-sol-4777b",
+    "storage_bucket": "monitoramento-placas-sol-4777b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772990209213:android:735d6f69d1061570a77bd4",
+        "android_client_info": {
+          "package_name": "com.example.monitoramentoplacassolares"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772990209213-l3ep7be3n89bhjrrf3ogbu995gktp34r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOc_xu-wtskOnQAjQN8eeRMjcA3Nl8iJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772990209213-l3ep7be3n89bhjrrf3ogbu995gktp34r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

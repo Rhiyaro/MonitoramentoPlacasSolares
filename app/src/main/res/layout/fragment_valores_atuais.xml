@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/content_main" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/seletoresLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/include">
+
+        <Spinner
+            android:id="@+id/seletorLocal"
+            android:layout_width="250dp"
+            android:layout_height="40dp"
+            android:dropDownWidth="wrap_content"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/seletorPlaca"
+            android:layout_width="250dp"
+            android:layout_height="40dp"
+            android:dropDownWidth="match_parent"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/seletorLocal" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/valoresLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seletoresLayout"
+        tools:context=".DadosAct">
+
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="40dp"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toTopOf="@id/txtYGraf"
+            app:layout_constraintEnd_toStartOf="@+id/tableLayout2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="84dp">
+
+                <Button
+                    android:id="@+id/btLuminosidade"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bkg_bt_luminosidade"
+                    android:gravity="center_vertical|end"
+                    android:onClick="escolheGraf"
+                    android:textSize="18sp"
+                    tools:layout_editor_absoluteX="16dp"
+                    tools:layout_editor_absoluteY="56dp" />
+
+                <TextView
+                    android:id="@+id/txtValorLuminosidade"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:text="       --- L"
+                    android:textSize="18sp"
+                    tools:layout_editor_absoluteX="91dp"
+                    tools:layout_editor_absoluteY="56dp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="67dp">
+
+                <Button
+                    android:id="@+id/btTPlaca"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bkg_bt_tplaca"
+                    android:gravity="center_vertical|end"
+                    android:linksClickable="false"
+                    android:onClick="escolheGraf"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtValorTPlaca"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:text="       --- °C"
+                    android:textSize="18sp" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btTensao"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bkg_bt_tensao"
+                    android:gravity="center_vertical|end"
+                    android:linksClickable="false"
+                    android:onClick="escolheGraf"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtTensao"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:text="       --- V"
+                    android:textSize="18sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btCorrente"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bkg_bt_corrente"
+                    android:gravity="center_vertical|end"
+                    android:linksClickable="false"
+                    android:onClick="escolheGraf"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtCorrente"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:text="       --- mA"
+                    android:textSize="18sp" />
+
+            </TableRow>
+
+        </TableLayout>
+
+        <TableLayout
+            android:id="@+id/tableLayout2"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="40dp"
+            android:layout_weight="1"
+            android:alwaysDrawnWithCache="false"
+            app:layout_constraintBottom_toTopOf="@id/txtYGraf"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/tableLayout"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btPressao"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bkg_bt_pressao"
+                    android:gravity="center_vertical|end"
+                    android:linksClickable="false"
+                    android:onClick="escolheGraf"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtPressao"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:text="       --- kPa"
+                    android:textSize="18sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btTemp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bkg_bt_temperatura"
+                    android:gravity="center_vertical|end"
+                    android:linksClickable="false"
+                    android:onClick="escolheGraf"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtTemp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:text="       --- °C"
+                    android:textSize="18sp" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btUmidade"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bkg_bt_umidade"
+                    android:gravity="center_vertical|end"
+                    android:linksClickable="false"
+                    android:onClick="escolheGraf"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtUmidade"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:text="       --- %"
+                    android:textSize="18sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btChuva"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bkg_bt_chuva"
+                    android:gravity="center_vertical|end"
+                    android:linksClickable="false"
+                    android:onClick="escolheGraf"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtChuva"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:text="       --- Ch"
+                    android:textSize="18sp" />
+            </TableRow>
+        </TableLayout>
+
+        <TextView
+            android:id="@+id/txtYGraf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Switch
+            android:id="@+id/switchautoscroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="37dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:text="auto scroll"
+            app:layout_constraintBottom_toTopOf="@+id/switchautoscroll"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tableLayout2" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/graficoLayout"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/valoresLayout">
+
+
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/graficoTempoReal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.59" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
