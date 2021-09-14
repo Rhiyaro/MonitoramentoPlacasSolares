@@ -41,12 +41,11 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
     public static final String TAG = "MainActivity";
 
-    public static String phoneToken;
+    //public static String phoneToken;
 
     public MyFirebaseMessagingService msgServ = new MyFirebaseMessagingService();
 
     private Boolean sair;
-    //private Cliente con;
     private LineGraphSeries<DataPoint> serieLumi, serieTPlaca, serieTensao, serieCorrente, seriePressao,
     serieTemp, serieUmidade, serieChuva;
     private Toolbar tb;
@@ -95,13 +94,13 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-//        con = new Cliente(MainActivity.this);
-//        con.execute("ultimos dados");
+        // Configura e roda com o cliente padrão, recebendo dados do "CEFET"
         RunnableCliente runnableCliente = new RunnableCliente(MainActivity.this, "ultimos dados", "CEFET");//, ((FragmentValoresAtuais)fragments[0]).getLocalAtual().getNome()
         fragValAtuais.ouvirFuture = runnableCliente.getOuvirFuture();
         fragValAtuais.clienteFuture = executorService.submit(runnableCliente);
         fragValAtuais.mHandler = (IAsyncHandler)this;
 
+        // Inicia os gráficos
         serieLumi = new LineGraphSeries<>();
         serieTPlaca = new LineGraphSeries<>();
         serieTensao = new LineGraphSeries<>();
@@ -122,9 +121,21 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
     }
 
+    /**
+     * Irá colocar os valores do vetor 'valor' nos seus devidos textViews baseado no nome
+     * existente na mesma posição em 'strValor'
+     * Substituído pelo método 'setValoresPlaca'
+     * @param strValor  Nomes dos valores
+     * @param valor     Os valores em si
+     */
     @SuppressLint("SetTextI18n")
     private void setValores(String[] strValor, String[] valor) {
+        //TODO: Remontar método para trabalhar com os JSONObjects
 
+        /*
+          Reseta todos os textViews para o caso de um local ter algum tipo de dado que outro
+          não tem
+         */
         for(int i = 0 ; i<fragValAtuais.txtViewValores.length ; i++){
             for(int j = 0 ; j<fragValAtuais.txtViewValores[0].length ; j++){
                 fragValAtuais.txtViewValores[i][j].setText("      --- ");
@@ -151,7 +162,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                     fragValAtuais.txtViewValores[1][1].setText("      " + valor[i] + " °C");
                 }
             }
-            //fragValAtuais.txtViewValores[1][1].setText("      " + valor[i] + " °C");
             else if (strValor[i].contains("chuva"))
                 fragValAtuais.txtViewValores[3][1].setText("      " + valor[i] + " Ch");
 
@@ -164,7 +174,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                     fragValAtuais.txtViewValores[2][0].setText("      " + valor[i] + " V");
                 }
             }
-            //fragValAtuais.txtViewValores[2][0].setText("      " + valor[i] + " V");
             else if (strValor[i].contains("pressao"))
                 fragValAtuais.txtViewValores[0][1].setText("      " + valor[i] + " Pa");
 
@@ -180,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                     fragValAtuais.txtViewValores[3][0].setText("      " + valor[i] + " A");
                 }
             }
-            //fragValAtuais.txtViewValores[3][0].setText("      " + valor[i] + " A");
         }
     }
 
@@ -191,18 +199,33 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         this.finish();
     }
 
+    /**
+     * Irá colocar os valores do vetor 'valor' nos seus devidos textViews baseado no nome
+     * existente na mesma posição em 'strValor'
+     * Coloca os valores nas respectivas placas, se for o caso
+     * @param strValor
+     * @param valor
+     * @param idPlaca
+     */
     @SuppressLint("SetTextI18n")
     private void setValoresPlaca(String[] strValor, String[] valor, int idPlaca) {
+        //TODO: Refazer o método para utilizar os JSON Objects
 
+        /*
+          Reseta todos os textViews para o caso de um local ter algum tipo de dado que outro
+          não tem
+         */
         for(int i = 0 ; i<fragValAtuais.txtViewValores.length ; i++){
             for(int j = 0 ; j<fragValAtuais.txtViewValores[0].length ; j++){
                 fragValAtuais.txtViewValores[i][j].setText("      --- ");
             }
         }
 
-        //Checa se existe somente uma linha/placa. Nesse caso, irá retirar a média de informações que possuem
-        //mais de uma aparição e adicionar ao primeiro caso. Também modifica as outras aparições de forma
-        //que não se repita o processo
+        /*
+          Checa se existe somente uma linha/placa. Nesse caso, irá retirar a média de informações
+          que possuem mais de uma aparição e adicionar ao primeiro caso. Também modifica as outras
+          aparições de forma que não se repita o processo
+         */
         int count, total, totalPlacas = fragValAtuais.getLocalAtual().getPlacas().size();
         if(totalPlacas == 1 || idPlaca == -1){
             for (int i = 0; i<strValor.length-1; i++) {
@@ -236,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                     fragValAtuais.txtViewValores[1][1].setText("      " + valor[i] + " °C");
                 }
             }
-            //fragValAtuais.txtViewValores[1][1].setText("      " + valor[i] + " °C");
             else if (strValor[i].contains("chuva"))
                 fragValAtuais.txtViewValores[3][1].setText("      " + valor[i] + " Ch");
 
@@ -249,7 +271,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                     fragValAtuais.txtViewValores[2][0].setText("      " + valor[i] + " V");
                 }
             }
-            //fragValAtuais.txtViewValores[2][0].setText("      " + valor[i] + " V");
             else if (strValor[i].contains("pressao"))
                 fragValAtuais.txtViewValores[0][1].setText("      " + valor[i] + " Pa");
 
@@ -265,10 +286,15 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                     fragValAtuais.txtViewValores[3][0].setText("      " + valor[i] + " A");
                 }
             }
-            //fragValAtuais.txtViewValores[3][0].setText("      " + valor[i] + " A");
         }
     }
 
+    /**
+     * Método que trata das respostas recebidas do servidor
+     * Faz o pré-processamento da resposta para ficar nos vetores necessários; chama o método
+     * 'setValoresPlaca' para atualizar a UI
+     * @param result
+     */
     @Override
     public void postResult(String result) {
         Log.i(TAG, "postResult: " + result);
@@ -285,22 +311,18 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             }
         });
 
+        /*
+            Checa se o local selecionado é o mesmo do ciclo anterior. Se for, apenas adiciona os
+            dataPoints e ajeita o gráfico. Se não, atualiza o localAtual e placaAtual
+         */
         if(!ultimoLocal.equals("") && fragValAtuais.getLocalAtual().getNome().equals(ultimoLocal)){
-            //adicionaDataPoints(strValor, valor);
             fragValAtuais.getLocalAtual().adicionaDataPointsTeste(strValor2, valor2);
             ajeitaGrafico();
-            //attSerie();
-            //attSeriePlaca();
         } else if(!fragValAtuais.getLocalAtual().getNome().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getNome().equals(ultimaPlaca)) {
             if(!ultimoLocal.equals("") && !ultimaPlaca.equals("")) attSeriePlaca();
             ultimoLocal = fragValAtuais.getLocalAtual().getNome();
             ultimaPlaca = fragValAtuais.getPlacaAtual().getNome();
         }
-
-        //if(fragValAtuais.getPlacaAtual().getSerieLumi().isEmpty()) Log.i(TAG, "postResult: serieLumi null");
-        //if(fragValAtuais.getPlacaAtual().getSerieTensao().isEmpty()) Log.i(TAG, "postResult: serieTensao null");
-        //else Log.i(TAG, "postResult: serieTensao " + fragValAtuais.getPlacaAtual().getSerieTensao().getValues(x-1, x).toString());
-
     }
 
     public void adicionaDataPoints(String[] strValor, String[] valor){
@@ -361,13 +383,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 ((FragmentValoresAtuais) fragments[0]).viewport.setMaxX(20);
             }
         }
-
-        //Log.i(TAG, "postResult: " + ultimoLocal + " ? " + fragValAtuais.getLocalAtual().getNome());
-//        if(!ultimoLocal.equals("") && !fragValAtuais.getLocalAtual().getNome().equals(ultimoLocal)){
-//            //attSerie();
-//            attSeriePlaca();
-//            ultimoLocal = fragValAtuais.getLocalAtual().getNome();
-//        }
     }
 
     @Override
@@ -452,8 +467,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 } else {
                     ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieLumi());
                 }
-
-//                ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Luminosidade");
                 fragValAtuais.grafAtual = "Luminosidade";
                 break;
 
@@ -463,7 +476,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 } else {
                     ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieTPlaca());
                 }
-//                ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Temp. Placa");
                 fragValAtuais.grafAtual = "Temp. Placa";
                 break;
 
@@ -473,7 +485,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 } else {
                     ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieTensao());
                 }
-//                ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Tensão");
                 fragValAtuais.grafAtual = "Tensão";
                 break;
 
@@ -483,7 +494,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 } else {
                     ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieCorrente());
                 }
-//                ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Corrente");
                 fragValAtuais.grafAtual = "Corrente";
                 break;
 
@@ -493,7 +503,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 } else {
                     ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSeriePressao());
                 }
-//                ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Pressão");
                 fragValAtuais.grafAtual = "Pressão";
                 break;
 
@@ -504,10 +513,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                     ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieTemp());
                 }
                 if(fragValAtuais.getLocalAtual().getNome().contains("CEFET")) {
-//                    ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Temp. Caixa");
                     fragValAtuais.grafAtual = "Temp. Caixa";
                 } else if (fragValAtuais.getLocalAtual().getNome().contains("Artigo")){
-//                    ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Temp. Ambiente");
                     fragValAtuais.grafAtual = "Temp. Ambiente";
                 }
                 break;
@@ -518,7 +525,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 } else {
                     ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieUmidade());
                 }
-//                ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Umidade");
                 fragValAtuais.grafAtual = "Umidade";
                 break;
 
@@ -528,7 +534,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 } else {
                     ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieChuva());
                 }
-//                ((FragmentValoresAtuais) fragments[0]).txtYGraf.setText("Intens. Chuva");
                 fragValAtuais.grafAtual = "Intens. Chuva";
                 break;
         }

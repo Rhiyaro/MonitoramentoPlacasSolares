@@ -59,18 +59,9 @@ public class FragmentValoresAtuais extends Fragment {
         localAtual = locais.get(0);
         placaAtual = localAtual.getPlacas().get(0);
 
-//        ArrayList<String> nomeLocaisList = new ArrayList<String>();
-//        if(FragmentValoresAtuais.locais != null){
-//            for (localMonitoramento lcl : FragmentValoresAtuais.locais) {
-//                nomeLocaisList.add(lcl.getNome());
-//            }
-//        }
-
-        ArrayAdapter<String> locaisAdapter = new ArrayAdapter(this.getContext(), android.R.layout.simple_spinner_item, locais/*nomeLocaisList*/);
+        ArrayAdapter<String> locaisAdapter = new ArrayAdapter(this.getContext(), android.R.layout.simple_spinner_item, locais);
         locaisAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spLocal.setAdapter(locaisAdapter);
-
-
         spLocal.setOnItemSelectedListener(selecaoLocal);
 
         ArrayAdapter<String> placasAdapter = new ArrayAdapter(this.getContext(), android.R.layout.simple_spinner_item, localAtual.getPlacas());

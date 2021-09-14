@@ -17,8 +17,6 @@ import java.util.concurrent.Future;
 public class RunnableCliente implements Runnable {
     public static final String TAG = "RunnableCliente";
 
-//    private static final String hostname = "172.16.116.172";
-//    private static final String hostname = "192.168.1.110";
     public static final String hostname = "192.168.25.9";
     private static final int portaServidor = 12345;
 
@@ -70,15 +68,9 @@ public class RunnableCliente implements Runnable {
         public void run() {
             Thread.currentThread().setName("Thread Ouvir " + MainActivity.x);
             while (mHandler == mHandlerAnt) {
-                //int logCount = 0;
-                //logCount++;
                 String retorno = null;
                 try {
                     retorno = br.readLine();
-//                    if(logCount == 10) {
-//                        Log.i("Runnable ouvir", "run: " + retorno);
-//                        logCount = 0;
-//                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -103,11 +95,9 @@ public class RunnableCliente implements Runnable {
                     enviarMsg(" ");
                     String aux = br.readLine();
                     Log.i(TAG, "run: " + aux);
-//                    System.out.println(aux);
                     enviarMsg(Arrays.toString(params));
                     String res = br.readLine();
                     Log.i(TAG, "run: " + res);
-//                    System.out.println(res);
                     mHandler.postResult(res);
                 }else {
                     ouvirFuture = MainActivity.executorService.submit(ouvir);

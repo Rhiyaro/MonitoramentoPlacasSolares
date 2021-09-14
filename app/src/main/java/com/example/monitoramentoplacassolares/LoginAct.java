@@ -46,9 +46,6 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
         edtTxtLogin = findViewById(R.id.edtTxtLogin);
         edtTxtSenha = findViewById(R.id.edtTxtSenha);
 
-
-
-
     }
 
     public void goMain(View view){
@@ -58,6 +55,7 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
 
     public void logar(View view){
         //TODO: Refatorar todo o código para funcionar com o CallableClient e Futures
+        //TODO: Refatorar para enviar de volta JSON Objects
 
         RunnableCliente runnCliente = new RunnableCliente(LoginAct.this,
                 "logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText());
@@ -126,7 +124,6 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
                                 msg = "falha inscrição tópico";//getString(R.string.msg_subscribe_failed);
                             }
                             Log.i(TAG, msg);
-                            //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -162,7 +159,6 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
                                 msg = "falha inscrição tópico";//getString(R.string.msg_subscribe_failed);
                             }
                             Log.i(TAG, "onComplete: " + msg);
-                            //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
                         }
                     });
 
