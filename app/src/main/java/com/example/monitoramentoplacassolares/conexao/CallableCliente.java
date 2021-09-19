@@ -102,7 +102,7 @@ public class CallableCliente implements Callable<String> {
 //                    mHandler.postResult(res);
                     return res;
                 }else {
-                    MainActivity.executorService.submit(ouvir);
+                    MainActivity.executorServiceCached.submit(ouvir);
                     Log.i(TAG, "call: " + Arrays.toString(params));
                     enviarMsg(Arrays.toString(params));
                 }

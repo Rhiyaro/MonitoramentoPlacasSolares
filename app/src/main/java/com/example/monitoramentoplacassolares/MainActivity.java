@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     private Fragment[] fragments;
     private DrawerLayout drawer;
 
-    public static ExecutorService executorService = Executors.newCachedThreadPool();
+    public static ExecutorService executorServiceCached = Executors.newCachedThreadPool();
 
     private FragmentValoresAtuais fragValAtuais;
     private String ultimoLocal = "", ultimaPlaca = "";
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         // Configura e roda com o cliente padrão, recebendo dados do "CEFET"
         RunnableCliente runnableCliente = new RunnableCliente(MainActivity.this, "ultimos dados", "CEFET");//, ((FragmentValoresAtuais)fragments[0]).getLocalAtual().getNome()
         fragValAtuais.ouvirFuture = runnableCliente.getOuvirFuture();
-        fragValAtuais.clienteFuture = executorService.submit(runnableCliente);
+        fragValAtuais.clienteFuture = executorServiceCached.submit(runnableCliente);
         fragValAtuais.mHandler = (IAsyncHandler)this;
 
         // Inicia os gráficos

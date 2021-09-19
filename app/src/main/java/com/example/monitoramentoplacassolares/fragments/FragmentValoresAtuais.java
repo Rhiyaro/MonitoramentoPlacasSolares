@@ -184,7 +184,7 @@ public class FragmentValoresAtuais extends Fragment {
 
         RunnableCliente runnableCliente = new RunnableCliente(mHandler, "ultimos dados", novoLocal.getNome());
         ouvirFuture = runnableCliente.getOuvirFuture();
-        clienteFuture = MainActivity.executorService.submit(runnableCliente);
+        clienteFuture = MainActivity.executorServiceCached.submit(runnableCliente);
     }
 
     public localMonitoramento getLocalAtual() {
