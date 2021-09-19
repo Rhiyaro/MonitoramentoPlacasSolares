@@ -149,6 +149,12 @@ public class RunnableCliente implements Runnable {
                         resposta = (JSONObject) objIn.readObject();
                         break;
                     case "comunicar":
+                        /*
+                        TODO: Adaptar resto para JSONOBjects
+                         */
+                        ouvirFuture = MainActivity.executorServiceCached.submit(ouvir);
+//                      Log.i(TAG, "run: " + Arrays.toString(params));
+//                      enviarMsg(Arrays.toString(params));
                         break;
                     default:
                         returnString = "ação desconhecida";

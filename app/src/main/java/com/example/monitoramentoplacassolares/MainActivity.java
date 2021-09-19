@@ -33,6 +33,8 @@ import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -323,6 +325,11 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             ultimoLocal = fragValAtuais.getLocalAtual().getNome();
             ultimaPlaca = fragValAtuais.getPlacaAtual().getNome();
         }
+    }
+
+    @Override
+    public void postResult(JSONObject result) {
+
     }
 
     public void adicionaDataPoints(String[] strValor, String[] valor){

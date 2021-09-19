@@ -57,9 +57,10 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
             pacoteLogin.put("login", edtTxtLogin.getText());
             pacoteLogin.put("senha", edtTxtSenha.getText());
 
-            RunnableCliente runnCliente = new RunnableCliente(LoginAct.this,
-                    "logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText());
-            clienteFuture = MainActivity.executorServiceCached.submit(runnCliente);
+            RunnableCliente runnableCliente = new RunnableCliente(LoginAct.this, pacoteLogin);
+            /*RunnableCliente runnableCliente = new RunnableCliente(LoginAct.this,
+                    "logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText());*/
+            clienteFuture = MainActivity.executorServiceCached.submit(runnableCliente);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -156,10 +157,51 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
         try {
             switch (result.getString("resultado")) {
                 case "sucesso":
+                    /*
+                    Inscrição no tópico do Firebase para recebimento das mensagens para notificação
+                    TODO: Mover para outra parte, executando apenas uma vez por aparelho
+                     */
+                    FirebaseMessaging.getInstance().subscribeToTopic("avisos")
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    String msg = "sucesso inscrição tópico";//getString(R.string.msg_subscribed);
+                                    if (!task.isSuccessful()) {
+                                        msg = "falha inscrição tópico";//getString(R.string.msg_subscribe_failed);
+                                    }
+                                    Log.i(TAG, msg);
+                                    //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                    Intent intAct = new Intent(this, MainActivity.class);
+                    startActivity(intAct);
+                    this.finish();
                     break;
                 case "sem conexao":
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(LoginAct.this, "Sem conexão com o servidor!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    break;
+                case "login inexistente":
+                case "senha invalida":
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(LoginAct.this, "Login e/ou senha inválidos!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     break;
                 default:
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(LoginAct.this, "Ocorreu um erro", Toast.LENGTH_SHORT).show();
+                        }
+                    });
             }
 
         } catch (JSONException e) {
