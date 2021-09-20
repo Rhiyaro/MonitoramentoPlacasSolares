@@ -29,6 +29,8 @@ import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -220,14 +222,12 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
                     file.getAbsolutePath(),
                     Toast.LENGTH_LONG).show();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
             if(fileOutputStream != null){
                 try {
                     fileOutputStream.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -238,6 +238,11 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     public void postResult(String result) {
         Dados = result;
         attGrafico();
+    }
+
+    @Override
+    public void postResult(JSONObject result) {
+
     }
 
     @Override

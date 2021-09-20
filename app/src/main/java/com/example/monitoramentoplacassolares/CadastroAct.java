@@ -9,6 +9,10 @@ import android.widget.Toast;
 
 import com.example.monitoramentoplacassolares.conexao.Cliente;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
+import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.Normalizer;
 
@@ -25,7 +29,6 @@ public class CadastroAct extends AppCompatActivity implements IAsyncHandler {
         edtTxtLogin = findViewById(R.id.edtTxtLogin);
         edtTxtSenha = findViewById(R.id.edtTxtSenha);
         edtTxtSenha2 = findViewById(R.id.edtTxtSenha2);
-
     }
 
     public void btAvancar(View v) {
@@ -33,33 +36,31 @@ public class CadastroAct extends AppCompatActivity implements IAsyncHandler {
         String login = Normalizer.normalize(String.valueOf(edtTxtLogin.getText()), Normalizer.Form.NFD);
         String senha = Normalizer.normalize(String.valueOf(edtTxtSenha.getText()), Normalizer.Form.NFD);
 
-        if( login.length() < 3 || login.contains("´") || login.contains("`") || login.contains("~")
-        || login.contains("^") || login.contains("[") || login.contains("{") || login.contains("}")
-        || login.contains("]") || login.contains("º") || login.contains(".") || login.contains(",")
-        || login.contains(">") || login.contains("<") || login.contains(":") || login.contains(";")
-        || login.contains("/") || login.contains("|") || login.contains("\\") || login.contains("*")
-        || login.contains("!") || login.contains("@") || login.contains("#") || login.contains("$")
-        || login.contains("\'") || login.contains("\"") || login.contains("+") || login.contains("-")
-        || login.contains("_") || login.contains("(") || login.contains(")") || login.contains(" ")
-        || login.contains("=") || login.contains("&") || !login.replaceAll("[^\\p{ASCII}]", "").equals(login)){
+        JSONObject pacoteCadastro = new JSONObject();
 
-            Toast.makeText(CadastroAct.this, "Login inaceitável!", Toast.LENGTH_SHORT).show();
+        try {
 
-        }else if(senha.length() < 5){
+            if (!login.matches("[a-zA-Z0-9]{4,20}") || !senha.matches("[a-zA-Z0-9]{4,20}")) {
 
-            Toast.makeText(CadastroAct.this, "Senha muito curta!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CadastroAct.this, "Login e/ou senha inválidos", Toast.LENGTH_SHORT).show();
 
-        }else if(!senha.replaceAll("[^\\p{ASCII}]", "").equals(senha)){
-            Toast.makeText(CadastroAct.this, "Senha: caractéres inválidos!", Toast.LENGTH_SHORT).show();
-        }
+            } else if (!senha.equals(String.valueOf(edtTxtSenha2.getText()))) {
 
-        else if(!senha.equals(String.valueOf(edtTxtSenha2.getText()))) {
+                Toast.makeText(CadastroAct.this, "Senhas não coicidem", Toast.LENGTH_SHORT).show();
 
-            Toast.makeText(CadastroAct.this, "Senhas não coicidem!", Toast.LENGTH_SHORT).show();
-
-        }else{
+            } else {
+            /*
             con = new Cliente(CadastroAct.this);
             con.execute("cadastrar;login," + login + ";senha," + senha);
+             */
+                pacoteCadastro.put("acao", "cadastrar");
+                pacoteCadastro.put("login", login);
+                pacoteCadastro.put("senha", senha);
+
+                RunnableCliente runnableCliente = new RunnableCliente(CadastroAct.this, pacoteCadastro);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
     }
@@ -73,6 +74,30 @@ public class CadastroAct extends AppCompatActivity implements IAsyncHandler {
             Intent intAct = new Intent(this, LoginAct.class);
             startActivity(intAct);
             this.finish();
+        }
+    }
+
+    @Override
+    public void postResult(JSONObject result) {
+        try {
+            switch (result.getString("resultado")) {
+                case "login existente":
+                    Toast.makeText(CadastroAct.this, "Login já registrado", Toast.LENGTH_SHORT).show();
+                    break;
+                case "sucesso":
+                    Toast.makeText(CadastroAct.this, "Cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
+                    Intent intAct = new Intent(this, LoginAct.class);
+                    startActivity(intAct);
+                    this.finish();
+                    break;
+                case "sem conexao":
+                    Toast.makeText(CadastroAct.this, "Sem conexão com o servidor", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    Toast.makeText(CadastroAct.this, "Ocorreu um erro inesperado", Toast.LENGTH_SHORT).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }

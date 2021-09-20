@@ -87,17 +87,8 @@ public class RunnableCliente implements Runnable {
         }
     }
 
-    private void enviarPacote(JSONObject pacote) {
-        try {
-            objOut.writeObject(pacote);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     Runnable ouvir = new Runnable() {
         public void run() {
-            Thread.currentThread().setName("Thread Ouvir " + MainActivity.x);
             while (mHandler == mHandlerAnt) {
                 String retorno = null;
                 try {
@@ -127,6 +118,9 @@ public class RunnableCliente implements Runnable {
             objIn = new ObjectInputStream(socket.getInputStream());
             objOut = new ObjectOutputStream(socket.getOutputStream());
 
+            /*
+            Resposta recebida pelo servidor
+             */
             JSONObject resposta = new JSONObject();
 
             if (socket.isConnected()) {
@@ -143,8 +137,12 @@ public class RunnableCliente implements Runnable {
 //                    Log.i(TAG, "run: " + Arrays.toString(params));
 //                    enviarMsg(Arrays.toString(params));
 //                }
+                /*
+                Age de acordo com o campo "acao" do pacote
+                 */
                 switch (pacote.getString("acao")) {
                     case "logar":
+                    case "cadastrar":
                         objOut.writeObject(pacote);
                         resposta = (JSONObject) objIn.readObject();
                         break;
@@ -153,15 +151,13 @@ public class RunnableCliente implements Runnable {
                         TODO: Adaptar resto para JSONOBjects
                          */
                         ouvirFuture = MainActivity.executorServiceCached.submit(ouvir);
-//                      Log.i(TAG, "run: " + Arrays.toString(params));
-//                      enviarMsg(Arrays.toString(params));
+                        enviarMsg(Arrays.toString(params));
                         break;
                     default:
                         returnString = "ação desconhecida";
-                        resposta.put("resultado", "acao desconhecida");
+                        resposta.put("resultado", "desconhecido");
                 }
             } else {
-                //mHandler.postResult("sem conexao");
                 resposta.put("resultado", "sem conexao");
             }
 
