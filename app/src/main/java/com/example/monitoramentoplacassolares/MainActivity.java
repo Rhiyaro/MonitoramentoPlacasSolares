@@ -27,12 +27,15 @@ import android.view.View;
 import androidx.appcompat.widget.Toolbar;
 
 import android.widget.AdapterView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -59,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     private DrawerLayout drawer;
 
     public static ExecutorService executorServiceCached = Executors.newCachedThreadPool();
+
+    public static RunnableCliente Cliente;
 
     private FragmentValoresAtuais fragValAtuais;
     private String ultimoLocal = "", ultimaPlaca = "";
@@ -97,9 +102,22 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         navigationView.setNavigationItemSelectedListener(this);
 
         // Configura e roda com o cliente padrão, recebendo dados do "CEFET"
-        RunnableCliente runnableCliente = new RunnableCliente(MainActivity.this, "ultimos dados", "CEFET");//, ((FragmentValoresAtuais)fragments[0]).getLocalAtual().getNome()
-        fragValAtuais.ouvirFuture = runnableCliente.getOuvirFuture();
-        fragValAtuais.clienteFuture = executorServiceCached.submit(runnableCliente);
+        JSONObject pacoteComunicacao = new JSONObject();
+        try {
+            pacoteComunicacao.put("acao", "comunicar");
+            pacoteComunicacao.put("pedido", "ultimos dados");
+            //pacoteComunicacao.put("local", "CEFET");
+        } catch (JSONException e) {
+            Log.e(TAG, "onCreate: ", e);
+        }
+
+        MainActivity.Cliente.setPacoteConfig(pacoteComunicacao);
+        RunnableCliente.setmHandler(MainActivity.this);
+        RunnableCliente.setmHandlerAnt(MainActivity.this);
+        //RunnableCliente runnableCliente = new RunnableCliente(MainActivity.this, "ultimos dados", "CEFET");//, ((FragmentValoresAtuais)fragments[0]).getLocalAtual().getNome()
+        //RunnableCliente runnableCliente = new RunnableCliente(MainActivity.this, pacoteComunicacao, "ultimos dados", "CEFET");
+        fragValAtuais.ouvirFuture = Cliente.getOuvirFuture();
+        fragValAtuais.clienteFuture = executorServiceCached.submit(Cliente);
         fragValAtuais.mHandler = (IAsyncHandler)this;
 
         // Inicia os gráficos
@@ -291,6 +309,49 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private void setValoresJSON(JSONObject dados){
+//        txtViewValores[0][0] = inf.findViewById(R.id.txtValorLuminosidade);
+//        txtViewValores[1][0] = inf.findViewById(R.id.txtValorTPlaca);
+//        txtViewValores[2][0] = inf.findViewById(R.id.txtTensao);
+//        txtViewValores[3][0] = inf.findViewById(R.id.txtCorrente);
+//        txtViewValores[0][1] = inf.findViewById(R.id.txtPressao);
+//        txtViewValores[1][1] = inf.findViewById(R.id.txtTemp);
+//        txtViewValores[2][1] = inf.findViewById(R.id.txtUmidade);
+//        txtViewValores[3][1] = inf.findViewById(R.id.txtChuva);
+
+        for(int i=0 ; i < fragValAtuais.txtViewValores.length ; i++){
+            for (int j=0 ; j<fragValAtuais.txtViewValores[i].length ; j++){
+                setTxtView(fragValAtuais.txtViewValores[i][j], dados, fragValAtuais.txtViewValores[i][j].getHint().toString());
+            }
+        }
+
+//        setTxtView(fragValAtuais.txtViewValores[0][0], dados, "luminosidade");
+//        setTxtView(fragValAtuais.txtViewValores[1][0], dados, "tempPlaca");
+//        setTxtView(fragValAtuais.txtViewValores[2][0], dados, "tensao");
+//        setTxtView(fragValAtuais.txtViewValores[3][0], dados, "corrente");
+//        setTxtView(fragValAtuais.txtViewValores[0][1], dados, "pressao");
+//        setTxtView(fragValAtuais.txtViewValores[1][1], dados, "temp");
+//        setTxtView(fragValAtuais.txtViewValores[2][1], dados, "umidade");
+//        setTxtView(fragValAtuais.txtViewValores[3][1], dados, "chuva");
+    }
+
+    private void setTxtView(TextView txtView, JSONObject conjunto, String dado){
+        try{
+            if(conjunto.has(dado)){
+                if(conjunto.optJSONArray(dado) == null){
+                    txtView.setText(conjunto.opt(dado).toString());
+                } else {
+                    txtView.setText(conjunto.optJSONArray(dado).get(0).toString());
+                }
+            } else {
+                txtView.setText("---");
+            }
+        } catch (JSONException e) {
+
+        }
+    }
+
     /**
      * Método que trata das respostas recebidas do servidor
      * Faz o pré-processamento da resposta para ficar nos vetores necessários; chama o método
@@ -328,8 +389,36 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     }
 
     @Override
-    public void postResult(JSONObject result) {
+    public void postResult(final JSONObject result) {
+        Log.i(TAG, "\npostResult: result= "+result.toString()+"\n"+fragValAtuais.getLocalAtual().getNome());
+        /*
+        TODO: Configurar ações utilizando o JSONObject
+         */
+        try {
+            String pedido = result.getString("pedido"); // Recupera o pedido que foi feito para receber esta resposta
 
+            //Log.i(TAG, "postResult: dados= "+dadosLocalAtual.toString());
+
+            switch (pedido) {
+                case "ultimos dados":
+                    final JSONObject dadosLocalAtual = result.getJSONObject("dados").getJSONObject(fragValAtuais.getLocalAtual().getNome());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {setValoresJSON(dadosLocalAtual);}
+                    });
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + pedido);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "postResult: JSONException", e);
+        }
+
+
+
+        /*
+        TODO: Configurar atualização dos gráficos
+         */
     }
 
     public void adicionaDataPoints(String[] strValor, String[] valor){

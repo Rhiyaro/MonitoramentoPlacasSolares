@@ -16,7 +16,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.concurrent.Future;
 
 public class RunnableCliente implements Runnable {
@@ -28,9 +27,11 @@ public class RunnableCliente implements Runnable {
     private static final int portaServidor = 12345;
 
     private String[] params;
-    private JSONObject pacote;
+    private JSONObject pacoteConfig;
 
     private String returnString;
+    private String retorno;
+    private JSONObject pacoteRetorno;
 
     private Future ouvirFuture;
 
@@ -54,32 +55,48 @@ public class RunnableCliente implements Runnable {
     }
 
     public RunnableCliente(IAsyncHandler mHandler, String... params) {
-        if (!(mHandler instanceof LoginAct))
-            if (mHandlerAnt == null)
+        if (!(mHandler instanceof LoginAct)) {
+            if (mHandlerAnt == null) {
                 mHandlerAnt = mHandler;
-            else
+            } else {
                 mHandlerAnt = RunnableCliente.mHandler;
-
+            }
+        }
         RunnableCliente.mHandler = mHandler;
 
         this.params = params;
     }
 
-    public RunnableCliente(IAsyncHandler mHandler, JSONObject pacote) {
-        if (!(mHandler instanceof LoginAct))
-            if (mHandlerAnt == null)
+    public RunnableCliente(IAsyncHandler mHandler, JSONObject pacoteConfig) {
+        if (!(mHandler instanceof LoginAct)) {
+            if (mHandlerAnt == null) {
                 mHandlerAnt = mHandler;
-            else
+            } else {
                 mHandlerAnt = RunnableCliente.mHandler;
-
+            }
+        }
         RunnableCliente.mHandler = mHandler;
 
-        this.pacote = pacote;
+        this.pacoteConfig = pacoteConfig;
+    }
+
+    public RunnableCliente(IAsyncHandler mHandler, JSONObject pacoteConfig, String... params) {
+        if (!(mHandler instanceof LoginAct)) {
+            if (mHandlerAnt == null) {
+                mHandlerAnt = mHandler;
+            } else {
+                mHandlerAnt = RunnableCliente.mHandler;
+            }
+        }
+        RunnableCliente.mHandler = mHandler;
+
+        this.pacoteConfig = pacoteConfig;
+        this.params = params;
     }
 
     public void enviarMsg(String msg) {
         try {
-            bw.write(msg);
+            bw.write(msg+"\n");
             bw.newLine();
             bw.flush();
         } catch (IOException ioex) {
@@ -90,14 +107,34 @@ public class RunnableCliente implements Runnable {
     Runnable ouvir = new Runnable() {
         public void run() {
             while (mHandler == mHandlerAnt) {
-                String retorno = null;
+                retorno = null;
                 try {
                     retorno = br.readLine();
+
+                    if (retorno != null) mHandler.postResult(retorno);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "ouvirException: ", e);
                 }
 
-                if (retorno != null) mHandler.postResult(retorno);
+            }
+            mHandlerAnt = mHandler;
+        }
+    };
+
+    Runnable comunicar = new Runnable() {
+        public void run() {
+            while (mHandler == mHandlerAnt) {
+                pacoteRetorno = null;
+                try {
+                    pacoteRetorno = new JSONObject((String)objIn.readObject());
+                    Log.i(TAG, "comunicar: "+pacoteRetorno.toString());
+                    if (pacoteRetorno != null) mHandler.postResult(pacoteRetorno);
+
+                    Thread.sleep(3000);
+                    objOut.writeObject(pacoteConfig.toString());
+                } catch (IOException | InterruptedException | ClassNotFoundException | JSONException e) {
+                    Log.e(TAG, "comunicarException: ", e);
+                }
             }
             mHandlerAnt = mHandler;
         }
@@ -105,7 +142,7 @@ public class RunnableCliente implements Runnable {
 
     @Override
     public void run() {
-        Thread.currentThread().setName("Thread RunnCliente " + MainActivity.x);
+        //Thread.currentThread().setName("Thread RunnCliente " + MainActivity.x);
         /*
         TODO:   Pensar em trocar a forma de comunicação entre as threads
                 Talvez retirar o Handler criado e utilizar Handlers do java em si
@@ -115,8 +152,8 @@ public class RunnableCliente implements Runnable {
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            objIn = new ObjectInputStream(socket.getInputStream());
-            objOut = new ObjectOutputStream(socket.getOutputStream());
+            if(objIn == null) objIn = new ObjectInputStream(socket.getInputStream());
+            if(objOut == null)objOut = new ObjectOutputStream(socket.getOutputStream());
 
             /*
             Resposta recebida pelo servidor
@@ -140,18 +177,20 @@ public class RunnableCliente implements Runnable {
                 /*
                 Age de acordo com o campo "acao" do pacote
                  */
-                switch (pacote.getString("acao")) {
+                Log.i(TAG, "run: "+pacoteConfig.toString());
+                switch (pacoteConfig.getString("acao")) {
                     case "logar":
                     case "cadastrar":
-                        objOut.writeObject(pacote);
-                        resposta = (JSONObject) objIn.readObject();
+                        objOut.writeObject(pacoteConfig.toString());
+                        resposta = new JSONObject((String)objIn.readObject());
                         break;
                     case "comunicar":
                         /*
-                        TODO: Adaptar resto para JSONOBjects
+                        TODO:   Adaptar resto para JSONOBjects
+                                Checar funcionamento da comunicação
                          */
-                        ouvirFuture = MainActivity.executorServiceCached.submit(ouvir);
-                        enviarMsg(Arrays.toString(params));
+                        objOut.writeObject(pacoteConfig.toString());
+                        ouvirFuture = MainActivity.executorServiceCached.submit(comunicar);
                         break;
                     default:
                         returnString = "ação desconhecida";
@@ -161,14 +200,22 @@ public class RunnableCliente implements Runnable {
                 resposta.put("resultado", "sem conexao");
             }
 
-            mHandler.postResult(resposta);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+            if(!pacoteConfig.getString("acao").equals("comunicar")) mHandler.postResult(resposta);
+        } catch (IOException | JSONException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setPacoteConfig(JSONObject pacoteConfig) {
+        this.pacoteConfig = pacoteConfig;
+    }
+
+    public static void setmHandler(IAsyncHandler mHandler) {
+        RunnableCliente.mHandler = mHandler;
+    }
+
+    public static void setmHandlerAnt(IAsyncHandler mHandlerAnt) {
+        RunnableCliente.mHandlerAnt = mHandlerAnt;
     }
 
     public Future getOuvirFuture() {

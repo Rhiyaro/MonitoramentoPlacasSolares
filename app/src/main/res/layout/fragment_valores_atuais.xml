@@ -82,10 +82,22 @@
 
                 <TextView
                     android:id="@+id/txtValorLuminosidade"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="luminosidade"
+                    android:text="---"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    tools:layout_editor_absoluteX="91dp"
+                    tools:layout_editor_absoluteY="56dp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaLuminosidade"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- L"
+                    android:text="L"
                     android:textSize="18sp"
                     tools:layout_editor_absoluteX="91dp"
                     tools:layout_editor_absoluteY="56dp" />
@@ -107,10 +119,20 @@
 
                 <TextView
                     android:id="@+id/txtValorTPlaca"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="tempPlaca"
+                    android:text="---"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaTPlaca"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- °C"
+                    android:text="°C"
                     android:textSize="18sp" />
 
             </TableRow>
@@ -131,10 +153,20 @@
 
                 <TextView
                     android:id="@+id/txtTensao"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="corrente"
+                    android:text="---"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaTensao"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- V"
+                    android:text="V"
                     android:textSize="18sp" />
             </TableRow>
 
@@ -154,10 +186,20 @@
 
                 <TextView
                     android:id="@+id/txtCorrente"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="tensao"
+                    android:text="---"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaCorrente"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- mA"
+                    android:text="mA"
                     android:textSize="18sp" />
 
             </TableRow>
@@ -194,10 +236,20 @@
 
                 <TextView
                     android:id="@+id/txtPressao"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="pressao"
+                    android:text="---"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaPressao"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- kPa"
+                    android:text="kPa"
                     android:textSize="18sp" />
             </TableRow>
 
@@ -217,10 +269,20 @@
 
                 <TextView
                     android:id="@+id/txtTemp"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="temp"
+                    android:text="---"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaTemp"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- °C"
+                    android:text="°C"
                     android:textSize="18sp" />
 
             </TableRow>
@@ -241,10 +303,20 @@
 
                 <TextView
                     android:id="@+id/txtUmidade"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="umidade"
+                    android:text="---"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaUmidade"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- %"
+                    android:text="%"
                     android:textSize="18sp" />
             </TableRow>
 
@@ -264,10 +336,20 @@
 
                 <TextView
                     android:id="@+id/txtChuva"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="chuva"
+                    android:text="---"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaChuva"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- Ch"
+                    android:text="Ch"
                     android:textSize="18sp" />
             </TableRow>
         </TableLayout>

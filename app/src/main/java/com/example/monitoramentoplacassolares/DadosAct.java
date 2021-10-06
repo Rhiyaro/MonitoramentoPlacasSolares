@@ -26,6 +26,8 @@ import com.example.monitoramentoplacassolares.conexao.Cliente;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.opencsv.CSVWriter;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -172,6 +174,11 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
                 rcDados.setAdapter(mAdapter);
             }
         });
+
+    }
+
+    @Override
+    public void postResult(JSONObject result){
 
     }
 

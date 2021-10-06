@@ -53,8 +53,8 @@ public class FragmentValoresAtuais extends Fragment {
         spPlaca = inf.findViewById(R.id.seletorPlaca);
 
         if(locais.isEmpty()){
-            locais.add(new localMonitoramento("CEFET-NI/RJ", "192.168.25.9", 12345, new placaMonitoramento("Placa Principal", 1)));
-            locais.add(new localMonitoramento("Artigo", "192.168.25.9", 12345, new placaMonitoramento("Linha 1", 1), new placaMonitoramento("Linha 2", 2)));
+            locais.add(new localMonitoramento("cefet", "192.168.25.9", 12345, new placaMonitoramento("Placa Principal", 1)));
+            locais.add(new localMonitoramento("artigo", "192.168.25.9", 12345, new placaMonitoramento("Linha 1", 1), new placaMonitoramento("Linha 2", 2)));
         }
         localAtual = locais.get(0);
         placaAtual = localAtual.getPlacas().get(0);

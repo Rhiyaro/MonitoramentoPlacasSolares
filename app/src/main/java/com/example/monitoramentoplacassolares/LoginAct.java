@@ -57,10 +57,10 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
             pacoteLogin.put("login", edtTxtLogin.getText());
             pacoteLogin.put("senha", edtTxtSenha.getText());
 
-            RunnableCliente runnableCliente = new RunnableCliente(LoginAct.this, pacoteLogin);
+            MainActivity.Cliente = new RunnableCliente(LoginAct.this, pacoteLogin);
             /*RunnableCliente runnableCliente = new RunnableCliente(LoginAct.this,
                     "logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText());*/
-            clienteFuture = MainActivity.executorServiceCached.submit(runnableCliente);
+            clienteFuture = MainActivity.executorServiceCached.submit(MainActivity.Cliente);
 
         } catch (JSONException e) {
             e.printStackTrace();
