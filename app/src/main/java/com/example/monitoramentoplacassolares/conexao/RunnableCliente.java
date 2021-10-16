@@ -11,10 +11,8 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.concurrent.Future;
 
@@ -33,13 +31,14 @@ public class RunnableCliente implements Runnable {
     private String retorno;
     private JSONObject pacoteRetorno;
 
-    private Future ouvirFuture;
+    private Future comunicarFuture;
+    private boolean continuarComunicando;
 
     private ObjectOutputStream objOut;
     private ObjectInputStream objIn;
 
     private static Socket socket = null;
-    private static IAsyncHandler mHandler;
+    public static IAsyncHandler mHandler;
     private static IAsyncHandler mHandlerAnt;
     BufferedReader br;
     BufferedWriter bw;
@@ -123,20 +122,18 @@ public class RunnableCliente implements Runnable {
 
     Runnable comunicar = new Runnable() {
         public void run() {
-            while (mHandler == mHandlerAnt) {
+            while (continuarComunicando) {
                 pacoteRetorno = null;
                 try {
                     pacoteRetorno = new JSONObject((String)objIn.readObject());
-                    Log.i(TAG, "comunicar: "+pacoteRetorno.toString());
-                    if (pacoteRetorno != null) mHandler.postResult(pacoteRetorno);
-
-                    Thread.sleep(3000);
+                    if (pacoteRetorno != null) {
+                        mHandler.postResult(pacoteRetorno);
+                    }
                     objOut.writeObject(pacoteConfig.toString());
-                } catch (IOException | InterruptedException | ClassNotFoundException | JSONException e) {
+                } catch (IOException | ClassNotFoundException | JSONException e) {
                     Log.e(TAG, "comunicarException: ", e);
                 }
             }
-            mHandlerAnt = mHandler;
         }
     };
 
@@ -144,13 +141,14 @@ public class RunnableCliente implements Runnable {
     public void run() {
         //Thread.currentThread().setName("Thread RunnCliente " + MainActivity.x);
         /*
-        TODO:   Pensar em trocar a forma de comunicação entre as threads
+        TODO:   Pensar em (talvez) trocar a forma de comunicação entre as threads
                 Talvez retirar o Handler criado e utilizar Handlers do java em si
          */
         try {
             if (socket == null) socket = new Socket(hostname, portaServidor);
-            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            //TODO: Checar se já é seguro retirar esses readers e writers da classe
+            //br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            //bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
             if(objIn == null) objIn = new ObjectInputStream(socket.getInputStream());
             if(objOut == null)objOut = new ObjectOutputStream(socket.getOutputStream());
@@ -161,19 +159,6 @@ public class RunnableCliente implements Runnable {
             JSONObject resposta = new JSONObject();
 
             if (socket.isConnected()) {
-//                if (Arrays.toString(params).contains("login")) {
-//                    enviarMsg(" ");
-//                    String aux = br.readLine();
-//                    Log.i(TAG, "run: " + aux);
-//                    enviarMsg(Arrays.toString(params));
-//                    String res = br.readLine();
-//                    Log.i(TAG, "run: " + res);
-//                    mHandler.postResult(res);
-//                }else {
-//                    ouvirFuture = MainActivity.executorServiceCached.submit(ouvir);
-//                    Log.i(TAG, "run: " + Arrays.toString(params));
-//                    enviarMsg(Arrays.toString(params));
-//                }
                 /*
                 Age de acordo com o campo "acao" do pacote
                  */
@@ -185,12 +170,9 @@ public class RunnableCliente implements Runnable {
                         resposta = new JSONObject((String)objIn.readObject());
                         break;
                     case "comunicar":
-                        /*
-                        TODO:   Adaptar resto para JSONOBjects
-                                Checar funcionamento da comunicação
-                         */
+                        continuarComunicando = true;
                         objOut.writeObject(pacoteConfig.toString());
-                        ouvirFuture = MainActivity.executorServiceCached.submit(comunicar);
+                        comunicarFuture = MainActivity.executorServiceCached.submit(comunicar);
                         break;
                     default:
                         returnString = "ação desconhecida";
@@ -206,6 +188,10 @@ public class RunnableCliente implements Runnable {
         }
     }
 
+    public void cancelarComunicacao(){
+        continuarComunicando = false;
+    }
+
     public void setPacoteConfig(JSONObject pacoteConfig) {
         this.pacoteConfig = pacoteConfig;
     }
@@ -218,7 +204,11 @@ public class RunnableCliente implements Runnable {
         RunnableCliente.mHandlerAnt = mHandlerAnt;
     }
 
-    public Future getOuvirFuture() {
-        return ouvirFuture;
+    public static IAsyncHandler getmHandler() {
+        return mHandler;
+    }
+
+    public Future getComunicarFuture() {
+        return comunicarFuture;
     }
 }

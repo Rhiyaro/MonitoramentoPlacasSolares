@@ -1,34 +1,83 @@
 package com.example.monitoramentoplacassolares.locais;
 
+import com.example.monitoramentoplacassolares.MainActivity;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 public class placaMonitoramento {
-    String nome;
+    private String nome;
+    private String codigo;
     int id;
 
     private String strValores, valores;
 
-    private LineGraphSeries<DataPoint> serieLumi = new LineGraphSeries<DataPoint>();
-    private LineGraphSeries<DataPoint> serieTPlaca = new LineGraphSeries<DataPoint>();
-    private LineGraphSeries<DataPoint> serieTensao = new LineGraphSeries<DataPoint>();
-    private LineGraphSeries<DataPoint> serieCorrente = new LineGraphSeries<DataPoint>();
-    private LineGraphSeries<DataPoint> seriePressao = new LineGraphSeries<DataPoint>();
-    private LineGraphSeries<DataPoint> serieTemp = new LineGraphSeries<DataPoint>();
-    private LineGraphSeries<DataPoint> serieUmidade = new LineGraphSeries<DataPoint>();
-    private LineGraphSeries<DataPoint> serieChuva = new LineGraphSeries<DataPoint>();
 
-    public placaMonitoramento(String nome, int id){
+    private List<LineGraphSeries<DataPoint>> series = new ArrayList<>();
+
+    private LineGraphSeries<DataPoint> serieLumi = new LineGraphSeries<>();
+    private LineGraphSeries<DataPoint> serieTPlaca = new LineGraphSeries<>();
+    private LineGraphSeries<DataPoint> serieTensao = new LineGraphSeries<>();
+    private LineGraphSeries<DataPoint> serieCorrente = new LineGraphSeries<>();
+    private LineGraphSeries<DataPoint> seriePressao = new LineGraphSeries<>();
+    private LineGraphSeries<DataPoint> serieTemp = new LineGraphSeries<>();
+    private LineGraphSeries<DataPoint> serieUmidade = new LineGraphSeries<>();
+    private LineGraphSeries<DataPoint> serieChuva = new LineGraphSeries<>();
+
+    public placaMonitoramento(String nome, String codigo,int id){
         this.nome = nome;
+        this.codigo = codigo;
         this.id = id;
+        inicializaTitulosSeries();
+    }
+
+    private void inicializaTitulosSeries(){
+        serieLumi.setTitle("luminosidade");
+        series.add(serieLumi);
+
+        serieTPlaca.setTitle("tempPlaca");
+        series.add(serieTPlaca);
+
+        serieTensao.setTitle("tensao");
+        series.add(serieTensao);
+
+        serieCorrente.setTitle("corrente");
+        series.add(serieCorrente);
+
+        seriePressao.setTitle("pressao");
+        series.add(seriePressao);
+
+        serieTemp.setTitle("temp");
+        series.add(serieTemp);
+
+        serieUmidade.setTitle("umidade");
+        series.add(serieUmidade);
+
+        serieChuva.setTitle("chuva");
+        series.add(serieChuva);
+    }
+
+    public void adicionaPonto(String serie, double valor){
+        Iterator<LineGraphSeries<DataPoint>> it = this.series.iterator();
+        String titulo;
+        LineGraphSeries<DataPoint> alvo;
+
+        while(it.hasNext()){
+            alvo = it.next();
+            titulo = alvo.getTitle();
+            if(serie.equals(titulo)){
+                alvo.appendData(new DataPoint(MainActivity.x, valor), false, 100);
+            }
+        }
     }
 
     @Override
     public String toString() {
         return nome;
     }
-
-
 
     public String getNome() {
         return nome;
@@ -42,63 +91,39 @@ public class placaMonitoramento {
         return serieLumi;
     }
 
-    public void setSerieLumi(LineGraphSeries<DataPoint> serieLumi) {
-        this.serieLumi = serieLumi;
-    }
-
     public LineGraphSeries<DataPoint> getSerieTPlaca() {
         return serieTPlaca;
-    }
-
-    public void setSerieTPlaca(LineGraphSeries<DataPoint> serieTPlaca) {
-        this.serieTPlaca = serieTPlaca;
     }
 
     public LineGraphSeries<DataPoint> getSerieTensao() {
         return serieTensao;
     }
 
-    public void setSerieTensao(LineGraphSeries<DataPoint> serieTensao) {
-        this.serieTensao = serieTensao;
-    }
-
     public LineGraphSeries<DataPoint> getSerieCorrente() {
         return serieCorrente;
-    }
-
-    public void setSerieCorrente(LineGraphSeries<DataPoint> serieCorrente) {
-        this.serieCorrente = serieCorrente;
     }
 
     public LineGraphSeries<DataPoint> getSeriePressao() {
         return seriePressao;
     }
 
-    public void setSeriePressao(LineGraphSeries<DataPoint> seriePressao) {
-        this.seriePressao = seriePressao;
-    }
-
     public LineGraphSeries<DataPoint> getSerieTemp() {
         return serieTemp;
-    }
-
-    public void setSerieTemp(LineGraphSeries<DataPoint> serieTemp) {
-        this.serieTemp = serieTemp;
     }
 
     public LineGraphSeries<DataPoint> getSerieUmidade() {
         return serieUmidade;
     }
 
-    public void setSerieUmidade(LineGraphSeries<DataPoint> serieUmidade) {
-        this.serieUmidade = serieUmidade;
-    }
-
     public LineGraphSeries<DataPoint> getSerieChuva() {
         return serieChuva;
     }
 
-    public void setSerieChuva(LineGraphSeries<DataPoint> serieChuva) {
-        this.serieChuva = serieChuva;
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public List<LineGraphSeries<DataPoint>> getSeries() {
+        return series;
     }
 }

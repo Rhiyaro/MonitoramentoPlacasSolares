@@ -5,136 +5,112 @@ import android.util.Log;
 import com.example.monitoramentoplacassolares.MainActivity;
 import com.jjoe64.graphview.series.DataPoint;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class localMonitoramento {
     public static final String TAG = "localMonitoramento";
 
-    /*TODO: Reformular classe para ser criada a partir do objeto lido do
-            banco de dados
-      TODO: Remontar métodos para trabalhar com JSON Object
+    /*TODO: Reformular classe para ser criada a partir de objeto lido do
+            banco de dados -> Locais ainda não colocados no Banco! (EM STANDBY)
+      TODO: Remontar métodos para trabalhar com JSON Object -> EM ANDAMENTO
      */
 
     private String nome;
+    private String codigo;
     private String ip;
     private int port;
     private List<placaMonitoramento> placas = new ArrayList<placaMonitoramento>();
+    private placaMonitoramento placaMedia;
 
-    public localMonitoramento(String nome, String ip, int port) {
+    public localMonitoramento(String nome, String codigo, String ip, int port) {
         this.nome = nome;
+        this.codigo = codigo;
         this.ip = ip;
         this.port = port;
 
         for(int i = 1; i<=10; i++){
-            this.placas.add(new placaMonitoramento("Placa " + i, i));
+            this.placas.add(new placaMonitoramento("Placa " + i, "placa"+i, i));
         }
     }
 
-    public localMonitoramento(String nome, String ip, int port, placaMonitoramento... placas) {
+    public localMonitoramento(String nome, String codigo, String ip, int port, placaMonitoramento... placas) {
         this.nome = nome;
+        this.codigo = codigo;
         this.ip = ip;
         this.port = port;
-        if(placas.length > 1) this.placas.add(new placaMonitoramento("Média", -1));
-        //this.placas = Arrays.asList(placas);
+        if(placas.length > 1) {
+            this.placaMedia = new placaMonitoramento("Média", "media",0);
+            this.placas.add(placaMedia);
+        } else {
+            this.placaMedia = placas[0];
+        }
         Collections.addAll(this.placas, placas);
-        Log.i(TAG, "constructor 2: " + this.placas.toString());
     }
 
-    public localMonitoramento(String nome, String ip, int port, List<placaMonitoramento> placas) {
+    public localMonitoramento(String nome, String codigo, String ip, int port, List<placaMonitoramento> placas) {
         this.nome = nome;
+        this.codigo = codigo;
         this.ip = ip;
         this.port = port;
-        if(placas.size() > 1) this.placas.add(new placaMonitoramento("Média", -1));
-        this.placas = placas;
+        if(placas.size() > 1) {
+            this.placaMedia = new placaMonitoramento("Média", "media",0);
+            this.placas.add(placaMedia);
+        } else {
+            this.placaMedia = placas.get(0);
+        }
+        this.placas.addAll(placas);
     }
 
-    public void adicionaDataPoints(String[] strValores, String[] valores){
+    /**
+     * Adiciona os dados às séries de cada placa do local
+     * @param dados JSONObject contendo os dados a serem adicionados
+     */
+    public void adicionaDataPoints(JSONObject dados){
+        /*
+        TODO:   Criar nova versão do método utilizando JSONObjects
+                Feito -> Testar!
+         */
+
+        String chave;
+        JSONArray arrayAux;
+        double media = 0, valor;
 
         /*
-            Checa se existe somente uma linha/placa. Nesse caso, irá retirar a média de informações que possuem
-            mais de uma aparição e adicionar ao primeiro caso. Também modifica as outras aparições de forma
-            que não se repita o processo
+        Retira um Iterator contendo as chaves e itera sobre os itens enquanto houver
          */
-        int count, total, totalPlacas = placas.size();
-        if(totalPlacas == 1){
-            for (int i = 0; i<strValores.length-1; i++) {
-                if(strValores[i].equals("adicionado")) continue;
-                count = 1;
-                total = Integer.parseInt(valores[i]);
-                for (int j = i+1; j<strValores.length; j++) {
-                    if(strValores[i].replaceAll("[0-9]*", "").matches(strValores[j].replaceAll("[0-9]*", ""))){
-                        total += Integer.parseInt(valores[j]);
-                        count++;
-                        strValores[j] = "adicionado";
-                    }
-                }
-                valores[i] = "" + total/count;
-            }
-        }
+        Iterator<String> chaves = dados.keys();
+        while(chaves.hasNext()){
+            chave = chaves.next();
 
-        for (int i = 0; i<strValores.length; i++) {
             /*
-                Checa se a informação tem algum número, indicando que é de uma linha/placa especifica
-                Caso tenha, irá adicionar a informação à placa correspondente, se não, adiciona à todas
-                e diretamente à Média
+            Checa se o dado é um JSONArray, significando que continha mais de um valor pelo tipo
+            de dado (e.g temp1 e temp2)
              */
-            int idPlacaAdd = totalPlacas == 1 ? 1 : -1;
-            if(strValores[i].matches(".*\\d")){
-                /*
-                    Retira o número do meio da string, que irá corresponder ao ID
-                    Adiciona-se o 0 no inicio para dar o split em qualquer caractere não dígito
-                    Assim, a posição [1] do resultado é o número desejado, o ID e a posição na lista
-                 */
-                idPlacaAdd = Integer.parseInt("0" + strValores[i].split("\\D+")[1]);
-            }
-
-            placaMonitoramento placaAAdd = placas.get(idPlacaAdd);
-
-            if (strValores[i].contains("luminosidade")){
-                    placaAAdd.getSerieLumi().appendData(new DataPoint(MainActivity.x, Integer.parseInt(valores[i])), false, 100);
-
-            }
-
-            else if (strValores[i].contains("tempPlaca")){
-                    placaAAdd.getSerieTPlaca().appendData(new DataPoint(MainActivity.x, Integer.parseInt(valores[i])), false, 100);
-
-            }
-
-            else if (strValores[i].contains("temp")){
-                    placaAAdd.getSerieTemp().appendData(new DataPoint(MainActivity.x, Integer.parseInt(valores[i])), false, 100);
-
-            }
-
-            else if (strValores[i].contains("chuva")){
-                    placaAAdd.getSerieChuva().appendData(new DataPoint(MainActivity.x, Integer.parseInt(valores[i])), false, 100);
-
-            }
-
-            else if (strValores[i].contains("tensao")){
-                    placaAAdd.getSerieTensao().appendData(new DataPoint(MainActivity.x, Integer.parseInt(valores[i])), false, 100);
-
-            }
-            else if (strValores[i].contains("pressao")) {
-                    placaAAdd.getSeriePressao().appendData(new DataPoint(MainActivity.x, Integer.parseInt(valores[i])), false, 100);
-
-            }
-
-            else if (strValores[i].contains("umidade")) {
-                    placaAAdd.getSerieUmidade().appendData(new DataPoint(MainActivity.x, Integer.parseInt(valores[i])), false, 100);
-
-            }
-
-            else if (strValores[i].contains("corrente")){
-                    placaAAdd.getSerieCorrente().appendData(new DataPoint(MainActivity.x, Integer.parseInt(valores[i])), false, 100);
-
+            arrayAux = dados.optJSONArray(chave);
+            if(arrayAux == null){ // Se não for, adiciona o dado à placa 'Média' -> "dado pertence a todas as placas" (à matriz)
+                this.placaMedia.adicionaPonto(chave, dados.optDouble(chave));
+            } else { // Se for, retira a média dos valores para adicionar na placa 'Média' e adiciona cada valor à sua placa
+                for (int i = 0; i < arrayAux.length(); i++) {
+                     valor = arrayAux.optDouble(i);
+                     media += valor;
+                     if(this.placas.size() > 1) {
+                         this.placas.get(i+1).adicionaPonto(chave, valor);
+                     }
+                }
+                media /= arrayAux.length();
+                this.placaMedia.adicionaPonto(chave, media);
             }
         }
     }
 
-    public void adicionaDataPointsTeste(String[] strValores, String[] valores){
+    public void adicionaDataPointsStrings(String[] strValores, String[] valores){
 
         int count, total, totalPlacas = placas.size(), idPlaca;
         String dado;
@@ -207,41 +183,20 @@ public class localMonitoramento {
     public void adicionaPoint(String serie, int valor, int placaId){
         if (serie.contains("luminosidade")){
             placas.get(placaId).getSerieLumi().appendData(new DataPoint(MainActivity.x, valor), false, 100);
-
-        }
-
-        else if (serie.contains("tempPlaca")){
+        } else if (serie.contains("tempPlaca")){
             placas.get(placaId).getSerieTPlaca().appendData(new DataPoint(MainActivity.x, valor), false, 100);
-
-        }
-
-        else if (serie.contains("temp")){
+        }else if (serie.contains("temp")){
             placas.get(placaId).getSerieTemp().appendData(new DataPoint(MainActivity.x, valor), false, 100);
-
-        }
-
-        else if (serie.contains("chuva")){
+        }else if (serie.contains("chuva")){
             placas.get(placaId).getSerieChuva().appendData(new DataPoint(MainActivity.x, valor), false, 100);
-
-        }
-
-        else if (serie.contains("tensao")){
+        }else if (serie.contains("tensao")){
             placas.get(placaId).getSerieTensao().appendData(new DataPoint(MainActivity.x, valor), false, 100);
-
-        }
-        else if (serie.contains("pressao")) {
+        }else if (serie.contains("pressao")) {
             placas.get(placaId).getSeriePressao().appendData(new DataPoint(MainActivity.x, valor), false, 100);
-
-        }
-
-        else if (serie.contains("umidade")) {
+        }else if (serie.contains("umidade")) {
             placas.get(placaId).getSerieUmidade().appendData(new DataPoint(MainActivity.x, valor), false, 100);
-
-        }
-
-        else if (serie.contains("corrente")){
+        }else if (serie.contains("corrente")){
             placas.get(placaId).getSerieCorrente().appendData(new DataPoint(MainActivity.x, valor), false, 100);
-
         }
     }
 
@@ -252,6 +207,10 @@ public class localMonitoramento {
 
     public String getNome() {
         return nome;
+    }
+
+    public String getCodigo() {
+        return codigo;
     }
 
     public void setNome(String nome) {

@@ -48,7 +48,11 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
     }
 
     public void logar(View view) {
-        //TODO: Refatorar todo o código para funcionar com o CallableClient e Futures
+        /*
+        TODO: Refatorar todo o código para funcionar com o CallableClient e Futures -> Checar
+                se ainda será interessante
+         */
+        Log.i(TAG, "logar: logando");
 
         JSONObject pacoteLogin = new JSONObject();
 

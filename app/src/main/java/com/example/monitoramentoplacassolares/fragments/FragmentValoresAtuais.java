@@ -40,7 +40,7 @@ public class FragmentValoresAtuais extends Fragment {
     public String grafAtual = "";
 
     public IAsyncHandler mHandler;
-    public Future clienteFuture, ouvirFuture;
+    public Future clienteFuture, comunicarFuture;
 
     public static ArrayList<localMonitoramento> locais = new ArrayList<localMonitoramento>();
 
@@ -53,8 +53,8 @@ public class FragmentValoresAtuais extends Fragment {
         spPlaca = inf.findViewById(R.id.seletorPlaca);
 
         if(locais.isEmpty()){
-            locais.add(new localMonitoramento("cefet", "192.168.25.9", 12345, new placaMonitoramento("Placa Principal", 1)));
-            locais.add(new localMonitoramento("artigo", "192.168.25.9", 12345, new placaMonitoramento("Linha 1", 1), new placaMonitoramento("Linha 2", 2)));
+            locais.add(new localMonitoramento("CEFET-RJ/NI", "cefet","192.168.25.9", 12345, new placaMonitoramento("Placa Principal", "main",0)));
+            locais.add(new localMonitoramento("Artigo", "artigo","192.168.25.9", 12345, new placaMonitoramento("Linha 1", "linha1",1), new placaMonitoramento("Linha 2", "linha2",2)));
         }
         localAtual = locais.get(0);
         placaAtual = localAtual.getPlacas().get(0);
@@ -114,6 +114,7 @@ public class FragmentValoresAtuais extends Fragment {
     public AdapterView.OnItemSelectedListener selecaoLocal = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            //TODO: Atualizar seleção de local do dropList
             //Toast.makeText(adapterView.getContext(), adapterView.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
 
             localMonitoramento localSelecionado = FragmentValoresAtuais.locais.get(0);
@@ -151,6 +152,7 @@ public class FragmentValoresAtuais extends Fragment {
     public AdapterView.OnItemSelectedListener selecaoPlaca = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            //TODO: Atualizar seleção de placa do dropList
             //Toast.makeText(adapterView.getContext(), adapterView.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
             placaMonitoramento placaSelecionada = localAtual.getPlacas().get(0);
 //            for(placaMonitoramento plc : localAtual.getPlacas()){
@@ -179,11 +181,12 @@ public class FragmentValoresAtuais extends Fragment {
     };
 
     public void novoLocal(localMonitoramento novoLocal, IAsyncHandler mHandler){
+        //TODO: Atualizar controle de local e placa atual
         clienteFuture.cancel(true);
 //        ouvirFuture.cancel(true);
 
         RunnableCliente runnableCliente = new RunnableCliente(mHandler, "ultimos dados", novoLocal.getNome());
-        ouvirFuture = runnableCliente.getOuvirFuture();
+        comunicarFuture = runnableCliente.getComunicarFuture();
         clienteFuture = MainActivity.executorServiceCached.submit(runnableCliente);
     }
 
