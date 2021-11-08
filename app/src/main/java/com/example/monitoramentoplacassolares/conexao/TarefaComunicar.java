@@ -32,7 +32,8 @@ public class TarefaComunicar extends TarefaCliente {
         super(askerHandler, resultHandler, pacotePedido);
     }
 
-    public void configuraComunicacao(Socket socket, ObjectInputStream objIn, ObjectOutputStream objOut) {
+    @Override
+    public void configuraConexao(Socket socket, ObjectInputStream objIn, ObjectOutputStream objOut) {
         this.socket = socket;
         this.objIn = objIn;
         this.objOut = objOut;
@@ -40,7 +41,8 @@ public class TarefaComunicar extends TarefaCliente {
 
     public void executar() {
         continuarComunicando = true;
-        MainActivity.executorServiceCached.submit(this);
+        //MainActivity.executorServiceCached.submit(this);
+        run();
     }
 
     @Override

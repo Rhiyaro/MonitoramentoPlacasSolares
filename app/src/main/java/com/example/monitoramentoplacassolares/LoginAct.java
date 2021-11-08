@@ -80,7 +80,8 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
                     pacoteLogin.put("senha", edtTxtSenha.getText());
 
                     MainActivity.Cliente = new RunnableCliente();
-                    MainActivity.Cliente.iniciaCliente();
+                    //MainActivity.Cliente.iniciaCliente();
+                    //MainActivity.executorServiceCached.submit(MainActivity.Cliente.iniciar);
 
                     TarefaMensagem tarefaLogin = new TarefaMensagem( this, pacoteLogin);
 

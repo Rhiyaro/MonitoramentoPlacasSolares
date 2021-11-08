@@ -1,5 +1,7 @@
 package com.example.monitoramentoplacassolares.conexao;
 
+import android.util.Log;
+
 import com.example.monitoramentoplacassolares.MainActivity;
 
 import org.json.JSONException;
@@ -27,7 +29,8 @@ public class TarefaMensagem extends TarefaCliente {
         super(askerHandler, resultHandler, pacotePedido);
     }
 
-    public void configuraComunicacao(Socket socket, ObjectInputStream objIn, ObjectOutputStream objOut){
+    @Override
+    public void configuraConexao(Socket socket, ObjectInputStream objIn, ObjectOutputStream objOut) {
         this.socket = socket;
         this.objIn = objIn;
         this.objOut = objOut;
@@ -35,14 +38,23 @@ public class TarefaMensagem extends TarefaCliente {
 
     @Override
     public void executar() {
-        MainActivity.executorServiceCached.submit(this);
+        //MainActivity.executorServiceCached.submit(this);
+        run();
     }
 
     @Override
     public void run() {
+        Log.i(TAG, "run start: \n"+getPacotePedido().toString());
+        if(socket == null){
+            Log.i(TAG, "run: socket is null");
+        } else {
+            Log.i(TAG, "run: socket is NOT null");
+            Log.i(TAG, "run: "+socket.isConnected());
+        }
         JSONObject resposta = new JSONObject();
         try {
             if (socket.isConnected()) {
+                Log.i(TAG, "run: \ncorpo metodo run");
                 objOut.writeObject(getPacotePedido().toString());
 
                 resposta = new JSONObject((String) objIn.readObject());
@@ -50,6 +62,7 @@ public class TarefaMensagem extends TarefaCliente {
                 getResultHandler().postResult(resposta);
             }
         } catch (ConnectException | SocketTimeoutException e) {
+            Log.e(TAG, "run exeception: ", e);
             try {
                 resposta.put("resultado", "sem conexao");
                 getResultHandler().postResult(resposta);
@@ -57,6 +70,7 @@ public class TarefaMensagem extends TarefaCliente {
                 jsonException.printStackTrace();
             }
         } catch (IOException | ClassNotFoundException | JSONException e) {
+            Log.e(TAG, "run exeception: ", e);
             e.printStackTrace();
         }
     }

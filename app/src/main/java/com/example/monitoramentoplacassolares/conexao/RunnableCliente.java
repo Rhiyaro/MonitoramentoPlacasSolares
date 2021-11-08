@@ -8,6 +8,7 @@ import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,10 +36,10 @@ public class RunnableCliente implements Runnable {
     private Future clienteFuture;
     private boolean continuarComunicando;
 
+    private Socket socket = null;
     private ObjectOutputStream objOut;
     private ObjectInputStream objIn;
 
-    private static Socket socket = null;
     public static IAsyncHandler mHandler;
     private static IAsyncHandler mHandlerAnt;
 
@@ -47,7 +48,7 @@ public class RunnableCliente implements Runnable {
 
     private ArrayList<LocalMonitoramento> locais = new ArrayList<LocalMonitoramento>();
 
-    public RunnableCliente(){
+    public RunnableCliente() {
 
     }
 
@@ -101,61 +102,88 @@ public class RunnableCliente implements Runnable {
         this.params = params;
     }
 
-    public void iniciaCliente(){
-        try{
+    public void iniciaCliente() {
+        Log.i(TAG, "iniciaCliente: \niniciando cliente");
+        try {
             if (socket == null || !socket.isConnected()) {
                 socket = new Socket();
                 SocketAddress socketAddress = new InetSocketAddress(hostname, portaServidor);
                 socket.connect(socketAddress, 1000);
+                Log.i(TAG, "iniciaCliente: socket conectado " + socket.isConnected());
             }
             if (socket.isConnected()) {
-                if (objIn == null) objIn = new ObjectInputStream(socket.getInputStream());
-                if (objOut == null) objOut = new ObjectOutputStream(socket.getOutputStream());
+                if (objIn == null) {
+                    objIn = new ObjectInputStream(socket.getInputStream());
+                    Log.i(TAG, "iniciaCliente: " + objIn.toString());
+                }
+                if (objOut == null) {
+                    objOut = new ObjectOutputStream(socket.getOutputStream());
+                    Log.i(TAG, "iniciaCliente: " + objOut.toString());
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void novaTarefa(TarefaCliente novaTarefa){
+    public Runnable iniciar = new Runnable() {
+        @Override
+        public void run() {
+            iniciaCliente();
+        }
+    };
+
+    public void novaTarefa(TarefaCliente novaTarefa) {
+        Log.i(TAG, "novaTarefa: \npacotePedido: " + novaTarefa.getPacotePedido().toString());
+
         tarefas.add(novaTarefa);
 
-        if(tarefas.size() == 1 && clienteFuture.isCancelled()){
+        if (tarefas.size() == 1 && (clienteFuture == null || clienteFuture.isCancelled())) {
+            Log.i(TAG, "novaTarefa: \niniciando cliente");
             clienteFuture = MainActivity.executorServiceCached.submit(this);
         }
     }
 
-    private void proximaTarefa(){
+    private void proximaTarefa() {
         TarefaCliente tarefaAtual = tarefas.get(0);
-
-        if(tarefaAtual instanceof TarefaComunicar){
-            novaTarefa(tarefaAtual);
-        }
 
         tarefas.remove(0);
 
-        if(tarefas.isEmpty()){
+        if (tarefaAtual instanceof TarefaComunicar && !tarefas.contains(tarefaAtual)) {
+            novaTarefa(tarefaAtual);
+        }
+
+        if (tarefas.isEmpty()) {
             clienteFuture.cancel(false);
         }
     }
 
-    private void executaTarefa(TarefaCliente tarefa){
-        if (socket.isConnected()) {
-            tarefa.executar();
-        }
+    private synchronized void executaTarefa(TarefaCliente tarefa) {
+        Log.i(TAG, "executaTarefa:)");
+        Log.i(TAG, "executaTarefa: " + tarefa.toString() + "--\npacote: " + tarefa.getPacotePedido().toString());
+
+        tarefa.configuraConexao(socket, objIn, objOut);
+
+        tarefa.executar();
     }
 
     @Override
     public void run() {
-        while(!clienteFuture.isCancelled()){
-            if(!tarefas.isEmpty()) {
+        Log.i(TAG, "run: \n cliente run");
+        iniciaCliente();
+
+
+        while (!clienteFuture.isCancelled()) {
+            if (!tarefas.isEmpty()) {
                 executaTarefa(tarefas.get(0));
+
+                proximaTarefa();
             }
-            proximaTarefa();
         }
+
     }
 
-    public void cancelarComunicacao(){
+    public void cancelarComunicacao() {
         continuarComunicando = false;
     }
 
@@ -193,5 +221,17 @@ public class RunnableCliente implements Runnable {
 
     public void setClienteFuture(Future clienteFuture) {
         this.clienteFuture = clienteFuture;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public ObjectOutputStream getObjOut() {
+        return objOut;
+    }
+
+    public ObjectInputStream getObjIn() {
+        return objIn;
     }
 }

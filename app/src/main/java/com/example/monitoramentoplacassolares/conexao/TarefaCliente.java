@@ -2,6 +2,10 @@ package com.example.monitoramentoplacassolares.conexao;
 
 import org.json.JSONObject;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
 public abstract class TarefaCliente implements Runnable{
     public static final String TAG = "TarefaCliente";
 
@@ -25,6 +29,8 @@ public abstract class TarefaCliente implements Runnable{
     }
 
     public abstract void executar();
+
+    public abstract void configuraConexao(Socket socket, ObjectInputStream objIn, ObjectOutputStream objOut);
 
     public IAsyncHandler getAskerHandler() {
         return askerHandler;

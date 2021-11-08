@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.view.GravityCompat;
@@ -201,8 +202,10 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
             e.printStackTrace();
         }
 
-        MainActivity.Cliente.setPacoteConfig(pacotePedido);
-        MainActivity.executorServiceCached.submit(MainActivity.Cliente);
+//        MainActivity.Cliente.setPacoteConfig(pacotePedido);
+//        MainActivity.executorServiceCached.submit(MainActivity.Cliente);
+        TarefaMensagem tarefaMensagem = new TarefaMensagem(this, pacotePedido);
+        MainActivity.Cliente.novaTarefa(tarefaMensagem);
     }
 
     public void goAct(View v, Class act){

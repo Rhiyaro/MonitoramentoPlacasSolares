@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi;
 
 import com.example.monitoramentoplacassolares.conexao.GerenciadorDados;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
+import com.example.monitoramentoplacassolares.conexao.TarefaComunicar;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.google.android.material.navigation.NavigationView;
@@ -112,32 +113,38 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
         gerenciadorDados = new GerenciadorDados(this, fragValAtuais);
 
-        if(MainActivity.Cliente == null){
-            JSONObject pacoteComunicacao = new JSONObject();
+//        if(MainActivity.Cliente == null){
+//            JSONObject pacoteComunicacao = new JSONObject();
+//
+//            try {
+//                pacoteComunicacao.put("acao", "comunicar");
+//                pacoteComunicacao.put("pedido", "ultimos dados");
+//            } catch (JSONException e) {
+//                Log.e(TAG, "onCreate: ", e);
+//            }
+//
+//            MainActivity.Cliente.setGerenciadorDados(gerenciadorDados);
+//            MainActivity.Cliente.setPacoteConfig(pacoteComunicacao);
+//            RunnableCliente.setmHandler(this);
+//            RunnableCliente.setmHandlerAnt(this);
+//
+//            MainActivity.Cliente.setLocais(fragValAtuais.locais);
+//        }
+//        fragValAtuais.clienteFuture = executorServiceCached.submit(Cliente);
+//        fragValAtuais.mHandler = (IAsyncHandler) this;
+        JSONObject pacoteComunicacao = new JSONObject();
 
-            try {
-                pacoteComunicacao.put("acao", "comunicar");
-                pacoteComunicacao.put("pedido", "ultimos dados");
-                //pacoteComunicacao.put("local", "CEFET");
-            } catch (JSONException e) {
-                Log.e(TAG, "onCreate: ", e);
-            }
-
-            MainActivity.Cliente.setPacoteConfig(pacoteComunicacao);
-            MainActivity.Cliente.setGerenciadorDados(gerenciadorDados);
-            RunnableCliente.setmHandler(this);
-            RunnableCliente.setmHandlerAnt(this);
-
-            MainActivity.Cliente.setLocais(fragValAtuais.locais);
+        try {
+            pacoteComunicacao.put("acao", "comunicar");
+            pacoteComunicacao.put("pedido", "ultimos dados");
+        } catch (JSONException e) {
+            Log.e(TAG, "onCreate: ", e);
         }
+        TarefaComunicar tarefaComunicar = new TarefaComunicar(this, pacoteComunicacao);
+        tarefaComunicar.configuraConexao(Cliente.getSocket(), Cliente.getObjIn(), Cliente.getObjOut());
 
-        // Configura e roda com o cliente padrão, recebendo dados do "CEFET"
+        Cliente.novaTarefa(tarefaComunicar);
 
-
-        //RunnableCliente runnableCliente = new RunnableCliente(MainActivity.this, "ultimos dados", "CEFET");//, ((FragmentValoresAtuais)fragments[0]).getLocalAtual().getNome()
-        //RunnableCliente runnableCliente = new RunnableCliente(MainActivity.this, pacoteComunicacao, "ultimos dados", "CEFET");
-        fragValAtuais.clienteFuture = executorServiceCached.submit(Cliente);
-        fragValAtuais.mHandler = (IAsyncHandler) this;
 
         // Inicia os gráficos
         serieLumi = new LineGraphSeries<>();
@@ -256,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
     /**
      * Seta os valores da tela principal para os últimos dados recebidos
+     *
      * @param dados objeto contendo os dados que devem ser mostrados
      */
     @SuppressLint("SetTextI18n")
@@ -269,9 +277,10 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
     /**
      * Seta o valor em seu devido TxtView
-     * @param txtView Qual TxtView irá mostrar o valor
+     *
+     * @param txtView  Qual TxtView irá mostrar o valor
      * @param conjunto Objeto contendo os dados
-     * @param dado Qual dado deve ser buscado no conjunto
+     * @param dado     Qual dado deve ser buscado no conjunto
      */
     private void setTxtView(final TextView txtView, JSONObject conjunto, String dado) {
         /*
@@ -302,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                         VALOR_A_SETAR = String.format("%s", valor);
                     } else {
                         //txtView.setText(conjunto.optJSONArray(dado).get(idPlaca).toString());
-                        VALOR_A_SETAR = conjunto.optJSONArray(dado).get(idPlaca-1).toString();
+                        VALOR_A_SETAR = conjunto.optJSONArray(dado).get(idPlaca - 1).toString();
                     }
                 }
             } else { // caso o local não possua o tipo de dado, seta como "nulo"
@@ -320,15 +329,15 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         }
     }
 
-    private void adicionaDataPoints(JSONObject dados){
+    private void adicionaDataPoints(JSONObject dados) {
         Iterator<LocalMonitoramento> locaisIt = fragValAtuais.locais.iterator();
         JSONObject dadosLocal;
         LocalMonitoramento localAux;
 
-        while(locaisIt.hasNext()){
+        while (locaisIt.hasNext()) {
             localAux = locaisIt.next();
             dadosLocal = dados.optJSONObject(localAux.getCodigo());
-            if(dadosLocal != null){
+            if (dadosLocal != null) {
                 localAux.adicionaDataPoints(dadosLocal);
             }
         }
@@ -376,6 +385,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     /**
      * Método de controle e comunicação entre as threads. Normalmente é chamado a partir de outro
      * objeto rodando em outra thread
+     *
      * @param result Algum tipo de resultado obtido dessa outra thread
      */
     @Override
