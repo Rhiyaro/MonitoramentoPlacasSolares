@@ -7,8 +7,10 @@ import android.os.Environment;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.monitoramentoplacassolares.conexao.GerenciadorDados;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
+import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -43,6 +45,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,9 +54,9 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
     public static final String TAG = "MainActivity";
 
-    //public static String phoneToken;
-
     public MyFirebaseMessagingService msgServ = new MyFirebaseMessagingService();
+
+    public GerenciadorDados gerenciadorDados;
 
     private Boolean sair;
     private LineGraphSeries<DataPoint> serieLumi, serieTPlaca, serieTensao, serieCorrente, seriePressao,
@@ -69,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
     public static RunnableCliente Cliente;
 
-    private FragmentValoresAtuais fragValAtuais;
-    private String ultimoLocal = "", ultimaPlaca = "";
+    public FragmentValoresAtuais fragValAtuais;
+    public String ultimoLocal = "", ultimaPlaca = "";
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -106,20 +110,26 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        JSONObject pacoteComunicacao = new JSONObject();
+        gerenciadorDados = new GerenciadorDados(this, fragValAtuais);
 
-        try {
-            pacoteComunicacao.put("acao", "comunicar");
-            pacoteComunicacao.put("pedido", "ultimos dados");
-            //pacoteComunicacao.put("local", "CEFET");
-        } catch (JSONException e) {
-            Log.e(TAG, "onCreate: ", e);
+        if(MainActivity.Cliente == null){
+            JSONObject pacoteComunicacao = new JSONObject();
+
+            try {
+                pacoteComunicacao.put("acao", "comunicar");
+                pacoteComunicacao.put("pedido", "ultimos dados");
+                //pacoteComunicacao.put("local", "CEFET");
+            } catch (JSONException e) {
+                Log.e(TAG, "onCreate: ", e);
+            }
+
+            MainActivity.Cliente.setPacoteConfig(pacoteComunicacao);
+            MainActivity.Cliente.setGerenciadorDados(gerenciadorDados);
+            RunnableCliente.setmHandler(this);
+            RunnableCliente.setmHandlerAnt(this);
+
+            MainActivity.Cliente.setLocais(fragValAtuais.locais);
         }
-
-        MainActivity.Cliente.setPacoteConfig(pacoteComunicacao);
-        RunnableCliente.setmHandler(this);
-        RunnableCliente.setmHandlerAnt(this);
-
 
         // Configura e roda com o cliente padrão, recebendo dados do "CEFET"
 
@@ -168,9 +178,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
      */
     @SuppressLint("SetTextI18n")
     private void setValoresPlaca(String[] strValor, String[] valor, int idPlaca) {
-        //TODO: Refazer o método para utilizar os JSON Objects -> setValoresJSON
-
-
         /*
           Reseta todos os textViews para o caso de um local ter algum tipo de dado que outro
           não tem
@@ -247,48 +254,42 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         }
     }
 
+    /**
+     * Seta os valores da tela principal para os últimos dados recebidos
+     * @param dados objeto contendo os dados que devem ser mostrados
+     */
     @SuppressLint("SetTextI18n")
-    private void setValoresJSON(JSONObject dados) {
-//        txtViewValores[0][0] = inf.findViewById(R.id.txtValorLuminosidade);
-//        txtViewValores[1][0] = inf.findViewById(R.id.txtValorTPlaca);
-//        txtViewValores[2][0] = inf.findViewById(R.id.txtTensao);
-//        txtViewValores[3][0] = inf.findViewById(R.id.txtCorrente);
-//        txtViewValores[0][1] = inf.findViewById(R.id.txtPressao);
-//        txtViewValores[1][1] = inf.findViewById(R.id.txtTemp);
-//        txtViewValores[2][1] = inf.findViewById(R.id.txtUmidade);
-//        txtViewValores[3][1] = inf.findViewById(R.id.txtChuva);
-
+    public void setValoresJSON(JSONObject dados) {
         for (int i = 0; i < fragValAtuais.txtViewValores.length; i++) {
             for (int j = 0; j < fragValAtuais.txtViewValores[i].length; j++) {
                 setTxtView(fragValAtuais.txtViewValores[i][j], dados, fragValAtuais.txtViewValores[i][j].getHint().toString());
             }
         }
-
-//        setTxtView(fragValAtuais.txtViewValores[0][0], dados, "luminosidade");
-//        setTxtView(fragValAtuais.txtViewValores[1][0], dados, "tempPlaca");
-//        setTxtView(fragValAtuais.txtViewValores[2][0], dados, "tensao");
-//        setTxtView(fragValAtuais.txtViewValores[3][0], dados, "corrente");
-//        setTxtView(fragValAtuais.txtViewValores[0][1], dados, "pressao");
-//        setTxtView(fragValAtuais.txtViewValores[1][1], dados, "temp");
-//        setTxtView(fragValAtuais.txtViewValores[2][1], dados, "umidade");
-//        setTxtView(fragValAtuais.txtViewValores[3][1], dados, "chuva");
     }
 
-    private void setTxtView(TextView txtView, JSONObject conjunto, String dado) {
+    /**
+     * Seta o valor em seu devido TxtView
+     * @param txtView Qual TxtView irá mostrar o valor
+     * @param conjunto Objeto contendo os dados
+     * @param dado Qual dado deve ser buscado no conjunto
+     */
+    private void setTxtView(final TextView txtView, JSONObject conjunto, String dado) {
         /*
         Recupera o id da placa selecionada no momento.
          */
         int idPlaca = fragValAtuais.getPlacaAtual().getId();
         double valor = 0;
+        final String VALOR_A_SETAR;
         JSONArray arrayAux;
         try {
-            // se a fonte dos dados tem o tipo de dado
+            // se a fonte dos dados tem o tipo de dado, i.e. se o local selecionado tem o tipo de dado
             if (conjunto.has(dado)) {
                 // se a amostra do tipo de dados for um array significa que existe mais de uma entrada
                 // se não, o dado pertence à matriz toda, isto é, a todas as placas
                 arrayAux = conjunto.optJSONArray(dado);
                 if (arrayAux == null) {
-                    txtView.setText(conjunto.opt(dado).toString());
+                    //txtView.setText(conjunto.opt(dado).toString());
+                    VALOR_A_SETAR = conjunto.opt(dado).toString();
                 } else {
                     // se a placa seleciona for a placaMédia, retira a média dos valores
                     // se não, retira o valor referente a placa específica
@@ -297,16 +298,39 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                             valor += arrayAux.optDouble(i);
                         }
                         valor /= arrayAux.length();
-                        txtView.setText(String.format("%s", valor));
+                        //txtView.setText(String.format("%s", valor));
+                        VALOR_A_SETAR = String.format("%s", valor);
                     } else {
-                        txtView.setText(conjunto.optJSONArray(dado).get(idPlaca).toString());
+                        //txtView.setText(conjunto.optJSONArray(dado).get(idPlaca).toString());
+                        VALOR_A_SETAR = conjunto.optJSONArray(dado).get(idPlaca-1).toString();
                     }
                 }
-            } else {
-                txtView.setText("---");
+            } else { // caso o local não possua o tipo de dado, seta como "nulo"
+                //txtView.setText("---");
+                VALOR_A_SETAR = "---";
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    txtView.setText(VALOR_A_SETAR);
+                }
+            });
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void adicionaDataPoints(JSONObject dados){
+        Iterator<LocalMonitoramento> locaisIt = fragValAtuais.locais.iterator();
+        JSONObject dadosLocal;
+        LocalMonitoramento localAux;
+
+        while(locaisIt.hasNext()){
+            localAux = locaisIt.next();
+            dadosLocal = dados.optJSONObject(localAux.getCodigo());
+            if(dadosLocal != null){
+                localAux.adicionaDataPoints(dadosLocal);
+            }
         }
     }
 
@@ -349,24 +373,42 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         }
     }
 
+    /**
+     * Método de controle e comunicação entre as threads. Normalmente é chamado a partir de outro
+     * objeto rodando em outra thread
+     * @param result Algum tipo de resultado obtido dessa outra thread
+     */
     @Override
-    public void postResult(final JSONObject result) {
-        Log.i(TAG, "\npostResult: result= " + result.toString() + "\n" + fragValAtuais.getLocalAtual().getNome());
+    public void postResult(JSONObject result) {
         /*
-        TODO: Configurar ações utilizando o JSONObject
+        TODO: DEBUGGAR SETVALORES -> ALGUNS DADOS NÃO ESTÃO TROCANDO PARA O NOVO LOCAL
+        TODO: Configurar atualização dos gráficos
          */
+        Log.i(TAG, "\npostResult: result= " + result.toString() + "\n" + fragValAtuais.getLocalAtual().getNome());
         try {
             String pedido = result.getString("pedido"); // Recupera o pedido que foi feito para receber esta resposta
 
-            //Log.i(TAG, "postResult: dados= "+dadosLocalAtual.toString());
-
             switch (pedido) {
                 case "ultimos dados":
-                    final JSONObject dadosLocalAtual = result.getJSONObject("dados").getJSONObject(fragValAtuais.getLocalAtual().getCodigo());
-                    runOnUiThread(new Runnable() {
+                    final JSONObject dados = result.getJSONObject("dados");
+                    final JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getCodigo());
+
+                    setValoresJSON(dadosLocalAtual);
+
+                    // TODO: Melhorar controle dos gráficos -> otimizar métodos
+                    executorServiceCached.submit(new Runnable() {
                         @Override
                         public void run() {
-                            setValoresJSON(dadosLocalAtual);
+                            if (!ultimoLocal.equals("") && fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal)) {
+                                adicionaDataPoints(dados);
+                            } else if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
+                                if (!ultimoLocal.equals("") && !ultimaPlaca.equals("")) {
+                                    attSeriePlaca();
+                                }
+                                ultimoLocal = fragValAtuais.getLocalAtual().getCodigo();
+                                ultimaPlaca = fragValAtuais.getPlacaAtual().getCodigo();
+                            }
+                            ajeitaGrafico();
                         }
                     });
                     break;
@@ -377,9 +419,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             Log.e(TAG, "postResult: JSONException", e);
         }
 
-        /*
-        TODO: Configurar atualização dos gráficos
-         */
+
     }
 
     public void ajeitaGrafico() {
@@ -470,7 +510,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     }
 
     @SuppressLint({"SetTextI18n", "NonConstantResourceId"})
-    private void attSeriePlaca() {
+    public void attSeriePlaca() {
         fragValAtuais.graf.removeAllSeries();
 
         switch (idBtGraf) {

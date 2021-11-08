@@ -15,6 +15,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -37,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class GraficosAct extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
+    public static final String TAG = "GraficosAct";
 
     private GraphView graf;
     private LineGraphSeries<DataPoint> series;
@@ -49,6 +52,9 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.i(TAG, "onCreate: \ngrafs");
+
         setContentView(R.layout.act_graficos);
 
         tb = findViewById(R.id.toolbar);

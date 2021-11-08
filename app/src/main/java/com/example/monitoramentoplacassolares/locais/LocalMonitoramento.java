@@ -1,7 +1,5 @@
 package com.example.monitoramentoplacassolares.locais;
 
-import android.util.Log;
-
 import com.example.monitoramentoplacassolares.MainActivity;
 import com.jjoe64.graphview.series.DataPoint;
 
@@ -9,13 +7,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class localMonitoramento {
-    public static final String TAG = "localMonitoramento";
+public class LocalMonitoramento {
+    public static final String TAG = "LocalMonitoramento";
 
     /*TODO: Reformular classe para ser criada a partir de objeto lido do
             banco de dados -> Locais ainda não colocados no Banco! (EM STANDBY)
@@ -26,27 +23,27 @@ public class localMonitoramento {
     private String codigo;
     private String ip;
     private int port;
-    private List<placaMonitoramento> placas = new ArrayList<placaMonitoramento>();
-    private placaMonitoramento placaMedia;
+    private List<PlacaMonitoramento> placas = new ArrayList<PlacaMonitoramento>();
+    private PlacaMonitoramento placaMedia;
 
-    public localMonitoramento(String nome, String codigo, String ip, int port) {
+    public LocalMonitoramento(String nome, String codigo, String ip, int port) {
         this.nome = nome;
         this.codigo = codigo;
         this.ip = ip;
         this.port = port;
 
         for(int i = 1; i<=10; i++){
-            this.placas.add(new placaMonitoramento("Placa " + i, "placa"+i, i));
+            this.placas.add(new PlacaMonitoramento("Placa " + i, "placa"+i, i));
         }
     }
 
-    public localMonitoramento(String nome, String codigo, String ip, int port, placaMonitoramento... placas) {
+    public LocalMonitoramento(String nome, String codigo, String ip, int port, PlacaMonitoramento... placas) {
         this.nome = nome;
         this.codigo = codigo;
         this.ip = ip;
         this.port = port;
         if(placas.length > 1) {
-            this.placaMedia = new placaMonitoramento("Média", "media",0);
+            this.placaMedia = new PlacaMonitoramento("Média", "media",0);
             this.placas.add(placaMedia);
         } else {
             this.placaMedia = placas[0];
@@ -54,13 +51,13 @@ public class localMonitoramento {
         Collections.addAll(this.placas, placas);
     }
 
-    public localMonitoramento(String nome, String codigo, String ip, int port, List<placaMonitoramento> placas) {
+    public LocalMonitoramento(String nome, String codigo, String ip, int port, List<PlacaMonitoramento> placas) {
         this.nome = nome;
         this.codigo = codigo;
         this.ip = ip;
         this.port = port;
         if(placas.size() > 1) {
-            this.placaMedia = new placaMonitoramento("Média", "media",0);
+            this.placaMedia = new PlacaMonitoramento("Média", "media",0);
             this.placas.add(placaMedia);
         } else {
             this.placaMedia = placas.get(0);
@@ -233,11 +230,11 @@ public class localMonitoramento {
         this.port = port;
     }
 
-    public List<placaMonitoramento> getPlacas() {
+    public List<PlacaMonitoramento> getPlacas() {
         return placas;
     }
 
-    public void setPlacas(List<placaMonitoramento> placas) {
+    public void setPlacas(List<PlacaMonitoramento> placas) {
         this.placas = placas;
     }
 }

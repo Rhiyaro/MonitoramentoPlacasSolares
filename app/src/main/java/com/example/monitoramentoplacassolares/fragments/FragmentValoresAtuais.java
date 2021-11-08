@@ -12,12 +12,10 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.example.monitoramentoplacassolares.MainActivity;
 import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
-import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
-import com.example.monitoramentoplacassolares.locais.localMonitoramento;
-import com.example.monitoramentoplacassolares.locais.placaMonitoramento;
+import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
+import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.Viewport;
 
@@ -33,16 +31,20 @@ public class FragmentValoresAtuais extends Fragment {
     public GraphView graf;
     public Viewport viewport;
 
+    //TODO: Trocar por RecyclerView
     private Spinner spLocal, spPlaca;
 
-    private localMonitoramento localAtual;
-    private placaMonitoramento placaAtual;
+    private LocalMonitoramento localAtual;
+    private PlacaMonitoramento placaAtual;
     public String grafAtual = "";
+
+    private String ultimoLocal = "";
+    private String ultimaPlaca = "";
 
     public IAsyncHandler mHandler;
     public Future clienteFuture, comunicarFuture;
 
-    public static ArrayList<localMonitoramento> locais = new ArrayList<localMonitoramento>();
+    public ArrayList<LocalMonitoramento> locais = new ArrayList<LocalMonitoramento>();
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 
@@ -53,8 +55,8 @@ public class FragmentValoresAtuais extends Fragment {
         spPlaca = inf.findViewById(R.id.seletorPlaca);
 
         if(locais.isEmpty()){
-            locais.add(new localMonitoramento("CEFET-RJ/NI", "cefet","192.168.25.9", 12345, new placaMonitoramento("Placa Principal", "main",0)));
-            locais.add(new localMonitoramento("Artigo", "artigo","192.168.25.9", 12345, new placaMonitoramento("Linha 1", "linha1",1), new placaMonitoramento("Linha 2", "linha2",2)));
+            locais.add(new LocalMonitoramento("CEFET-RJ/NI", "cefet","192.168.25.9", 12345, new PlacaMonitoramento("Placa Principal", "main",0)));
+            locais.add(new LocalMonitoramento("Artigo", "artigo","192.168.25.9", 12345, new PlacaMonitoramento("Linha 1", "linha1",1), new PlacaMonitoramento("Linha 2", "linha2",2)));
         }
         localAtual = locais.get(0);
         placaAtual = localAtual.getPlacas().get(0);
@@ -113,17 +115,9 @@ public class FragmentValoresAtuais extends Fragment {
 
     public AdapterView.OnItemSelectedListener selecaoLocal = new AdapterView.OnItemSelectedListener() {
         @Override
-        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            //TODO: Atualizar seleção de local do dropList
-            //Toast.makeText(adapterView.getContext(), adapterView.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+        public void onItemSelected(final AdapterView<?> adapterView, View view, final int i, long l) {
 
-            localMonitoramento localSelecionado = FragmentValoresAtuais.locais.get(0);
-//            for(localMonitoramento lcl : FragmentValoresAtuais.locais){
-//                if(lcl.getNome().equals(adapterView.getItemAtPosition(i))){
-//                    localSelecionado = lcl;
-//                    break;
-//                }
-//            }
+            LocalMonitoramento localSelecionado = locais.get(0);
             Object aux = adapterView.getItemAtPosition(i);
             for (int j = 0; j < locais.size(); j++) {
                 if(locais.get(j).equals(adapterView.getItemAtPosition(i))){
@@ -138,8 +132,6 @@ public class FragmentValoresAtuais extends Fragment {
                 spPlaca.setAdapter(placasAdapter);
 
                 spPlaca.setOnItemSelectedListener(selecaoPlaca);
-
-                novoLocal(localAtual, mHandler);
             }
         }
 
@@ -151,27 +143,18 @@ public class FragmentValoresAtuais extends Fragment {
 
     public AdapterView.OnItemSelectedListener selecaoPlaca = new AdapterView.OnItemSelectedListener() {
         @Override
-        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        public void onItemSelected(final AdapterView<?> adapterView, View view, final int i, long l) {
             //TODO: Atualizar seleção de placa do dropList
-            //Toast.makeText(adapterView.getContext(), adapterView.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
-            placaMonitoramento placaSelecionada = localAtual.getPlacas().get(0);
-//            for(placaMonitoramento plc : localAtual.getPlacas()){
-//                if(plc.equals(adapterView.getItemAtPosition(i))){
-//                    placaSelecionada = plc;
-//                    break;
-//                }
-//            }
-            Object aux = adapterView.getItemAtPosition(i);
+
+            PlacaMonitoramento placaSelecionada = localAtual.getPlacas().get(0);
             for (int j = 0; j < localAtual.getPlacas().size(); j++) {
                 if(localAtual.getPlacas().get(j).equals(adapterView.getItemAtPosition(i))){
                     placaSelecionada = localAtual.getPlacas().get(j);
                 }
             }
-
             if(!placaSelecionada.equals(placaAtual)){
                 placaAtual = placaSelecionada;
             }
-
         }
 
         @Override
@@ -180,21 +163,32 @@ public class FragmentValoresAtuais extends Fragment {
         }
     };
 
-    public void novoLocal(localMonitoramento novoLocal, IAsyncHandler mHandler){
+    public void novoLocal(LocalMonitoramento novoLocal){
         //TODO: Atualizar controle de local e placa atual
-        clienteFuture.cancel(true);
-//        ouvirFuture.cancel(true);
 
-        RunnableCliente runnableCliente = new RunnableCliente(mHandler, "ultimos dados", novoLocal.getNome());
-        comunicarFuture = runnableCliente.getComunicarFuture();
-        clienteFuture = MainActivity.executorServiceCached.submit(runnableCliente);
     }
 
-    public localMonitoramento getLocalAtual() {
+    public LocalMonitoramento getLocalAtual() {
         return localAtual;
     }
 
-    public placaMonitoramento getPlacaAtual() {
+    public PlacaMonitoramento getPlacaAtual() {
         return placaAtual;
+    }
+
+    public String getUltimoLocal() {
+        return ultimoLocal;
+    }
+
+    public void setUltimoLocal(String ultimoLocal) {
+        this.ultimoLocal = ultimoLocal;
+    }
+
+    public String getUltimaPlaca() {
+        return ultimaPlaca;
+    }
+
+    public void setUltimaPlaca(String ultimaPlaca) {
+        this.ultimaPlaca = ultimaPlaca;
     }
 }

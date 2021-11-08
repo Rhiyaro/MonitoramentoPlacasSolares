@@ -8,8 +8,17 @@ import android.widget.TextView;
 
 import com.example.monitoramentoplacassolares.R;
 
+import org.json.JSONObject;
+
+import java.util.Iterator;
+
 public class DadosAdapter extends RecyclerView.Adapter<DadosAdapter.DadosViewHolder> {
+    public static final String TAG = "DadosAdapter";
+
+    //TODO: Adaptar para JSONObjects
+
     private String Dados[];
+    private JSONObject dados;
 
     public DadosAdapter(String Dados) {
         if (Dados != null) {
@@ -17,6 +26,10 @@ public class DadosAdapter extends RecyclerView.Adapter<DadosAdapter.DadosViewHol
 
         }else
             this.Dados = null;
+    }
+
+    public DadosAdapter(JSONObject dados){
+        this.dados = dados;
     }
 
     // Create new views (invoked by the layout manager)
@@ -36,11 +49,15 @@ public class DadosAdapter extends RecyclerView.Adapter<DadosAdapter.DadosViewHol
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        if(this.Dados != null) {
-            String dados[] = this.Dados[position].split(",");
-            for (int i = 0; i < holder.textView.length; i++) {
-                holder.textView[i].setText((dados[i]));
-            }
+//        if(this.Dados != null) {
+//            String dados[] = this.Dados[position].split(",");
+//            for (int i = 0; i < holder.textView.length; i++) {
+//                holder.textView[i].setText((dados[i]));
+//            }
+//        }
+        //TODO: MODIFICAR PARA JSONOBJECTS
+        if(this.dados != null){
+            //Iterator dadosIt = this.dados.optJSONArray()
         }
     }
 

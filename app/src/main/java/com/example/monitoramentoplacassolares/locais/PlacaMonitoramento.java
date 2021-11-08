@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class placaMonitoramento {
+public class PlacaMonitoramento {
     private String nome;
     private String codigo;
     int id;
@@ -27,7 +27,7 @@ public class placaMonitoramento {
     private LineGraphSeries<DataPoint> serieUmidade = new LineGraphSeries<>();
     private LineGraphSeries<DataPoint> serieChuva = new LineGraphSeries<>();
 
-    public placaMonitoramento(String nome, String codigo,int id){
+    public PlacaMonitoramento(String nome, String codigo, int id){
         this.nome = nome;
         this.codigo = codigo;
         this.id = id;
