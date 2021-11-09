@@ -4,127 +4,234 @@ import android.util.Log;
 
 import com.example.monitoramentoplacassolares.LoginAct;
 import com.example.monitoramentoplacassolares.MainActivity;
+import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.Arrays;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Future;
 
 public class RunnableCliente implements Runnable {
     public static final String TAG = "RunnableCliente";
 
-//    private static final String hostname = "172.16.116.172";
+    //    private static final String hostname = "172.16.116.172";
 //    private static final String hostname = "192.168.1.110";
     public static final String hostname = "192.168.25.9";
     private static final int portaServidor = 12345;
 
     private String[] params;
+    private JSONObject pacoteConfig;
 
-    private String returnString;
+    private Future clienteFuture;
+    private boolean continuarComunicando;
 
-    private Future ouvirFuture;
+    private Socket socket = null;
+    private ObjectOutputStream objOut;
+    private ObjectInputStream objIn;
 
-    private static Socket socket = null;
-    private static IAsyncHandler mHandler;
+    public static IAsyncHandler mHandler;
     private static IAsyncHandler mHandlerAnt;
-    BufferedReader br;
-    BufferedWriter bw;
+
+    private GerenciadorDados gerenciadorDados;
+    private List<TarefaCliente> tarefas = Collections.synchronizedList(new ArrayList<TarefaCliente>());
+
+    private ArrayList<LocalMonitoramento> locais = new ArrayList<LocalMonitoramento>();
+
+    public RunnableCliente() {
+
+    }
 
     public RunnableCliente(IAsyncHandler mHandler) {
-        if(!(mHandler instanceof LoginAct))
-            if(this.mHandlerAnt == null)
+        if (!(mHandler instanceof LoginAct))
+            if (mHandlerAnt == null)
                 mHandlerAnt = mHandler;
             else
-                mHandlerAnt = this.mHandler;
+                mHandlerAnt = RunnableCliente.mHandler;
 
-        this.mHandler = mHandler;
+        RunnableCliente.mHandler = mHandler;
     }
 
     public RunnableCliente(IAsyncHandler mHandler, String... params) {
-        if(!(mHandler instanceof LoginAct))
-            if(this.mHandlerAnt == null)
+        if (!(mHandler instanceof LoginAct)) {
+            if (mHandlerAnt == null) {
                 mHandlerAnt = mHandler;
-            else
-                mHandlerAnt = this.mHandler;
-
-        this.mHandler = mHandler;
+            } else {
+                mHandlerAnt = RunnableCliente.mHandler;
+            }
+        }
+        RunnableCliente.mHandler = mHandler;
 
         this.params = params;
     }
 
-    public void enviarMsg(String msg){
+    public RunnableCliente(IAsyncHandler mHandler, JSONObject pacoteConfig) {
+        if (!(mHandler instanceof LoginAct)) {
+            if (mHandlerAnt == null) {
+                mHandlerAnt = mHandler;
+            } else {
+                mHandlerAnt = RunnableCliente.mHandler;
+            }
+        }
+        RunnableCliente.mHandler = mHandler;
+
+        this.pacoteConfig = pacoteConfig;
+    }
+
+    public RunnableCliente(IAsyncHandler mHandler, JSONObject pacoteConfig, String... params) {
+        if (!(mHandler instanceof LoginAct)) {
+            if (mHandlerAnt == null) {
+                mHandlerAnt = mHandler;
+            } else {
+                mHandlerAnt = RunnableCliente.mHandler;
+            }
+        }
+        RunnableCliente.mHandler = mHandler;
+
+        this.pacoteConfig = pacoteConfig;
+        this.params = params;
+    }
+
+    public void iniciaCliente() {
+        Log.i(TAG, "iniciaCliente: \niniciando cliente");
         try {
-            bw.write(msg);
-            bw.newLine();
-            bw.flush();
-        }catch (IOException ioex){
-            ioex.printStackTrace();
+            if (socket == null || !socket.isConnected()) {
+                socket = new Socket();
+                SocketAddress socketAddress = new InetSocketAddress(hostname, portaServidor);
+                socket.connect(socketAddress, 1000);
+                Log.i(TAG, "iniciaCliente: socket conectado " + socket.isConnected());
+            }
+            if (socket.isConnected()) {
+                if (objIn == null) {
+                    objIn = new ObjectInputStream(socket.getInputStream());
+                    Log.i(TAG, "iniciaCliente: " + objIn.toString());
+                }
+                if (objOut == null) {
+                    objOut = new ObjectOutputStream(socket.getOutputStream());
+                    Log.i(TAG, "iniciaCliente: " + objOut.toString());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    Runnable ouvir = new Runnable(){
+    public Runnable iniciar = new Runnable() {
+        @Override
         public void run() {
-            Thread.currentThread().setName("Thread Ouvir " + MainActivity.x);
-            while (mHandler == mHandlerAnt) {
-                //int logCount = 0;
-                //logCount++;
-                String retorno = null;
-                try {
-                    retorno = br.readLine();
-//                    if(logCount == 10) {
-//                        Log.i("Runnable ouvir", "run: " + retorno);
-//                        logCount = 0;
-//                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if(retorno != null) mHandler.postResult(retorno);
-            }
-            mHandlerAnt = mHandler;
+            iniciaCliente();
         }
     };
 
-    @Override
-    public void run() {
-        Thread.currentThread().setName("Thread RunnCliente " + MainActivity.x);
-        try {
-            if (socket == null)
-                socket = new Socket(hostname, portaServidor);
-            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+    public void novaTarefa(TarefaCliente novaTarefa) {
+        Log.i(TAG, "novaTarefa: \npacotePedido: " + novaTarefa.getPacotePedido().toString());
 
-            if (socket.isConnected()) {
-                if (Arrays.toString(params).contains("login")) {
-                    enviarMsg(" ");
-                    String aux = br.readLine();
-                    Log.i(TAG, "run: " + aux);
-//                    System.out.println(aux);
-                    enviarMsg(Arrays.toString(params));
-                    String res = br.readLine();
-                    Log.i(TAG, "run: " + res);
-//                    System.out.println(res);
-                    mHandler.postResult(res);
-                }else {
-                    ouvirFuture = MainActivity.executorService.submit(ouvir);
-                    Log.i(TAG, "run: " + Arrays.toString(params));
-                    enviarMsg(Arrays.toString(params));
-                }
-            }else{
-                mHandler.postResult("sem conexao");
-            }
+        tarefas.add(novaTarefa);
 
-            return;
-        } catch(IOException e){
-            returnString = e.getMessage();
+        if (tarefas.size() == 1 && (clienteFuture == null || clienteFuture.isCancelled())) {
+            Log.i(TAG, "novaTarefa: \niniciando cliente");
+            clienteFuture = MainActivity.executorServiceCached.submit(this);
         }
     }
 
-    public Future getOuvirFuture() {
-        return ouvirFuture;
+    private void proximaTarefa() {
+        TarefaCliente tarefaAtual = tarefas.get(0);
+
+        tarefas.remove(0);
+
+        if (tarefaAtual instanceof TarefaComunicar && !tarefas.contains(tarefaAtual)) {
+            novaTarefa(tarefaAtual);
+        }
+
+        if (tarefas.isEmpty()) {
+            clienteFuture.cancel(false);
+        }
+    }
+
+    private synchronized void executaTarefa(TarefaCliente tarefa) {
+        Log.i(TAG, "executaTarefa:)");
+        Log.i(TAG, "executaTarefa: " + tarefa.toString() + "--\npacote: " + tarefa.getPacotePedido().toString());
+
+        tarefa.configuraConexao(socket, objIn, objOut);
+
+        tarefa.executar();
+    }
+
+    @Override
+    public void run() {
+        Log.i(TAG, "run: \n cliente run");
+        iniciaCliente();
+
+
+        while (!clienteFuture.isCancelled()) {
+            if (!tarefas.isEmpty()) {
+                executaTarefa(tarefas.get(0));
+
+                proximaTarefa();
+            }
+        }
+
+    }
+
+    public void cancelarComunicacao() {
+        continuarComunicando = false;
+    }
+
+    public void setPacoteConfig(JSONObject pacoteConfig) {
+        this.pacoteConfig = pacoteConfig;
+    }
+
+    public static void setmHandler(IAsyncHandler mHandler) {
+        RunnableCliente.mHandler = mHandler;
+    }
+
+    public static void setmHandlerAnt(IAsyncHandler mHandlerAnt) {
+        RunnableCliente.mHandlerAnt = mHandlerAnt;
+    }
+
+    public static IAsyncHandler getmHandler() {
+        return mHandler;
+    }
+
+    public GerenciadorDados getGerenciadorDados() {
+        return gerenciadorDados;
+    }
+
+    public void setGerenciadorDados(GerenciadorDados gerenciadorDados) {
+        this.gerenciadorDados = gerenciadorDados;
+    }
+
+    public ArrayList<LocalMonitoramento> getLocais() {
+        return locais;
+    }
+
+    public void setLocais(ArrayList<LocalMonitoramento> locais) {
+        this.locais = locais;
+    }
+
+    public void setClienteFuture(Future clienteFuture) {
+        this.clienteFuture = clienteFuture;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public ObjectOutputStream getObjOut() {
+        return objOut;
+    }
+
+    public ObjectInputStream getObjIn() {
+        return objIn;
     }
 }

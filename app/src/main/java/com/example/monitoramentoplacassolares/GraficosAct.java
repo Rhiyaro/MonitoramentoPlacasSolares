@@ -15,6 +15,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,12 +31,15 @@ import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class GraficosAct extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
+    public static final String TAG = "GraficosAct";
 
     private GraphView graf;
     private LineGraphSeries<DataPoint> series;
@@ -47,6 +52,9 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.i(TAG, "onCreate: \ngrafs");
+
         setContentView(R.layout.act_graficos);
 
         tb = findViewById(R.id.toolbar);
@@ -220,14 +228,12 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
                     file.getAbsolutePath(),
                     Toast.LENGTH_LONG).show();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
             if(fileOutputStream != null){
                 try {
                     fileOutputStream.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -238,6 +244,11 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     public void postResult(String result) {
         Dados = result;
         attGrafico();
+    }
+
+    @Override
+    public void postResult(JSONObject result) {
+
     }
 
     @Override

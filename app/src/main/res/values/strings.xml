@@ -28,6 +28,23 @@
     <string name="txtChuvaD">Chuva</string>
     <string name="strMenuMainDados">Dados</string>
     <string name="strMenuMainGraficos">Gráficos</string>
+    <string name="STRluminosidade">luminosidade</string>
+    <string name="semValor">---</string>
+    <string name="grandezaLuminosidade">L</string>
+    <string name="tempplaca">tempPlaca</string>
+    <string name="grandezaTemp">°C</string>
+    <string name="tensao">tensao</string>
+    <string name="grandezaTensao">V</string>
+    <string name="corrente">corrente</string>
+    <string name="grandezaCorrente">A</string>
+    <string name="pressao">pressao</string>
+    <string name="grandezaChuva">Ch</string>
+    <string name="grandezaPressao">kPa</string>
+    <string name="temp">temp</string>
+    <string name="umidade">umidade</string>
+    <string name="grandezaUmidade">%</string>
+    <string name="chuva">chuva</string>
+    <string name="auto_scroll">auto scroll</string>
     <string-array name="strSpDia">
         <item>01</item>
         <item>02</item>

@@ -82,10 +82,22 @@
 
                 <TextView
                     android:id="@+id/txtValorLuminosidade"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/STRluminosidade"
+                    android:text="@string/semValor"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    tools:layout_editor_absoluteX="91dp"
+                    tools:layout_editor_absoluteY="56dp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaLuminosidade"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- L"
+                    android:text="@string/grandezaLuminosidade"
                     android:textSize="18sp"
                     tools:layout_editor_absoluteX="91dp"
                     tools:layout_editor_absoluteY="56dp" />
@@ -107,10 +119,20 @@
 
                 <TextView
                     android:id="@+id/txtValorTPlaca"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/tempplaca"
+                    android:text="@string/semValor"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaTPlaca"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- °C"
+                    android:text="@string/grandezaTemp"
                     android:textSize="18sp" />
 
             </TableRow>
@@ -131,10 +153,20 @@
 
                 <TextView
                     android:id="@+id/txtTensao"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/tensao"
+                    android:text="@string/semValor"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaTensao"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- V"
+                    android:text="@string/grandezaTensao"
                     android:textSize="18sp" />
             </TableRow>
 
@@ -154,10 +186,20 @@
 
                 <TextView
                     android:id="@+id/txtCorrente"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/corrente"
+                    android:text="@string/semValor"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaCorrente"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- mA"
+                    android:text="@string/grandezaCorrente"
                     android:textSize="18sp" />
 
             </TableRow>
@@ -194,10 +236,20 @@
 
                 <TextView
                     android:id="@+id/txtPressao"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/pressao"
+                    android:text="@string/semValor"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaPressao"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- kPa"
+                    android:text="@string/grandezaPressao"
                     android:textSize="18sp" />
             </TableRow>
 
@@ -217,10 +269,20 @@
 
                 <TextView
                     android:id="@+id/txtTemp"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/temp"
+                    android:text="@string/semValor"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaTemp"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- °C"
+                    android:text="@string/grandezaTemp"
                     android:textSize="18sp" />
 
             </TableRow>
@@ -241,10 +303,20 @@
 
                 <TextView
                     android:id="@+id/txtUmidade"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/umidade"
+                    android:text="@string/semValor"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaUmidade"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- %"
+                    android:text="@string/grandezaUmidade"
                     android:textSize="18sp" />
             </TableRow>
 
@@ -264,10 +336,20 @@
 
                 <TextView
                     android:id="@+id/txtChuva"
+                    android:layout_width="75dp"
+                    android:layout_height="50dp"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/chuva"
+                    android:text="@string/semValor"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/txtMedidaChuva"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:gravity="start|center_vertical"
-                    android:text="       --- Ch"
+                    android:text="@string/grandezaChuva"
                     android:textSize="18sp" />
             </TableRow>
         </TableLayout>
@@ -287,7 +369,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -297,8 +378,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:text="auto scroll"
+            android:text="@string/auto_scroll"
             app:layout_constraintBottom_toTopOf="@+id/switchautoscroll"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tableLayout2" />
