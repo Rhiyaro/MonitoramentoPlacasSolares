@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
@@ -7,26 +8,37 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_casa"
-            android:title="Home" />
+            android:title="Home"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/nav_bd"
             android:icon="@drawable/ic_bd_nuvem"
-            android:title="Base de Dados" />
+            android:title="Base de Dados"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/nav_graficos"
             android:icon="@drawable/ic_grafico"
-            android:title="Graficos" />
+            android:title="Graficos"
+            tools:ignore="HardcodedText" />
+        <item
+            android:id="@+id/nav_notificacoes"
+            android:icon="@drawable/ic_alerta"
+            android:title="Notificações"
+            tools:ignore="HardcodedText" />
     </group>
-    <item android:title="Communicate">
+    <item android:title="Communicate"
+        tools:ignore="HardcodedText">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="Share"
+                tools:ignore="HardcodedText" />
             <item
                 android:id="@+id/nav_salvar"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Salvar" />
+                android:title="Salvar"
+                tools:ignore="HardcodedText" />
         </menu>
     </item>
 

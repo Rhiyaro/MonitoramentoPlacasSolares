@@ -7,7 +7,6 @@ import android.widget.TextView;
 import com.example.monitoramentoplacassolares.MainActivity;
 import com.example.monitoramentoplacassolares.fragments.FragmentValoresAtuais;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
-import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
 
 import org.json.JSONArray;
 import org.json.JSONException;

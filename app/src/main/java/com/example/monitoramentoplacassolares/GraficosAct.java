@@ -128,31 +128,29 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
                     String[] aux = vetDados[i].split(",");
                     for (int j = 0; j < vetDados[0].split(",").length; j++) {
                         dados[i][j] = aux[j];
-                        if (i!=0) {
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[0]))
-                                if (j == 1)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[0]))
+                            if (j == 1)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[1]))
-                                if (j == 2)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[1]))
+                            if (j == 2)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[2]))
-                                if (j == 4)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[2]))
+                            if (j == 4)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[3]))
-                                if (j == 5)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[3]))
+                            if (j == 5)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[4]))
-                                if (j == 6)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[4]))
+                            if (j == 6)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[5]))
-                                if (j == 7)
-                                    y[i-1] = Integer.parseInt(aux[j]);
-                        }
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[5]))
+                            if (j == 7)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
                     }
                     if(y[i-1]>ymax)
@@ -188,6 +186,8 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
             goAct(findViewById(id), DadosAct.class);
         } else if (id == R.id.nav_salvar) {
             salvarGraf();
+        } else if (id == R.id.nav_notificacoes){
+
         }
 
 
@@ -199,10 +199,8 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     private void salvarGraf(){
 
         Bitmap bitmap = graf.takeSnapshot();
-        if (Build.VERSION.SDK_INT >= 23) {
-            String[] PERMISSIONS = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            ActivityCompat.requestPermissions((Activity) GraficosAct.this, PERMISSIONS, 112);
-        }
+        String[] PERMISSIONS = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        ActivityCompat.requestPermissions((Activity) GraficosAct.this, PERMISSIONS, 112);
 
         String fileName = spDia.getSelectedItem() + (String)spMes.getSelectedItem() + ".jpg";
 

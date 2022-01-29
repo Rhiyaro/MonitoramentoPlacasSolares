@@ -51,7 +51,8 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/btCadastrar"
@@ -70,7 +71,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtSenha" />
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtSenha"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView3"
@@ -81,7 +83,8 @@
         android:textColor="@color/branco"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/edtTxtLogin"
-        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+        app:layout_constraintTop_toBottomOf="@+id/textView8"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView4"
@@ -92,7 +95,8 @@
         android:textColor="@color/branco"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/edtTxtSenha"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtLogin" />
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtLogin"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView8"
@@ -108,6 +112,7 @@
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

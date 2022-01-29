@@ -46,7 +46,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -620,6 +619,11 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         attSeriePlaca();
     }
 
+    /*
+    TODO: Criar uma classe com métodos para que todas as
+            atividades apenas os implementem, ao invés
+            de repetir o código
+     */
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -634,6 +638,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             goAct(findViewById(id), GraficosAct.class);
 
         } else if (id == R.id.nav_salvar) {
+
+        } else if (id == R.id.nav_notificacoes){
 
         }
 

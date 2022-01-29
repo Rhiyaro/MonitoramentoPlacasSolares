@@ -64,17 +64,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
-            <fragment
-                android:id="@+id/fragment"
-                android:name="com.example.monitoramentoplacassolares.fragments.FragmentValoresAtuais"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="8dp"
-                tools:layout="@layout/fragment_valores_atuais" />
         </androidx.viewpager.widget.ViewPager>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,8 +2,6 @@ package com.example.monitoramentoplacassolares.conexao;
 
 import android.util.Log;
 
-import com.example.monitoramentoplacassolares.MainActivity;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 

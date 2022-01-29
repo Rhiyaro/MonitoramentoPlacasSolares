@@ -6,17 +6,14 @@ import com.example.monitoramentoplacassolares.LoginAct;
 import com.example.monitoramentoplacassolares.MainActivity;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

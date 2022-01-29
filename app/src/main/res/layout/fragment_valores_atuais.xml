@@ -28,17 +28,19 @@
             android:spinnerMode="dropdown"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
 
         <Spinner
             android:id="@+id/seletorPlaca"
             android:layout_width="250dp"
-            android:layout_height="40dp"
+            android:layout_height="48dp"
             android:dropDownWidth="match_parent"
             android:spinnerMode="dropdown"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/seletorLocal" />
+            app:layout_constraintTop_toBottomOf="@+id/seletorLocal"
+            tools:ignore="SpeakableTextPresentCheck" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -71,12 +73,13 @@
 
                 <Button
                     android:id="@+id/btLuminosidade"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bkg_bt_luminosidade"
                     android:gravity="center_vertical|end"
                     android:onClick="escolheGraf"
                     android:textSize="18sp"
+                    tools:ignore="SpeakableTextPresentCheck"
                     tools:layout_editor_absoluteX="16dp"
                     tools:layout_editor_absoluteY="56dp" />
 
@@ -84,7 +87,6 @@
                     android:id="@+id/txtValorLuminosidade"
                     android:layout_width="75dp"
                     android:layout_height="50dp"
-                    android:gravity="start|center_vertical"
                     android:hint="@string/STRluminosidade"
                     android:text="@string/semValor"
                     android:textAlignment="center"
@@ -110,18 +112,18 @@
                 <Button
                     android:id="@+id/btTPlaca"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bkg_bt_tplaca"
                     android:gravity="center_vertical|end"
                     android:linksClickable="false"
                     android:onClick="escolheGraf"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
                     android:id="@+id/txtValorTPlaca"
                     android:layout_width="75dp"
                     android:layout_height="50dp"
-                    android:gravity="start|center_vertical"
                     android:hint="@string/tempplaca"
                     android:text="@string/semValor"
                     android:textAlignment="center"
@@ -144,18 +146,18 @@
                 <Button
                     android:id="@+id/btTensao"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bkg_bt_tensao"
                     android:gravity="center_vertical|end"
                     android:linksClickable="false"
                     android:onClick="escolheGraf"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
                     android:id="@+id/txtTensao"
                     android:layout_width="75dp"
                     android:layout_height="50dp"
-                    android:gravity="start|center_vertical"
                     android:hint="@string/tensao"
                     android:text="@string/semValor"
                     android:textAlignment="center"
@@ -177,18 +179,18 @@
                 <Button
                     android:id="@+id/btCorrente"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bkg_bt_corrente"
                     android:gravity="center_vertical|end"
                     android:linksClickable="false"
                     android:onClick="escolheGraf"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
                     android:id="@+id/txtCorrente"
                     android:layout_width="75dp"
                     android:layout_height="50dp"
-                    android:gravity="start|center_vertical"
                     android:hint="@string/corrente"
                     android:text="@string/semValor"
                     android:textAlignment="center"
@@ -227,18 +229,18 @@
                 <Button
                     android:id="@+id/btPressao"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bkg_bt_pressao"
                     android:gravity="center_vertical|end"
                     android:linksClickable="false"
                     android:onClick="escolheGraf"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
                     android:id="@+id/txtPressao"
                     android:layout_width="75dp"
                     android:layout_height="50dp"
-                    android:gravity="start|center_vertical"
                     android:hint="@string/pressao"
                     android:text="@string/semValor"
                     android:textAlignment="center"
@@ -260,18 +262,18 @@
                 <Button
                     android:id="@+id/btTemp"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bkg_bt_temperatura"
                     android:gravity="center_vertical|end"
                     android:linksClickable="false"
                     android:onClick="escolheGraf"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
                     android:id="@+id/txtTemp"
                     android:layout_width="75dp"
                     android:layout_height="50dp"
-                    android:gravity="start|center_vertical"
                     android:hint="@string/temp"
                     android:text="@string/semValor"
                     android:textAlignment="center"
@@ -293,19 +295,19 @@
 
                 <Button
                     android:id="@+id/btUmidade"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bkg_bt_umidade"
                     android:gravity="center_vertical|end"
                     android:linksClickable="false"
                     android:onClick="escolheGraf"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
                     android:id="@+id/txtUmidade"
                     android:layout_width="75dp"
                     android:layout_height="50dp"
-                    android:gravity="start|center_vertical"
                     android:hint="@string/umidade"
                     android:text="@string/semValor"
                     android:textAlignment="center"
@@ -327,18 +329,18 @@
                 <Button
                     android:id="@+id/btChuva"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/bkg_bt_chuva"
                     android:gravity="center_vertical|end"
                     android:linksClickable="false"
                     android:onClick="escolheGraf"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    tools:ignore="SpeakableTextPresentCheck" />
 
                 <TextView
                     android:id="@+id/txtChuva"
                     android:layout_width="75dp"
                     android:layout_height="50dp"
-                    android:gravity="start|center_vertical"
                     android:hint="@string/chuva"
                     android:text="@string/semValor"
                     android:textAlignment="center"
@@ -369,6 +371,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
