@@ -6,7 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".ListaNotificacoes">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <include
+        layout="@layout/content_lista_notificacao"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_main"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/app_drawer" />
 </androidx.constraintlayout.widget.ConstraintLayout>

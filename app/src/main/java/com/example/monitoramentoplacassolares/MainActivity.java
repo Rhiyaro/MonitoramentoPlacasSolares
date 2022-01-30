@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     public MyFirebaseMessagingService msgServ = new MyFirebaseMessagingService();
 
     public GerenciadorDados gerenciadorDados;
+    private NavigationDrawer navDrawer;
 
     private Boolean sair;
     private LineGraphSeries<DataPoint> serieLumi, serieTPlaca, serieTensao, serieCorrente, seriePressao,
@@ -87,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         tb = findViewById(R.id.toolbar);
 
         setSupportActionBar(tb);
+
+        navDrawer = new NavigationDrawer(this);
 
         tabLayout = findViewById(R.id.tabLayout);
 
@@ -164,13 +167,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         sair = false;
         idBtGraf = R.id.btLuminosidade;
 
-    }
-
-    public void goAct(View v, Class act) {
-
-        Intent intAct = new Intent(this, act);
-        startActivity(intAct);
-        this.finish();
     }
 
     /**
@@ -290,7 +286,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         final String VALOR_A_SETAR;
         JSONArray arrayAux;
         try {
-            // se a fonte dos dados tem o tipo de dado, i.e. se o local selecionado tem o tipo de dado
+            // se a fonte dos dados tem o tipo de dado, i.e. se o local selecionado tem o
+            // tipo de dado (e.g checa se o local coleta dados de tensão)
             if (conjunto.has(dado)) {
                 // se a amostra do tipo de dados for um array significa que existe mais de uma entrada
                 // se não, o dado pertence à matriz toda, isto é, a todas as placas
@@ -444,20 +441,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 ((FragmentValoresAtuais) fragments[0]).viewport.setMinX(0);
                 ((FragmentValoresAtuais) fragments[0]).viewport.setMaxX(20);
             }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            if (sair) {
-                super.finish();
-            } else
-                Toast.makeText(this, "Pressione novamente para sair.", Toast.LENGTH_SHORT).show();
-            sair = true;
         }
     }
 
@@ -624,29 +607,38 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             atividades apenas os implementem, ao invés
             de repetir o código
      */
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        boolean mesmo = false;
 
-
-        if (id == R.id.nav_bd) {
-            goAct(findViewById(id), DadosAct.class);
-
-        } else if (id == R.id.nav_graficos) {
-            goAct(findViewById(id), GraficosAct.class);
-
-        } else if (id == R.id.nav_salvar) {
-
-        } else if (id == R.id.nav_notificacoes){
-
+        if (id == R.id.nav_home) {
+            mesmo = true;
         }
 
-        //DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        return navDrawer.navigate(id, mesmo);
+    }
 
-        return true;
+    public void goAct(View v, Class act) {
+
+        Intent intAct = new Intent(this, act);
+        startActivity(intAct);
+        this.finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            if (sair) {
+                super.finish();
+            } else
+                Toast.makeText(this, "Pressione novamente para sair.", Toast.LENGTH_SHORT).show();
+            sair = true;
+        }
     }
 
     /*public void gera(View gerador){
