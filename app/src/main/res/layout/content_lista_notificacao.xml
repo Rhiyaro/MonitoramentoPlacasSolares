@@ -24,7 +24,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/filter_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -51,6 +51,8 @@
                 android:textAppearance="@android:style/TextAppearance.Small"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
+                android:theme="@style/Theme.MaterialComponents"
+                app:chipBackgroundColor="@android:color/darker_gray"
                 app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.SmallComponent"
                 tools:ignore="HardcodedText" />
 
@@ -64,6 +66,8 @@
                 android:textAppearance="@android:style/TextAppearance.Small"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
+                android:theme="@style/Theme.MaterialComponents"
+                app:chipBackgroundColor="@android:color/darker_gray"
                 app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.SmallComponent"
                 tools:ignore="HardcodedText" />
 
@@ -78,34 +82,59 @@
                 android:textAppearance="@android:style/TextAppearance.Small"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
+                android:theme="@style/Theme.MaterialComponents"
+                app:chipBackgroundColor="@android:color/darker_gray"
                 app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.SmallComponent"
                 tools:ignore="HardcodedText" />
         </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bts_linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter_linearLayout">
+
+        <Button
+            android:id="@+id/bt_clear"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="0.5"
+            android:text="Limpar"
+            tools:ignore="HardcodedText" />
 
         <Space
             android:id="@+id/blankSpace"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight="1" />
+            android:layout_weight="0" />
 
         <Button
             android:id="@+id/bt_refresh"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
+            android:layout_weight="0.5"
             android:text="Atualizar"
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/lsita_notif_rv"
+        android:id="@+id/lista_notif_rv"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/bts_linearLayout">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

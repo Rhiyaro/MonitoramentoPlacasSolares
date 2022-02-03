@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -99,8 +100,11 @@ public class RunnableCliente implements Runnable {
         this.params = params;
     }
 
+    /**
+     * Inicializa o Cliente, fazendo as configurações necessárias e abrindo a conexão com o Servidor
+     */
     public void iniciaCliente() {
-        Log.i(TAG, "iniciaCliente: \niniciando cliente");
+        Log.i(TAG, "iniciaCliente: iniciando cliente");
         try {
             if (socket == null || !socket.isConnected()) {
                 socket = new Socket();
@@ -130,17 +134,25 @@ public class RunnableCliente implements Runnable {
         }
     };
 
+    /**
+     * Adiciona uma nova tarefa à lista de execução do Cliente. Inicia o cliente caso não tenha sido
+     * iniciado ainda
+     * @param novaTarefa Tarefa a ser adicionada
+     */
     public void novaTarefa(TarefaCliente novaTarefa) {
-        Log.i(TAG, "novaTarefa: \npacotePedido: " + novaTarefa.getPacotePedido().toString());
+        Log.i(TAG, "novaTarefa: pacotePedido: " + novaTarefa.getPacotePedido().toString());
 
         tarefas.add(novaTarefa);
 
         if (tarefas.size() == 1 && (clienteFuture == null || clienteFuture.isCancelled())) {
-            Log.i(TAG, "novaTarefa: \niniciando cliente");
+            Log.i(TAG, "novaTarefa: iniciando cliente");
             clienteFuture = MainActivity.executorServiceCached.submit(this);
         }
     }
 
+    /**
+     * Avança para a próxima tarefa da lista
+     */
     private void proximaTarefa() {
         TarefaCliente tarefaAtual = tarefas.get(0);
 
@@ -155,9 +167,12 @@ public class RunnableCliente implements Runnable {
         }
     }
 
+    /**
+     * Executa a tarefa passada
+     * @param tarefa Tarefa a ser executada
+     */
     private synchronized void executaTarefa(TarefaCliente tarefa) {
-        Log.i(TAG, "executaTarefa:)");
-        Log.i(TAG, "executaTarefa: " + tarefa.toString() + "--\npacote: " + tarefa.getPacotePedido().toString());
+        Log.i(TAG, "executaTarefa: " + tarefa.toString() + "--pacote: " + tarefa.getPacotePedido().toString());
 
         tarefa.configuraConexao(socket, objIn, objOut);
 
@@ -166,12 +181,14 @@ public class RunnableCliente implements Runnable {
 
     @Override
     public void run() {
-        Log.i(TAG, "run: \n cliente run");
+        Log.i(TAG, "run:  cliente run");
         iniciaCliente();
 
 
         while (!clienteFuture.isCancelled()) {
             if (!tarefas.isEmpty()) {
+                Log.i(TAG, "run: Tarefas: "+ Arrays.toString(tarefas.toArray()));
+                Log.i(TAG, "run:  Rodando tarefa "+tarefas.get(0).getClass());
                 executaTarefa(tarefas.get(0));
 
                 proximaTarefa();

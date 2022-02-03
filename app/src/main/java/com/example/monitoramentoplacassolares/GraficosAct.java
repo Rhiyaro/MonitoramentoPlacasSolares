@@ -59,9 +59,9 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
 
         setContentView(R.layout.act_graficos);
 
-        navDrawer = new NavigationDrawer(this);
-        MenuItem salvar = findViewById(R.id.nav_salvar);
-        salvar.setEnabled(true);
+//        navDrawer = new NavigationDrawer(this);
+//        MenuItem salvar = findViewById(R.id.nav_salvar);
+//        salvar.setEnabled(true);
 
         tb = findViewById(R.id.toolbar);
         setSupportActionBar(tb);
@@ -184,15 +184,36 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
-        boolean mesmo = false;
+//        boolean mesmo = false;
+//
+//        if (id == R.id.nav_graficos) {
+//            mesmo = true;
+//        } else if (id == R.id.nav_salvar){
+//            salvarGraf();
+//        }
+//
+//        return navDrawer.navigate(id, mesmo);
 
-        if (id == R.id.nav_graficos) {
-            mesmo = true;
+        if (id == R.id.nav_home) {
+            goAct(findViewById(id), MainActivity.class);
+
+        } else if (id == R.id.nav_bd) {
+            goAct(findViewById(id), DadosAct.class);
+
+        } else if (id == R.id.nav_graficos) {
+            //goAct(findViewById(id), GraficosAct.class);
+
+        } else if (id == R.id.nav_notificacoes){
+            goAct(findViewById(id), ListaNotificacoes.class);
         } else if (id == R.id.nav_salvar){
-            salvarGraf();
+
         }
 
-        return navDrawer.navigate(id, mesmo);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+
+        return true;
     }
 
     private void salvarGraf(){

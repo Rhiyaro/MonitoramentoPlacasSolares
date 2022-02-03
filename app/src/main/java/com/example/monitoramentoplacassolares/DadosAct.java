@@ -57,9 +57,9 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 
         Log.i(TAG, "onCreate: \ndados");
 
-        navDrawer = new NavigationDrawer(this);
-        MenuItem salvar = findViewById(R.id.nav_salvar);
-        salvar.setEnabled(true);
+//        navDrawer = new NavigationDrawer(this);
+//        MenuItem salvar = findViewById(R.id.nav_salvar);
+//        salvar.setEnabled(true);
 
         sair = false;
 
@@ -224,15 +224,36 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
-        boolean mesmo = false;
+//        boolean mesmo = false;
+//
+//        if (id == R.id.nav_bd) {
+//            mesmo = true;
+//        } else if (id == R.id.nav_salvar){
+//            salvarDados();
+//        }
+//
+//        return navDrawer.navigate(id, mesmo);
 
-        if (id == R.id.nav_bd) {
-            mesmo = true;
+        if (id == R.id.nav_home) {
+            goAct(findViewById(id), MainActivity.class);
+
+        } else if (id == R.id.nav_bd) {
+            //goAct(findViewById(id), DadosAct.class);
+
+        } else if (id == R.id.nav_graficos) {
+            goAct(findViewById(id), GraficosAct.class);
+
+        } else if (id == R.id.nav_notificacoes){
+            goAct(findViewById(id), ListaNotificacoes.class);
         } else if (id == R.id.nav_salvar){
-            salvarDados();
+
         }
 
-        return navDrawer.navigate(id, mesmo);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+
+        return true;
     }
 
     public ArrayList<LocalMonitoramento> getLocais() {

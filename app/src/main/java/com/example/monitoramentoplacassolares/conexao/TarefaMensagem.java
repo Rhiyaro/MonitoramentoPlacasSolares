@@ -42,7 +42,7 @@ public class TarefaMensagem extends TarefaCliente {
 
     @Override
     public void run() {
-        Log.i(TAG, "run start: \n"+getPacotePedido().toString());
+        Log.i(TAG, "run start: "+getPacotePedido().toString());
         if(socket == null){
             Log.i(TAG, "run: socket is null");
         } else {
@@ -52,10 +52,12 @@ public class TarefaMensagem extends TarefaCliente {
         JSONObject resposta = new JSONObject();
         try {
             if (socket.isConnected()) {
-                Log.i(TAG, "run: \ncorpo metodo run");
+                Log.i(TAG, "run: corpo metodo run");
                 objOut.writeObject(getPacotePedido().toString());
 
                 resposta = new JSONObject((String) objIn.readObject());
+
+                Log.i(TAG, "run: resposta="+resposta.toString());
 
                 getResultHandler().postResult(resposta);
             }

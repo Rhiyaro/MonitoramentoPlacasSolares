@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
         setSupportActionBar(tb);
 
-        navDrawer = new NavigationDrawer(this);
+        //navDrawer = new NavigationDrawer(this);
 
         tabLayout = findViewById(R.id.tabLayout);
 
@@ -602,22 +602,37 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         attSeriePlaca();
     }
 
-    /*
-    TODO: Criar uma classe com métodos para que todas as
-            atividades apenas os implementem, ao invés
-            de repetir o código
-     */
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        boolean mesmo = false;
-
+//        boolean mesmo = false;
+//
+//        if (id == R.id.nav_home) {
+//            mesmo = true;
+//        }
+//
+//        return navDrawer.navigate(id, mesmo);
         if (id == R.id.nav_home) {
-            mesmo = true;
+            //goAct(findViewById(id), MainActivity.class);
+
+        } else if (id == R.id.nav_bd) {
+            goAct(findViewById(id), DadosAct.class);
+
+        } else if (id == R.id.nav_graficos) {
+            goAct(findViewById(id), GraficosAct.class);
+
+        } else if (id == R.id.nav_notificacoes){
+            goAct(findViewById(id), ListaNotificacoes.class);
+        } else if (id == R.id.nav_salvar){
+
         }
 
-        return navDrawer.navigate(id, mesmo);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+
+        return true;
     }
 
     public void goAct(View v, Class act) {

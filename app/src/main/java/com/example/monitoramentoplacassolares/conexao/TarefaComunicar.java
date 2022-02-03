@@ -45,12 +45,12 @@ public class TarefaComunicar extends TarefaCliente {
 
     @Override
     public void run() {
-        Log.i(TAG, ".\ncomunicar: start");
+        Log.i(TAG, ".comunicar: start");
 
         JSONObject pacoteRetorno = new JSONObject();
         try {
             if (socket.isConnected()) {
-                while (continuarComunicando) {
+                //while (continuarComunicando) {
                     objOut.writeObject(this.getPacotePedido().toString());
 
                     pacoteRetorno = new JSONObject((String) objIn.readObject());
@@ -61,7 +61,7 @@ public class TarefaComunicar extends TarefaCliente {
                     primeiraChamada = false;
 
                     Thread.sleep(3000);
-                }
+                //}
             }
         } catch (ConnectException | SocketTimeoutException e) {
             try {
