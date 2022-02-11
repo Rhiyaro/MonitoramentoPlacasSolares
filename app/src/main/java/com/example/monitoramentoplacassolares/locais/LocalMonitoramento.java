@@ -37,6 +37,29 @@ public class LocalMonitoramento {
         }
     }
 
+    public LocalMonitoramento(String nome, String codigo, String ip, int port, int numPlacas) {
+        this.nome = nome;
+        this.codigo = codigo;
+        this.ip = ip;
+        this.port = port;
+
+        criaPlacas(numPlacas);
+    }
+
+    private void criaPlacas(int numPlacas){
+        if (numPlacas > 1) {
+            this.placaMedia = new PlacaMonitoramento("Média", "media",0);
+            this.placas.add(placaMedia);
+
+            for (int i = 1; i <= numPlacas; i++) {
+                this.placas.add(new PlacaMonitoramento("Placa "+i, "linha"+i, i));
+            }
+        } else if (numPlacas == 1) {
+            this.placaMedia = new PlacaMonitoramento("Placa Principal", "media",0);
+            this.placas.add(placaMedia);
+        }
+    }
+
     public LocalMonitoramento(String nome, String codigo, String ip, int port, PlacaMonitoramento... placas) {
         this.nome = nome;
         this.codigo = codigo;

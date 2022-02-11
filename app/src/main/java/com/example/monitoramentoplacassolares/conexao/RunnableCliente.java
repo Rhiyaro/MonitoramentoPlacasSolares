@@ -25,8 +25,10 @@ public class RunnableCliente implements Runnable {
 
     //    private static final String hostname = "172.16.116.172";
 //    private static final String hostname = "192.168.1.110";
-    public static final String hostname = "192.168.25.9";
-    private static final int portaServidor = 12345;
+    public static final String host_pc = "192.168.25.9";
+    public static final String host_cefet = "200.9.149.134";
+    public static final int porta_pc = 12345;
+    public static final int porta_cefet = 49186;
 
     private String[] params;
     private JSONObject pacoteConfig;
@@ -108,18 +110,19 @@ public class RunnableCliente implements Runnable {
         try {
             if (socket == null || !socket.isConnected()) {
                 socket = new Socket();
-                SocketAddress socketAddress = new InetSocketAddress(hostname, portaServidor);
+                SocketAddress socketAddress = new InetSocketAddress(host_pc, porta_pc);
+//                SocketAddress socketAddress = new InetSocketAddress(host_cefet, porta_cefet);
                 socket.connect(socketAddress, 1000);
-                Log.i(TAG, "iniciaCliente: socket conectado " + socket.isConnected());
+//                Log.i(TAG, "iniciaCliente: socket conectado " + socket.isConnected());
             }
             if (socket.isConnected()) {
                 if (objIn == null) {
                     objIn = new ObjectInputStream(socket.getInputStream());
-                    Log.i(TAG, "iniciaCliente: " + objIn.toString());
+//                    Log.i(TAG, "iniciaCliente: " + objIn.toString());
                 }
                 if (objOut == null) {
                     objOut = new ObjectOutputStream(socket.getOutputStream());
-                    Log.i(TAG, "iniciaCliente: " + objOut.toString());
+//                    Log.i(TAG, "iniciaCliente: " + objOut.toString());
                 }
             }
         } catch (IOException e) {
@@ -145,7 +148,7 @@ public class RunnableCliente implements Runnable {
         tarefas.add(novaTarefa);
 
         if (tarefas.size() == 1 && (clienteFuture == null || clienteFuture.isCancelled())) {
-            Log.i(TAG, "novaTarefa: iniciando cliente");
+//            Log.i(TAG, "novaTarefa: iniciando cliente");
             clienteFuture = MainActivity.executorServiceCached.submit(this);
         }
     }
@@ -181,14 +184,14 @@ public class RunnableCliente implements Runnable {
 
     @Override
     public void run() {
-        Log.i(TAG, "run:  cliente run");
+//        Log.i(TAG, "run:  cliente run");
         iniciaCliente();
 
 
         while (!clienteFuture.isCancelled()) {
             if (!tarefas.isEmpty()) {
-                Log.i(TAG, "run: Tarefas: "+ Arrays.toString(tarefas.toArray()));
-                Log.i(TAG, "run:  Rodando tarefa "+tarefas.get(0).getClass());
+//                Log.i(TAG, "run: Tarefas: "+ Arrays.toString(tarefas.toArray()));
+                Log.i(TAG, "run:  Rodando tarefa "+tarefas.get(0).getClass() + "\n"+tarefas.get(0).getPacotePedido().toString());
                 executaTarefa(tarefas.get(0));
 
                 proximaTarefa();

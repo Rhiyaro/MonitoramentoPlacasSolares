@@ -396,12 +396,14 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
             switch (pedido) {
                 case "ultimos dados":
+//                    if (fragValAtuais.locais.size() == 0) break;
                     final JSONObject dados = result.getJSONObject("dados");
-                    final JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getCodigo());
+                    final JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getNome());
 
                     setValoresJSON(dadosLocalAtual);
 
                     // TODO: Melhorar controle dos gráficos -> otimizar métodos
+                    // TODO: Gráficos bugaram após mudança na criação dos locais!!!
                     executorServiceCached.submit(new Runnable() {
                         @Override
                         public void run() {
