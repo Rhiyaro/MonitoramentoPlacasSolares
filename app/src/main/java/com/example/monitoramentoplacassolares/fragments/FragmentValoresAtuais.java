@@ -66,7 +66,6 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View inf = inflater.inflate(R.layout.fragment_valores_atuais, container, false);
-
         objetoPrincipal = this;
 
         //Adiciona a lista de locais aos spinners de seleção

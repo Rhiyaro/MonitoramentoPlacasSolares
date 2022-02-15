@@ -1,6 +1,9 @@
 package com.example.monitoramentoplacassolares.locais;
 
+import android.content.Context;
+
 import com.example.monitoramentoplacassolares.MainActivity;
+import com.example.monitoramentoplacassolares.R;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -15,8 +18,8 @@ public class PlacaMonitoramento {
 
     private String strValores, valores;
 
-
     private List<LineGraphSeries<DataPoint>> series = new ArrayList<>();
+    private List<String> titulosSeries = new ArrayList<>();
 
     private LineGraphSeries<DataPoint> serieLumi = new LineGraphSeries<>();
     private LineGraphSeries<DataPoint> serieTPlaca = new LineGraphSeries<>();
@@ -37,27 +40,35 @@ public class PlacaMonitoramento {
     private void inicializaTitulosSeries(){
         serieLumi.setTitle("luminosidade");
         series.add(serieLumi);
+        titulosSeries.add("Luminosidade");
 
         serieTPlaca.setTitle("tempPlaca");
         series.add(serieTPlaca);
+        titulosSeries.add("Temp. Placa");
 
         serieTensao.setTitle("tensao");
         series.add(serieTensao);
+        titulosSeries.add("Tensão");
 
         serieCorrente.setTitle("corrente");
         series.add(serieCorrente);
+        titulosSeries.add("Corrente");
 
         seriePressao.setTitle("pressao");
         series.add(seriePressao);
+        titulosSeries.add("Pressão");
 
         serieTemp.setTitle("temp");
         series.add(serieTemp);
+        titulosSeries.add("Temperatura");
 
         serieUmidade.setTitle("umidade");
         series.add(serieUmidade);
+        titulosSeries.add("Umidade");
 
         serieChuva.setTitle("chuva");
         series.add(serieChuva);
+        titulosSeries.add("Chuva");
     }
 
     public void adicionaPonto(String serie, double valor){
@@ -72,6 +83,20 @@ public class PlacaMonitoramento {
                 alvo.appendData(new DataPoint(MainActivity.x, valor), false, 100);
             }
         }
+    }
+
+    public LineGraphSeries<DataPoint> getSeriesByTitle(String title){
+        Iterator<LineGraphSeries<DataPoint>> it = this.series.iterator();
+        LineGraphSeries<DataPoint> alvo;
+
+        while(it.hasNext()){
+            alvo = it.next();
+            if(alvo.getTitle().equals(title)){
+                return alvo;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -125,5 +150,9 @@ public class PlacaMonitoramento {
 
     public List<LineGraphSeries<DataPoint>> getSeries() {
         return series;
+    }
+
+    public List<String> getTitulosSeries() {
+        return titulosSeries;
     }
 }

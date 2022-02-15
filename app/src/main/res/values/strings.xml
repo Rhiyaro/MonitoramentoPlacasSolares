@@ -28,7 +28,7 @@
     <string name="txtChuvaD">Chuva</string>
     <string name="strMenuMainDados">Dados</string>
     <string name="strMenuMainGraficos">Gráficos</string>
-    <string name="STRluminosidade">luminosidade</string>
+    <string name="luminosidade">luminosidade</string>
     <string name="semValor">---</string>
     <string name="grandezaLuminosidade">L</string>
     <string name="tempplaca">tempPlaca</string>

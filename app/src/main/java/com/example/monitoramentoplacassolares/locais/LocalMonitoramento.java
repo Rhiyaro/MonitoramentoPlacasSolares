@@ -260,4 +260,8 @@ public class LocalMonitoramento {
     public void setPlacas(List<PlacaMonitoramento> placas) {
         this.placas = placas;
     }
+
+    public PlacaMonitoramento getPlacaMedia() {
+        return placaMedia;
+    }
 }

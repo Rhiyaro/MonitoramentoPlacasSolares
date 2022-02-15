@@ -1,6 +1,7 @@
 package com.example.monitoramentoplacassolares;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
@@ -12,6 +13,7 @@ import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.conexao.TarefaComunicar;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
+import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -34,6 +36,7 @@ import android.view.View;
 import androidx.appcompat.widget.Toolbar;
 
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +50,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -332,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
         while (locaisIt.hasNext()) {
             localAux = locaisIt.next();
-            dadosLocal = dados.optJSONObject(localAux.getCodigo());
+            dadosLocal = dados.optJSONObject(localAux.getNome());
             if (dadosLocal != null) {
                 localAux.adicionaDataPoints(dadosLocal);
             }
@@ -396,7 +400,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
             switch (pedido) {
                 case "ultimos dados":
-//                    if (fragValAtuais.locais.size() == 0) break;
                     final JSONObject dados = result.getJSONObject("dados");
                     final JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getNome());
 
@@ -407,15 +410,14 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                     executorServiceCached.submit(new Runnable() {
                         @Override
                         public void run() {
-                            if (!ultimoLocal.equals("") && fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal)) {
-                                adicionaDataPoints(dados);
-                            } else if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
+                            if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
                                 if (!ultimoLocal.equals("") && !ultimaPlaca.equals("")) {
                                     attSeriePlaca();
                                 }
                                 ultimoLocal = fragValAtuais.getLocalAtual().getCodigo();
                                 ultimaPlaca = fragValAtuais.getPlacaAtual().getCodigo();
                             }
+                            adicionaDataPoints(dados);
                             ajeitaGrafico();
                         }
                     });
@@ -433,15 +435,15 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     public void ajeitaGrafico() {
         x++;
 
-        if (((FragmentValoresAtuais) fragments[0]).viewport != null && ((FragmentValoresAtuais) fragments[0]).switchAutoScroll.isChecked()) {
-            ((FragmentValoresAtuais) fragments[0]).viewport.setMaxY(((FragmentValoresAtuais) fragments[0]).viewport.getMaxY(true) * 1.05);
-            ((FragmentValoresAtuais) fragments[0]).viewport.setMinY(((FragmentValoresAtuais) fragments[0]).viewport.getMinY(true) - ((FragmentValoresAtuais) fragments[0]).viewport.getMinY(true) * 0.05);
+        if (fragValAtuais.viewport != null && fragValAtuais.switchAutoScroll.isChecked()) {
+            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.05);
+            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.05);
             if (x > 20) {
-                ((FragmentValoresAtuais) fragments[0]).viewport.setMinX(((FragmentValoresAtuais) fragments[0]).viewport.getMaxX(true) - 20);
-                ((FragmentValoresAtuais) fragments[0]).viewport.setMaxX(((FragmentValoresAtuais) fragments[0]).viewport.getMaxX(true));
+                fragValAtuais.viewport.setMinX(fragValAtuais.viewport.getMaxX(true) - 20);
+                fragValAtuais.viewport.setMaxX(fragValAtuais.viewport.getMaxX(true));
             } else {
-                ((FragmentValoresAtuais) fragments[0]).viewport.setMinX(0);
-                ((FragmentValoresAtuais) fragments[0]).viewport.setMaxX(20);
+                fragValAtuais.viewport.setMinX(0);
+                fragValAtuais.viewport.setMaxX(20);
             }
         }
     }
@@ -579,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 if (fragValAtuais.getPlacaAtual().getSerieChuva().isEmpty()) {
                     fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieChuva());
                 } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieChuva());
+                    fragValAtuais.graf.addSeries(fragValAtuais.getPlacaAtual().getSerieChuva());
                 }
                 fragValAtuais.grafAtual = "Intens. Chuva";
                 break;
@@ -592,16 +594,57 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             }
         });
 
-        if (((FragmentValoresAtuais) fragments[0]).viewport != null) {
-            ((FragmentValoresAtuais) fragments[0]).viewport.setMaxY(((FragmentValoresAtuais) fragments[0]).viewport.getMaxY(true) * 1.2);
-            ((FragmentValoresAtuais) fragments[0]).viewport.setMinY(((FragmentValoresAtuais) fragments[0]).viewport.getMinY(true) - ((FragmentValoresAtuais) fragments[0]).viewport.getMinY(true) * 0.2);
+        if (fragValAtuais.viewport != null) {
+            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
+            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
+        }
+    }
+
+    private void atualizaGrafico(String serieEscolhida){
+        /*
+        TODO: Continuar vendo como será feita essa parte e a adição dos pontos a cada placa
+                Será feito por R.string ou hardcoded ou no pedido de local
+         */
+
+        fragValAtuais.graf.removeAllSeries();
+
+        PlacaMonitoramento placaAtual = fragValAtuais.getPlacaAtual();
+        List<LineGraphSeries<DataPoint>> graphSeries = placaAtual.getSeries();
+        LineGraphSeries<DataPoint> lineGraph;
+
+        for (int i = 0; i < graphSeries.size(); i++) {
+            lineGraph = graphSeries.get(i);
+            if (lineGraph.getTitle().equals(serieEscolhida)){
+                fragValAtuais.grafAtual = placaAtual.getTitulosSeries().get(i);
+
+                if (lineGraph.isEmpty()) {
+                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacaMedia().getSeriesByTitle(serieEscolhida));
+                } else {
+                    fragValAtuais.graf.addSeries(fragValAtuais.getPlacaAtual().getSeriesByTitle(serieEscolhida));
+                }
+            }
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual);
+            }
+        });
+
+        if (fragValAtuais.viewport != null) {
+            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
+            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
         }
     }
 
     public void escolheGraf(View view) {
         idBtGraf = view.getId();
-        //attSerie();
-        attSeriePlaca();
+        String btHint = ((Button) view).getHint().toString();
+        Log.i(TAG, "escolheGraf: "+btHint);
+//        attSerie();
+//        attSeriePlaca();
+        atualizaGrafico(btHint);
     }
 
     @Override
