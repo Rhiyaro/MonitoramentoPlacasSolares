@@ -1,4 +1,4 @@
-package com.example.monitoramentoplacassolares;
+package com.example.monitoramentoplacassolares.activities;
 
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.conexao.Cliente;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;

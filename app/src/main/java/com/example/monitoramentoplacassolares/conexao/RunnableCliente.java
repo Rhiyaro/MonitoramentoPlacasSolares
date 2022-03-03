@@ -2,8 +2,8 @@ package com.example.monitoramentoplacassolares.conexao;
 
 import android.util.Log;
 
-import com.example.monitoramentoplacassolares.LoginAct;
-import com.example.monitoramentoplacassolares.MainActivity;
+import com.example.monitoramentoplacassolares.activities.LoginAct;
+import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 
 import org.json.JSONObject;

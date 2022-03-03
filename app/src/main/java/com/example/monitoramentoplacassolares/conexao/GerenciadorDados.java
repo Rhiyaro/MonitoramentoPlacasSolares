@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.example.monitoramentoplacassolares.MainActivity;
+import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.example.monitoramentoplacassolares.fragments.FragmentValoresAtuais;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 

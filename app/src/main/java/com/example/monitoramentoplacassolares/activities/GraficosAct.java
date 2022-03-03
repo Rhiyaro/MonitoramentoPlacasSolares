@@ -1,13 +1,14 @@
-package com.example.monitoramentoplacassolares;
+package com.example.monitoramentoplacassolares.activities;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 
 import androidx.annotation.NonNull;
+
+import com.example.monitoramentoplacassolares.R;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;

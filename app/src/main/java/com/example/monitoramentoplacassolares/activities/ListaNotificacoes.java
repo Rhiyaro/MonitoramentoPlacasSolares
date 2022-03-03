@@ -1,4 +1,4 @@
-package com.example.monitoramentoplacassolares;
+package com.example.monitoramentoplacassolares.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -15,8 +15,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
+import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.adapters.ListaNotificacaoAdapter;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;

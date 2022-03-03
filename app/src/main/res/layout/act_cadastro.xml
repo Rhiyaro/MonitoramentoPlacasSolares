@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/corApp"
     android:fitsSystemWindows="true"
-    tools:context=".CadastroAct">
+    tools:context=".activities.CadastroAct">
 
     <TextView
         android:id="@+id/textView7"

@@ -1,13 +1,13 @@
-package com.example.monitoramentoplacassolares;
+package com.example.monitoramentoplacassolares.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.conexao.GerenciadorDados;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.conexao.TarefaComunicar;

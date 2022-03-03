@@ -21,17 +21,17 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning" >
         <activity
-            android:name=".ListaNotificacoes"
+            android:name=".activities.ListaNotificacoes"
             android:label="@string/title_activity_lista_notificacoes"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".CadastroAct"
+            android:name=".activities.CadastroAct"
             android:label="Cadastrar"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".LoginAct"
+            android:name=".activities.LoginAct"
             android:screenOrientation="fullSensor"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize" >
@@ -42,15 +42,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DadosAct"
+            android:name=".activities.DadosAct"
             android:label="@string/title_activity_dados"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".GraficosAct"
+            android:name=".activities.GraficosAct"
             android:label="@string/title_activity_graficos"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/title_activity_home"
             android:screenOrientation="fullSensor"
             android:theme="@style/AppTheme.NoActionBar" />

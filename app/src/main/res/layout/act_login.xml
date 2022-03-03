@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/corApp"
     android:fitsSystemWindows="true"
-    tools:context=".LoginAct">
+    tools:context=".activities.LoginAct">
 
     <EditText
         android:id="@+id/edtTxtLogin"

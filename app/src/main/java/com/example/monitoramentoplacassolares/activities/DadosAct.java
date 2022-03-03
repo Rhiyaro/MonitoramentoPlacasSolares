@@ -1,9 +1,10 @@
-package com.example.monitoramentoplacassolares;
+package com.example.monitoramentoplacassolares.activities;
 
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.google.android.material.navigation.NavigationView;

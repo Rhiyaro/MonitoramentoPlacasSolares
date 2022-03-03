@@ -1,9 +1,6 @@
 package com.example.monitoramentoplacassolares.locais;
 
-import android.content.Context;
-
-import com.example.monitoramentoplacassolares.MainActivity;
-import com.example.monitoramentoplacassolares.R;
+import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 

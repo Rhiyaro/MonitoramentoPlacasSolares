@@ -1,4 +1,4 @@
-package com.example.monitoramentoplacassolares;
+package com.example.monitoramentoplacassolares.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.conexao.Cliente;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
@@ -59,8 +60,7 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
 
     public void logar(View view) {
         /*
-        TODO: Refatorar todo o código para funcionar com o CallableClient e Futures -> Checar
-                se ainda será interessante
+        TODO: Checar interesse em usar Callable
          */
         if(edtTxtLogin.getText().length() < 3 || edtTxtSenha.getText().length() < 3){
             tentandoLogar = false;

@@ -3,7 +3,7 @@ package com.example.monitoramentoplacassolares.conexao;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.monitoramentoplacassolares.LoginAct;
+import com.example.monitoramentoplacassolares.activities.LoginAct;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

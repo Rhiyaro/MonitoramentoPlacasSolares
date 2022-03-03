@@ -1,6 +1,6 @@
 package com.example.monitoramentoplacassolares.locais;
 
-import com.example.monitoramentoplacassolares.MainActivity;
+import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.jjoe64.graphview.series.DataPoint;
 
 import org.json.JSONArray;

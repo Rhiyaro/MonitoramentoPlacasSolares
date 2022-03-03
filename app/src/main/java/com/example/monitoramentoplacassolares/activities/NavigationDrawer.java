@@ -1,4 +1,4 @@
-package com.example.monitoramentoplacassolares;
+package com.example.monitoramentoplacassolares.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,9 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.example.monitoramentoplacassolares.DadosAct;
-import com.example.monitoramentoplacassolares.GraficosAct;
-import com.example.monitoramentoplacassolares.ListaNotificacoes;
 import com.example.monitoramentoplacassolares.R;
 
 public class NavigationDrawer extends AppCompatActivity {
