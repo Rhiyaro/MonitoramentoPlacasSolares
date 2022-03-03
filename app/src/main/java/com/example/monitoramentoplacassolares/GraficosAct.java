@@ -49,6 +49,8 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     private Toolbar tb;
     private String Dados;
 
+    private NavigationDrawer navDrawer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +58,10 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
         Log.i(TAG, "onCreate: \ngrafs");
 
         setContentView(R.layout.act_graficos);
+
+//        navDrawer = new NavigationDrawer(this);
+//        MenuItem salvar = findViewById(R.id.nav_salvar);
+//        salvar.setEnabled(true);
 
         tb = findViewById(R.id.toolbar);
         setSupportActionBar(tb);
@@ -128,31 +134,29 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
                     String[] aux = vetDados[i].split(",");
                     for (int j = 0; j < vetDados[0].split(",").length; j++) {
                         dados[i][j] = aux[j];
-                        if (i!=0) {
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[0]))
-                                if (j == 1)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[0]))
+                            if (j == 1)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[1]))
-                                if (j == 2)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[1]))
+                            if (j == 2)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[2]))
-                                if (j == 4)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[2]))
+                            if (j == 4)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[3]))
-                                if (j == 5)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[3]))
+                            if (j == 5)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[4]))
-                                if (j == 6)
-                                    y[i-1] = Integer.parseInt(aux[j]);
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[4]))
+                            if (j == 6)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
-                            if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[5]))
-                                if (j == 7)
-                                    y[i-1] = Integer.parseInt(aux[j]);
-                        }
+                        if (spDado.getSelectedItem().equals(getResources().getStringArray(R.array.strSpDados)[5]))
+                            if (j == 7)
+                                y[i-1] = Integer.parseInt(aux[j]);
 
                     }
                     if(y[i-1]>ymax)
@@ -180,29 +184,43 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
+//        boolean mesmo = false;
+//
+//        if (id == R.id.nav_graficos) {
+//            mesmo = true;
+//        } else if (id == R.id.nav_salvar){
+//            salvarGraf();
+//        }
+//
+//        return navDrawer.navigate(id, mesmo);
 
         if (id == R.id.nav_home) {
             goAct(findViewById(id), MainActivity.class);
 
         } else if (id == R.id.nav_bd) {
             goAct(findViewById(id), DadosAct.class);
-        } else if (id == R.id.nav_salvar) {
-            salvarGraf();
+
+        } else if (id == R.id.nav_graficos) {
+            //goAct(findViewById(id), GraficosAct.class);
+
+        } else if (id == R.id.nav_notificacoes){
+            goAct(findViewById(id), ListaNotificacoes.class);
+        } else if (id == R.id.nav_salvar){
+
         }
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
         return true;
     }
 
     private void salvarGraf(){
 
         Bitmap bitmap = graf.takeSnapshot();
-        if (Build.VERSION.SDK_INT >= 23) {
-            String[] PERMISSIONS = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            ActivityCompat.requestPermissions((Activity) GraficosAct.this, PERMISSIONS, 112);
-        }
+        String[] PERMISSIONS = {android.Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        ActivityCompat.requestPermissions((Activity) GraficosAct.this, PERMISSIONS, 112);
 
         String fileName = spDia.getSelectedItem() + (String)spMes.getSelectedItem() + ".jpg";
 

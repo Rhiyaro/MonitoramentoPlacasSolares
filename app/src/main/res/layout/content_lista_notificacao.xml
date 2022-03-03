@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/corApp"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:id="@+id/filter_linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipgr_falhas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            app:singleLine="false">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/cp_filter_normal"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:singleLine="true"
+                android:text="Normal"
+                android:textAlignment="center"
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:theme="@style/Theme.MaterialComponents"
+                app:chipBackgroundColor="@android:color/darker_gray"
+                app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.SmallComponent"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/cp_filter_open"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Aberto"
+                android:textAlignment="center"
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:theme="@style/Theme.MaterialComponents"
+                app:chipBackgroundColor="@android:color/darker_gray"
+                app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.SmallComponent"
+                tools:ignore="HardcodedText" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/cp_filter_line"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:singleLine="true"
+                android:text="Linha-LInha"
+                android:textAlignment="center"
+                android:textAppearance="@android:style/TextAppearance.Small"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:theme="@style/Theme.MaterialComponents"
+                app:chipBackgroundColor="@android:color/darker_gray"
+                app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.SmallComponent"
+                tools:ignore="HardcodedText" />
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bts_linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter_linearLayout">
+
+        <Button
+            android:id="@+id/bt_clear"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="0.5"
+            android:text="Limpar"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:id="@+id/blankSpace"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="0" />
+
+        <Button
+            android:id="@+id/bt_refresh"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="0.5"
+            android:onClick="btAtualizaLista"
+            android:text="Atualizar"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/lista_notif_rv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bts_linearLayout">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

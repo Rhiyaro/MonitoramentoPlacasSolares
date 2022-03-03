@@ -10,14 +10,12 @@ import com.example.monitoramentoplacassolares.R;
 
 import org.json.JSONObject;
 
-import java.util.Iterator;
-
 public class DadosAdapter extends RecyclerView.Adapter<DadosAdapter.DadosViewHolder> {
     public static final String TAG = "DadosAdapter";
 
     //TODO: Adaptar para JSONObjects
 
-    private String Dados[];
+    private String[] Dados;
     private JSONObject dados;
 
     public DadosAdapter(String Dados) {

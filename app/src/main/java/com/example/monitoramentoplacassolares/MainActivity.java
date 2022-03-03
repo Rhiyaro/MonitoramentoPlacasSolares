@@ -1,6 +1,7 @@
 package com.example.monitoramentoplacassolares;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
@@ -12,6 +13,7 @@ import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.conexao.TarefaComunicar;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
+import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -34,6 +36,7 @@ import android.view.View;
 import androidx.appcompat.widget.Toolbar;
 
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,8 +49,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     public MyFirebaseMessagingService msgServ = new MyFirebaseMessagingService();
 
     public GerenciadorDados gerenciadorDados;
+    private NavigationDrawer navDrawer;
 
     private Boolean sair;
     private LineGraphSeries<DataPoint> serieLumi, serieTPlaca, serieTensao, serieCorrente, seriePressao,
@@ -88,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         tb = findViewById(R.id.toolbar);
 
         setSupportActionBar(tb);
+
+        //navDrawer = new NavigationDrawer(this);
 
         tabLayout = findViewById(R.id.tabLayout);
 
@@ -165,13 +171,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         sair = false;
         idBtGraf = R.id.btLuminosidade;
 
-    }
-
-    public void goAct(View v, Class act) {
-
-        Intent intAct = new Intent(this, act);
-        startActivity(intAct);
-        this.finish();
     }
 
     /**
@@ -291,7 +290,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         final String VALOR_A_SETAR;
         JSONArray arrayAux;
         try {
-            // se a fonte dos dados tem o tipo de dado, i.e. se o local selecionado tem o tipo de dado
+            // se a fonte dos dados tem o tipo de dado, i.e. se o local selecionado tem o
+            // tipo de dado (e.g checa se o local coleta dados de tensão)
             if (conjunto.has(dado)) {
                 // se a amostra do tipo de dados for um array significa que existe mais de uma entrada
                 // se não, o dado pertence à matriz toda, isto é, a todas as placas
@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
         while (locaisIt.hasNext()) {
             localAux = locaisIt.next();
-            dadosLocal = dados.optJSONObject(localAux.getCodigo());
+            dadosLocal = dados.optJSONObject(localAux.getNome());
             if (dadosLocal != null) {
                 localAux.adicionaDataPoints(dadosLocal);
             }
@@ -401,23 +401,23 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             switch (pedido) {
                 case "ultimos dados":
                     final JSONObject dados = result.getJSONObject("dados");
-                    final JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getCodigo());
+                    final JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getNome());
 
                     setValoresJSON(dadosLocalAtual);
 
                     // TODO: Melhorar controle dos gráficos -> otimizar métodos
+                    // TODO: Gráficos bugaram após mudança na criação dos locais!!!
                     executorServiceCached.submit(new Runnable() {
                         @Override
                         public void run() {
-                            if (!ultimoLocal.equals("") && fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal)) {
-                                adicionaDataPoints(dados);
-                            } else if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
+                            if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
                                 if (!ultimoLocal.equals("") && !ultimaPlaca.equals("")) {
                                     attSeriePlaca();
                                 }
                                 ultimoLocal = fragValAtuais.getLocalAtual().getCodigo();
                                 ultimaPlaca = fragValAtuais.getPlacaAtual().getCodigo();
                             }
+                            adicionaDataPoints(dados);
                             ajeitaGrafico();
                         }
                     });
@@ -435,30 +435,16 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     public void ajeitaGrafico() {
         x++;
 
-        if (((FragmentValoresAtuais) fragments[0]).viewport != null && ((FragmentValoresAtuais) fragments[0]).switchAutoScroll.isChecked()) {
-            ((FragmentValoresAtuais) fragments[0]).viewport.setMaxY(((FragmentValoresAtuais) fragments[0]).viewport.getMaxY(true) * 1.05);
-            ((FragmentValoresAtuais) fragments[0]).viewport.setMinY(((FragmentValoresAtuais) fragments[0]).viewport.getMinY(true) - ((FragmentValoresAtuais) fragments[0]).viewport.getMinY(true) * 0.05);
+        if (fragValAtuais.viewport != null && fragValAtuais.switchAutoScroll.isChecked()) {
+            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.05);
+            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.05);
             if (x > 20) {
-                ((FragmentValoresAtuais) fragments[0]).viewport.setMinX(((FragmentValoresAtuais) fragments[0]).viewport.getMaxX(true) - 20);
-                ((FragmentValoresAtuais) fragments[0]).viewport.setMaxX(((FragmentValoresAtuais) fragments[0]).viewport.getMaxX(true));
+                fragValAtuais.viewport.setMinX(fragValAtuais.viewport.getMaxX(true) - 20);
+                fragValAtuais.viewport.setMaxX(fragValAtuais.viewport.getMaxX(true));
             } else {
-                ((FragmentValoresAtuais) fragments[0]).viewport.setMinX(0);
-                ((FragmentValoresAtuais) fragments[0]).viewport.setMaxX(20);
+                fragValAtuais.viewport.setMinX(0);
+                fragValAtuais.viewport.setMaxX(20);
             }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            if (sair) {
-                super.finish();
-            } else
-                Toast.makeText(this, "Pressione novamente para sair.", Toast.LENGTH_SHORT).show();
-            sair = true;
         }
     }
 
@@ -595,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 if (fragValAtuais.getPlacaAtual().getSerieChuva().isEmpty()) {
                     fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieChuva());
                 } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieChuva());
+                    fragValAtuais.graf.addSeries(fragValAtuais.getPlacaAtual().getSerieChuva());
                 }
                 fragValAtuais.grafAtual = "Intens. Chuva";
                 break;
@@ -608,39 +594,111 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             }
         });
 
-        if (((FragmentValoresAtuais) fragments[0]).viewport != null) {
-            ((FragmentValoresAtuais) fragments[0]).viewport.setMaxY(((FragmentValoresAtuais) fragments[0]).viewport.getMaxY(true) * 1.2);
-            ((FragmentValoresAtuais) fragments[0]).viewport.setMinY(((FragmentValoresAtuais) fragments[0]).viewport.getMinY(true) - ((FragmentValoresAtuais) fragments[0]).viewport.getMinY(true) * 0.2);
+        if (fragValAtuais.viewport != null) {
+            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
+            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
+        }
+    }
+
+    private void atualizaGrafico(String serieEscolhida){
+        /*
+        TODO: Continuar vendo como será feita essa parte e a adição dos pontos a cada placa
+                Será feito por R.string ou hardcoded ou no pedido de local
+         */
+
+        fragValAtuais.graf.removeAllSeries();
+
+        PlacaMonitoramento placaAtual = fragValAtuais.getPlacaAtual();
+        List<LineGraphSeries<DataPoint>> graphSeries = placaAtual.getSeries();
+        LineGraphSeries<DataPoint> lineGraph;
+
+        for (int i = 0; i < graphSeries.size(); i++) {
+            lineGraph = graphSeries.get(i);
+            if (lineGraph.getTitle().equals(serieEscolhida)){
+                fragValAtuais.grafAtual = placaAtual.getTitulosSeries().get(i);
+
+                if (lineGraph.isEmpty()) {
+                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacaMedia().getSeriesByTitle(serieEscolhida));
+                } else {
+                    fragValAtuais.graf.addSeries(fragValAtuais.getPlacaAtual().getSeriesByTitle(serieEscolhida));
+                }
+            }
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual);
+            }
+        });
+
+        if (fragValAtuais.viewport != null) {
+            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
+            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
         }
     }
 
     public void escolheGraf(View view) {
         idBtGraf = view.getId();
-        //attSerie();
-        attSeriePlaca();
+        String btHint = ((Button) view).getHint().toString();
+        Log.i(TAG, "escolheGraf: "+btHint);
+//        attSerie();
+//        attSeriePlaca();
+        atualizaGrafico(btHint);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+//        boolean mesmo = false;
+//
+//        if (id == R.id.nav_home) {
+//            mesmo = true;
+//        }
+//
+//        return navDrawer.navigate(id, mesmo);
+        if (id == R.id.nav_home) {
+            //goAct(findViewById(id), MainActivity.class);
 
-
-        if (id == R.id.nav_bd) {
+        } else if (id == R.id.nav_bd) {
             goAct(findViewById(id), DadosAct.class);
 
         } else if (id == R.id.nav_graficos) {
             goAct(findViewById(id), GraficosAct.class);
 
-        } else if (id == R.id.nav_salvar) {
+        } else if (id == R.id.nav_notificacoes){
+            goAct(findViewById(id), ListaNotificacoes.class);
+        } else if (id == R.id.nav_salvar){
 
         }
 
-        //DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    public void goAct(View v, Class act) {
+
+        Intent intAct = new Intent(this, act);
+        startActivity(intAct);
+//        this.finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            if (sair) {
+                super.finish();
+            } else
+                Toast.makeText(this, "Pressione novamente para sair.", Toast.LENGTH_SHORT).show();
+            sair = true;
+        }
     }
 
     /*public void gera(View gerador){

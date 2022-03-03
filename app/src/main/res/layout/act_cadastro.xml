@@ -15,7 +15,8 @@
         android:text="Deve conter mais de dois alphanuméricos, sem caractéres especiais. (aA-zZ 0-9)"
         android:textSize="8sp"
         app:layout_constraintBottom_toTopOf="@+id/edtTxtLogin"
-        app:layout_constraintEnd_toEndOf="@+id/edtTxtLogin" />
+        app:layout_constraintEnd_toEndOf="@+id/edtTxtLogin"
+        tools:ignore="HardcodedText,SmallSp" />
 
     <EditText
         android:id="@+id/edtTxtSenha2"
@@ -31,7 +32,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        android:autofillHints="" />
 
     <TextView
         android:id="@+id/textView5"
@@ -42,7 +44,8 @@
         android:textColor="@color/branco"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/edtTxtSenha"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtSenha2" />
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtSenha2"
+        tools:ignore="HardcodedText" />
 
     <EditText
         android:id="@+id/edtTxtLogin"
@@ -85,7 +88,8 @@
         android:textColor="@color/branco"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/edtTxtLogin"
-        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+        app:layout_constraintTop_toBottomOf="@+id/textView9"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView4"
@@ -96,21 +100,23 @@
         android:textColor="@color/branco"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/edtTxtSenha2"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtLogin" />
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtLogin"
+        tools:ignore="HardcodedText" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
         android:layout_marginBottom="24dp"
         android:clickable="true"
         android:onClick="btAvancar"
         app:backgroundTint="#00A2FF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_avancar_branco" />
+        app:srcCompat="@drawable/ic_avancar_branco"
+        android:contentDescription="TODO"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView6"
@@ -119,7 +125,8 @@
         android:text="Deve conter mais de 4 caractéres, sem especiais."
         android:textSize="8sp"
         app:layout_constraintBottom_toTopOf="@+id/edtTxtSenha2"
-        app:layout_constraintEnd_toEndOf="@+id/edtTxtSenha2" />
+        app:layout_constraintEnd_toEndOf="@+id/edtTxtSenha2"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textView9"
@@ -135,6 +142,7 @@
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

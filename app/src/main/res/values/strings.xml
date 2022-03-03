@@ -28,7 +28,7 @@
     <string name="txtChuvaD">Chuva</string>
     <string name="strMenuMainDados">Dados</string>
     <string name="strMenuMainGraficos">Gráficos</string>
-    <string name="STRluminosidade">luminosidade</string>
+    <string name="luminosidade">luminosidade</string>
     <string name="semValor">---</string>
     <string name="grandezaLuminosidade">L</string>
     <string name="tempplaca">tempPlaca</string>
@@ -113,5 +113,19 @@
         <item>CEFET-RJ/RJ</item>
         <item>UFRRJ-NI/RJ</item>
     </string-array>
+    <string name="title_activity_lista_notificacoes">Notificações</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="title_activity_nav_test">NavTest</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
 
 </resources>
