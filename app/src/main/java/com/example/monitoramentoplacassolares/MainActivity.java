@@ -684,7 +684,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
         Intent intAct = new Intent(this, act);
         startActivity(intAct);
-        this.finish();
+//        this.finish();
     }
 
     @Override

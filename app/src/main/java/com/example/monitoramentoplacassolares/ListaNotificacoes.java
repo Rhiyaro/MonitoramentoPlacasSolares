@@ -9,13 +9,13 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.monitoramentoplacassolares.adapters.ListaNotificacaoAdapter;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
@@ -66,39 +66,12 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
 
         bt_refresh = findViewById(R.id.bt_refresh);
 
-        bt_refresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainActivity.executorServiceCached.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            synchronized (esperaResposta) {
-                                AtualizaNotificacoes();
-                                esperaResposta.wait();
-                            }
-                        } catch (JSONException | InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Log.i(TAG, "AtualizaLista: " + notificacoes.toString());
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                AtualizaLista();
-                            }
-                        });
-                    }
-                });
-            }
-        });
-
         listaNotificacaoRV = findViewById(R.id.lista_notif_rv);
-        AtualizaLista();
+        atualizaLista();
 
     }
 
-    private void AtualizaNotificacoes() throws JSONException {
+    private void atualizaNotificacoes() throws JSONException {
         JSONObject pedido = new JSONObject();
         pedido.put("acao", "notificacoes");
         pedido.put("pedido", "lista notificacoes");
@@ -111,8 +84,7 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
         MainActivity.Cliente.novaTarefa(tarefaMsg);
     }
 
-    //TODO: Terminar de implementar a atualização da lista, com o pedido para o servidor
-    private void AtualizaLista() {
+    private void atualizaLista() {
 
         ListaNotificacaoAdapter listaAdapter = new ListaNotificacaoAdapter(objetoPrincipal, notificacoes);
         listaNotificacaoRV.setAdapter(listaAdapter);
@@ -192,4 +164,30 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
                 Log.w(TAG, "postResult: error");
         }
     }
+
+    public void btAtualizaLista(View view){
+        MainActivity.executorServiceCached.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    synchronized (esperaResposta) {
+                        atualizaNotificacoes();
+                        esperaResposta.wait();
+                    }
+                } catch (JSONException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.i(TAG, "AtualizaLista: " + notificacoes.toString());
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        atualizaLista();
+                    }
+                });
+            }
+        });
+    }
+
+
 }

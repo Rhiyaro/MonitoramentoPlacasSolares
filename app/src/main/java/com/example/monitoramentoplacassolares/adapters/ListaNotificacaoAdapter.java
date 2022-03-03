@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,18 +54,29 @@ public class ListaNotificacaoAdapter extends RecyclerView.Adapter<ListaNotificac
     public void onBindViewHolder(@NonNull ListaNotifViewHolder holder, int position) {
         JSONObject notificacao = notificacoes.get(position);
         holder.txtData.setText(notificacao.optString("data_criacao"));
-        holder.txtTipo.setText(notificacao.optString("tipo"));
 
         String estado = notificacao.optString("estado");
+        holder.txtTipo.setText(estado);
+
         int cor = Color.RED;
         if(estado.toLowerCase().equals("normal")){
             cor = Color.GREEN;
-            holder.btIndicador.setText("OK");
+            holder.txtIndicador.setText("OK");
         } else {
-            holder.btIndicador.setText("FALHA");
+            holder.txtIndicador.setText("FALHA");
         }
-        holder.btIndicador.setBackgroundColor(cor);
-        //holder.btIndicador.setText(estado);
+        holder.txtIndicador.setBackgroundColor(cor);
+
+        holder.txtConfirm.setText(notificacao.optString("confirmada"));
+
+        final ListaNotifViewHolder auxHolder = holder;
+
+        holder.btDetalhes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                abreDetalhes(v, auxHolder);
+            }
+        });
     }
 
     @Override
@@ -74,12 +87,18 @@ public class ListaNotificacaoAdapter extends RecyclerView.Adapter<ListaNotificac
         return 0;
     }
 
+    public void abreDetalhes(View view, ListaNotifViewHolder holder){
+        //TODO: Implementar aba "detalhes"
+        Toast.makeText(view.getContext(), "Detalhes Notificação de "+holder.txtData.getText().toString(), Toast.LENGTH_SHORT).show();
+    }
+
     public class ListaNotifViewHolder extends RecyclerView.ViewHolder {
 
         TextView txtDisparada, txtData;
         TextView txtDizTipo, txtTipo;
-        TextView btIndicador;
-        Button btDetalhes;
+        TextView txtDizConf, txtConfirm;
+        TextView txtIndicador;
+        ImageButton btDetalhes;
 
         public ListaNotifViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -87,9 +106,11 @@ public class ListaNotificacaoAdapter extends RecyclerView.Adapter<ListaNotificac
             txtDisparada = itemView.findViewById(R.id.txt_disparada);
             txtData = itemView.findViewById(R.id.txt_data_criacao);
             txtDizTipo = itemView.findViewById(R.id.txt_diz_tipo);
-            txtTipo = itemView.findViewById(R.id.txt_tipo_notif);
+            txtTipo = itemView.findViewById(R.id.txt_tipo);
 
-            btIndicador = itemView.findViewById(R.id.bt_indicador_falha);
+            txtConfirm = itemView.findViewById(R.id.txt_confirmada);
+
+            txtIndicador = itemView.findViewById(R.id.bt_indicador_falha);
             btDetalhes = itemView.findViewById(R.id.bt_detalhes);
         }
     }

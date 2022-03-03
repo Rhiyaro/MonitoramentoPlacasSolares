@@ -15,7 +15,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -25,8 +24,10 @@ public class RunnableCliente implements Runnable {
 
     //    private static final String hostname = "172.16.116.172";
 //    private static final String hostname = "192.168.1.110";
+    public static final String host_atual = "200.9.149.134";
     public static final String host_pc = "192.168.25.9";
     public static final String host_cefet = "200.9.149.134";
+    public static final int porta_atual = 8080;
     public static final int porta_pc = 12345;
     public static final int porta_cefet = 49186;
 
@@ -110,7 +111,7 @@ public class RunnableCliente implements Runnable {
         try {
             if (socket == null || !socket.isConnected()) {
                 socket = new Socket();
-                SocketAddress socketAddress = new InetSocketAddress(host_pc, porta_pc);
+                SocketAddress socketAddress = new InetSocketAddress(host_atual, porta_atual);
 //                SocketAddress socketAddress = new InetSocketAddress(host_cefet, porta_cefet);
                 socket.connect(socketAddress, 1000);
 //                Log.i(TAG, "iniciaCliente: socket conectado " + socket.isConnected());

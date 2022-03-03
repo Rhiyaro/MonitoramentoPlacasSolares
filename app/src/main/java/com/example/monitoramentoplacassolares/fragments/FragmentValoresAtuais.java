@@ -1,7 +1,6 @@
 package com.example.monitoramentoplacassolares.fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -17,7 +16,6 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.example.monitoramentoplacassolares.ListaNotificacoes;
 import com.example.monitoramentoplacassolares.MainActivity;
 import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
@@ -251,7 +249,7 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
                     int numPlacas = jsLocal.optInt("matrizes");
 
                     LocalMonitoramento local = new LocalMonitoramento(nomeLocal, codigoLocal,
-                            RunnableCliente.host_pc, RunnableCliente.porta_pc, numPlacas);
+                            RunnableCliente.host_atual, RunnableCliente.porta_atual, numPlacas);
 
                     locais.add(local);
                 }

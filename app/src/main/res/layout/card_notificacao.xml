@@ -20,6 +20,29 @@
             android:layout_height="match_parent">
 
             <TextView
+                android:id="@+id/txt_confirmada"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="N/A"
+                android:textColor="@android:color/black"
+                android:textColorHint="#555555"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/txt_data_criacao"
+                app:layout_constraintTop_toBottomOf="@+id/txt_tipo"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/txt_diz_confirmada"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Revisão:"
+                android:textColor="@android:color/black"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/txt_disparada"
+                app:layout_constraintTop_toBottomOf="@+id/txt_diz_tipo"
+                tools:ignore="HardcodedText" />
+
+            <TextView
                 android:id="@+id/bt_indicador_falha"
                 android:layout_width="50dp"
                 android:layout_height="0dp"
@@ -49,23 +72,11 @@
                 android:id="@+id/txt_diz_tipo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Análise:"
+                android:text="Tipo:"
                 android:textColor="@android:color/black"
                 android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/txt_disparada"
-                tools:ignore="HardcodedText" />
-
-            <Button
-                android:id="@+id/bt_detalhes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="DETALHES"
-                android:text="DETALHES"
-                android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txt_disparada"
                 tools:ignore="HardcodedText" />
 
             <TextView
@@ -82,16 +93,30 @@
                 tools:ignore="HardcodedText" />
 
             <TextView
-                android:id="@+id/txt_tipo_notif"
+                android:id="@+id/txt_tipo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="N/A"
                 android:textColor="@android:color/black"
                 android:textColorHint="#555555"
                 android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/txt_data_criacao"
+                app:layout_constraintTop_toBottomOf="@+id/txt_data_criacao"
                 tools:ignore="HardcodedText" />
+
+            <ImageButton
+                android:id="@+id/bt_detalhes"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:contentDescription="Detalhes"
+                android:onClick="abreDetalhes"
+                android:scaleType="centerCrop"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_avancar"
+                tools:ignore="HardcodedText,SpeakableTextPresentCheck" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
