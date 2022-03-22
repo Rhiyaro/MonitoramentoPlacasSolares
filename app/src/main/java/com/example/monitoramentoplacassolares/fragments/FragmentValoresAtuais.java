@@ -21,6 +21,8 @@ import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;
+import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
 import com.jjoe64.graphview.GraphView;
@@ -30,14 +32,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
     public static final String TAG = "FragmentValoresAtuais";
 
     private FragmentValoresAtuais objetoPrincipal;
     private Activity actAux = new Activity();
+    private final Object synchronizedAux = new Object();
 
     public TextView[][] txtViewValores = new TextView[4][2];
     public TextView txtYGraf;
@@ -70,11 +79,7 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
         spLocal = inf.findViewById(R.id.seletorLocal);
         spPlaca = inf.findViewById(R.id.seletorPlaca);
 
-        try {
-            atualizaLocais();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        atualizaLocaisHttp();
 
         txtViewValores[0][0] = inf.findViewById(R.id.txtValorLuminosidade);
         txtViewValores[1][0] = inf.findViewById(R.id.txtValorTPlaca);
@@ -165,7 +170,7 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
         }
     };
 
-    private void atualizaLocais() throws JSONException {
+    private void atualizaLocaisSocket() throws JSONException {
 //        if(locais.isEmpty()){
 //            locais.add(new LocalMonitoramento("CEFET-RJ/NI", "cefet","192.168.25.9", 12345, new PlacaMonitoramento("Placa Principal", "main",0)));
 //            locais.add(new LocalMonitoramento("Artigo", "artigo","192.168.25.9", 12345, new PlacaMonitoramento("Linha 1", "linha1",1), new PlacaMonitoramento("Linha 2", "linha2",2)));
@@ -175,11 +180,47 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
         pedido.put("pedido", "locais");
 
         TarefaMensagem tarefaMsg = new TarefaMensagem(objetoPrincipal, pedido);
-        tarefaMsg.configuraConexao(MainActivity.Cliente.getSocket(),
-                MainActivity.Cliente.getObjIn(),
-                MainActivity.Cliente.getObjOut());
+        tarefaMsg.configuraConexao(MainActivity.runnableCliente.getSocket(),
+                MainActivity.runnableCliente.getObjIn(),
+                MainActivity.runnableCliente.getObjOut());
 
-        MainActivity.Cliente.novaTarefa(tarefaMsg);
+        MainActivity.runnableCliente.novaTarefa(tarefaMsg);
+    }
+
+    private void atualizaLocaisHttp() {
+
+        MainActivity.executorServiceCached.submit(() -> {
+            try {
+                synchronized (synchronizedAux) {
+                    synchronizedAux.wait();
+                    actAux.runOnUiThread(this::atualizaListaLocais);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        MainActivity.executorServiceCached.submit(() -> {
+            synchronized (synchronizedAux) {
+                try (Response locaisResponse = MpsHttpClient.instacia().doGet("locais")) {
+                    String responseBodyStr = locaisResponse.body().string();
+                    int statusCode = locaisResponse.code();
+                    if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
+                        JSONObject locaisJson = new JSONObject(responseBodyStr);
+                        carregaLocais(locaisJson);
+                    } else {
+                        Log.i(TAG, "atualizaLocaisHttp: Erro: Código de resposta inesperado: " + statusCode);
+                    }
+                    synchronizedAux.notifyAll();
+                } catch (HttpRequestException | IOException | JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void atualizaListaLocais() {
+        atualizaAdapters();
     }
 
     private void atualizaAdapters() {
@@ -197,7 +238,6 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
 
     public void novoLocal(LocalMonitoramento novoLocal) {
         //TODO: Atualizar controle de local e placa atual
-
     }
 
     public LocalMonitoramento getLocalAtual() {
@@ -236,35 +276,37 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
 
         switch (pedido) {
             case "locais":
-                JSONArray jsArrLocais = result.optJSONArray("locais");
-                if (jsArrLocais == null) {
-                    Log.i(TAG, "postResult: jsArrLocais is null");
-                    break;
+                try {
+                    carregaLocais(result);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
-                for (int i = 0; i < jsArrLocais.length(); i++) {
-                    JSONObject jsLocal = jsArrLocais.optJSONObject(i);
-                    String nomeLocal = jsLocal.optString("local");
-                    String codigoLocal = jsLocal.optString("local").toLowerCase();
-                    int numPlacas = jsLocal.optInt("matrizes");
-
-                    LocalMonitoramento local = new LocalMonitoramento(nomeLocal, codigoLocal,
-                            RunnableCliente.host_atual, RunnableCliente.porta_atual, numPlacas);
-
-                    locais.add(local);
-                }
-
-                localAtual = locais.get(0);
-                placaAtual = localAtual.getPlacas().get(0);
-
                 actAux.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         atualizaAdapters();
                     }
                 });
-
                 break;
         }
+    }
+
+    private void carregaLocais(JSONObject locaisJson) throws JSONException {
+        JSONArray jsArrLocais = locaisJson.getJSONArray("locais");
+
+        for (int i = 0; i < jsArrLocais.length(); i++) {
+            JSONObject jsLocal = jsArrLocais.optJSONObject(i);
+            String nomeLocal = jsLocal.optString("local");
+            String codigoLocal = jsLocal.optString("local").toLowerCase();
+            int numPlacas = jsLocal.optInt("matrizes");
+
+            LocalMonitoramento local = new LocalMonitoramento(nomeLocal, codigoLocal,
+                    RunnableCliente.host_atual, RunnableCliente.porta_atual, numPlacas);
+
+            locais.add(local);
+        }
+
+        localAtual = locais.get(0);
+        placaAtual = localAtual.getPlacas().get(0);
     }
 }

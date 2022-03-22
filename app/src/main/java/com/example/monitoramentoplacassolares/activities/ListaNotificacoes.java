@@ -77,11 +77,11 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
         pedido.put("pedido", "lista notificacoes");
 
         TarefaMensagem tarefaMsg = new TarefaMensagem(objetoPrincipal, pedido);
-        tarefaMsg.configuraConexao(MainActivity.Cliente.getSocket(),
-                MainActivity.Cliente.getObjIn(),
-                MainActivity.Cliente.getObjOut());
+        tarefaMsg.configuraConexao(MainActivity.runnableCliente.getSocket(),
+                MainActivity.runnableCliente.getObjIn(),
+                MainActivity.runnableCliente.getObjOut());
 
-        MainActivity.Cliente.novaTarefa(tarefaMsg);
+        MainActivity.runnableCliente.novaTarefa(tarefaMsg);
     }
 
     private void atualizaLista() {
@@ -165,27 +165,19 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
         }
     }
 
-    public void btAtualizaLista(View view){
-        MainActivity.executorServiceCached.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    synchronized (esperaResposta) {
-                        atualizaNotificacoes();
-                        esperaResposta.wait();
-                    }
-                } catch (JSONException | InterruptedException e) {
-                    e.printStackTrace();
+    public void btAtualizaLista(View view) {
+        MainActivity.executorServiceCached.submit(() -> {
+            try {
+                synchronized (esperaResposta) {
+                    atualizaNotificacoes();
+                    esperaResposta.wait();
                 }
-                Log.i(TAG, "AtualizaLista: " + notificacoes.toString());
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        atualizaLista();
-                    }
-                });
+            } catch (JSONException | InterruptedException e) {
+                e.printStackTrace();
             }
+            Log.i(TAG, "AtualizaLista: " + notificacoes.toString());
+
+            runOnUiThread(() -> atualizaLista());
         });
     }
 

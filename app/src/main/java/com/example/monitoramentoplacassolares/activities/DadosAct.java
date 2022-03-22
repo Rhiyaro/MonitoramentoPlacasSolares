@@ -97,7 +97,7 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
         DadosAdapter mAdapter = new DadosAdapter(Dados);
         rcDados.setAdapter(mAdapter);
 
-        this.locais = MainActivity.Cliente.getLocais();
+        this.locais = MainActivity.runnableCliente.getLocais();
     }
 
     @Override
@@ -212,7 +212,7 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 //        MainActivity.Cliente.setPacoteConfig(pacotePedido);
 //        MainActivity.executorServiceCached.submit(MainActivity.Cliente);
         TarefaMensagem tarefaMensagem = new TarefaMensagem(this, pacotePedido);
-        MainActivity.Cliente.novaTarefa(tarefaMensagem);
+        MainActivity.runnableCliente.novaTarefa(tarefaMensagem);
     }
 
     public void goAct(View v, Class act){

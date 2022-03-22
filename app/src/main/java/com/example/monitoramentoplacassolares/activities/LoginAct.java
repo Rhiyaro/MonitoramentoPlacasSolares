@@ -17,6 +17,8 @@ import com.example.monitoramentoplacassolares.conexao.Cliente;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;
+import com.example.monitoramentoplacassolares.excecoes.HttpLoginException;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -24,16 +26,33 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import okhttp3.Request;
 
 public class LoginAct extends AppCompatActivity implements IAsyncHandler {
     private static final String TAG = "LoginAct";
+
+    public static final String LOGIN_OK = "sucesso";
+    public static final String SENHA_INV = "senha-invalida";
+    public static final String LOGIN_INEX = "login-inexistente";
+    public static final String ERRO = "erro";
 
     private Cliente con;
     private Future clienteFuture;
     private EditText edtTxtLogin, edtTxtSenha;
 
     private boolean tentandoLogar = false;
+
+    public LoginAct() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,80 +78,76 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
     }
 
     public void logar(View view) {
-        /*
-        TODO: Checar interesse em usar Callable
-         */
-        if(edtTxtLogin.getText().length() < 3 || edtTxtSenha.getText().length() < 3){
-            tentandoLogar = false;
-            Toast.makeText(LoginAct.this, "Login e/ou senha inseridos inválidos!", Toast.LENGTH_SHORT).show();
-        } else {
-            if(!tentandoLogar){
-                Log.i(TAG, "logar: logando");
-                tentandoLogar = true;
-
-                JSONObject pacoteLogin = new JSONObject();
-
-                try {
-                    pacoteLogin.put("acao", "logar");
-                    pacoteLogin.put("login", edtTxtLogin.getText());
-                    pacoteLogin.put("senha", edtTxtSenha.getText());
-
-                    MainActivity.Cliente = new RunnableCliente();
-                    //MainActivity.Cliente.iniciaCliente();
-                    //MainActivity.executorServiceCached.submit(MainActivity.Cliente.iniciar);
-
-                    TarefaMensagem tarefaLogin = new TarefaMensagem( this, pacoteLogin);
-
-                    MainActivity.Cliente.novaTarefa(tarefaLogin);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+        if (!checaLoginValido()) {
+            return;
         }
 
+        try {
+            String resultado = logarHttp();
+            checaResultadoLogin(resultado);
+        } catch (HttpLoginException e) {
+            e.printStackTrace();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
-//        if(con != null && con.cancel(false)) {
-        /*if(clienteFuture != null && clienteFuture.cancel(false)){
-//            con = new Cliente(LoginAct.this);
-//            con.execute("logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText());
+    private boolean checaLoginValido() {
+        if (edtTxtLogin.getText().length() < 3 || edtTxtSenha.getText().length() < 3) {
+            tentandoLogar = false;
+            Toast.makeText(LoginAct.this, "Login e/ou senha inseridos inválidos!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 
-            clienteFuture = MainActivity.executorService.submit(
-                    new RunnableCliente(LoginAct.this,
-                            "logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText()));
+    private String logarHttp() throws HttpLoginException {
+        //TODO: Implementar leitura de propriedades
+        MpsHttpClient.criaInstancia(new MpsHttpClient("192.168.25.9", 8080, this));
 
-//            clienteFuture = MainActivity.executorService.submit(
-//                    new CallableCliente(LoginAct.this,
-//                            "logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText()));
+        String login = edtTxtLogin.getText().toString();
+        String senha = edtTxtSenha.getText().toString();
 
-        }else{
-//            con = new Cliente(LoginAct.this);
-//            con.execute("logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText());
+        return MpsHttpClient.instacia().logarCliente(login, senha);
+    }
 
-            clienteFuture = MainActivity.executorService.submit(
-                    new RunnableCliente(LoginAct.this,
-                            "logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText()));
-//            clienteFuture = MainActivity.executorService.submit(
-//                    new CallableCliente(LoginAct.this,
-//                            "logar;login," + edtTxtLogin.getText() + ";senha," + edtTxtSenha.getText()));
-        }*/
+    private void logarSocket() {
+        if (!tentandoLogar) {
+            Log.i(TAG, "logar: logando");
+            tentandoLogar = true;
 
-//        String resultado;
-//        try {
-////            if(clienteFuture.isDone()){
-//                posResultado((String)clienteFuture.get(5000, TimeUnit.MILLISECONDS));
-////            }
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (TimeoutException e) {
-//            e.printStackTrace();
-//        }
+            JSONObject pacoteLogin = new JSONObject();
 
-//        MainActivity.getAppToken();
+            try {
+                pacoteLogin.put("acao", "logar");
+                pacoteLogin.put("login", edtTxtLogin.getText());
+                pacoteLogin.put("senha", edtTxtSenha.getText());
 
+                MainActivity.runnableCliente = new RunnableCliente();
+                //MainActivity.Cliente.iniciaCliente();
+                //MainActivity.executorServiceCached.submit(MainActivity.Cliente.iniciar);
 
+                TarefaMensagem tarefaLogin = new TarefaMensagem(this, pacoteLogin);
+
+                MainActivity.runnableCliente.novaTarefa(tarefaLogin);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void checaResultadoLogin(String resultado) throws HttpLoginException {
+        switch (resultado) {
+            case LOGIN_OK:
+                goMain();
+                break;
+            case LOGIN_INEX:
+                throw new HttpLoginException("Login inexistente");
+            case SENHA_INV:
+                throw new HttpLoginException("Senha inválida");
+            default:
+                throw new HttpLoginException("Erro de Login: Resposta Inesperada");
+        }
     }
 
     public void cadastrar(View view) {

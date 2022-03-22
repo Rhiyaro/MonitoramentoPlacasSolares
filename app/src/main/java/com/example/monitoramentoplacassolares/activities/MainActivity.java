@@ -12,6 +12,7 @@ import com.example.monitoramentoplacassolares.conexao.GerenciadorDados;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.conexao.TarefaComunicar;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
 import com.google.android.material.navigation.NavigationView;
@@ -76,7 +77,10 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
     public static ExecutorService executorServiceCached = Executors.newCachedThreadPool();
 
-    public static RunnableCliente Cliente;
+    private static final int DADOS_DELAY = 5;
+    private ExecutorService executorComunicacao = Executors.newSingleThreadScheduledExecutor();
+
+    public static RunnableCliente runnableCliente;
 
     public FragmentValoresAtuais fragValAtuais;
     public String ultimoLocal = "", ultimaPlaca = "";
@@ -117,40 +121,11 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        gerenciadorDados = new GerenciadorDados(this, fragValAtuais);
-
-//        if(MainActivity.Cliente == null){
-//            JSONObject pacoteComunicacao = new JSONObject();
-//
-//            try {
-//                pacoteComunicacao.put("acao", "comunicar");
-//                pacoteComunicacao.put("pedido", "ultimos dados");
-//            } catch (JSONException e) {
-//                Log.e(TAG, "onCreate: ", e);
-//            }
-//
-//            MainActivity.Cliente.setGerenciadorDados(gerenciadorDados);
-//            MainActivity.Cliente.setPacoteConfig(pacoteComunicacao);
-//            RunnableCliente.setmHandler(this);
-//            RunnableCliente.setmHandlerAnt(this);
-//
-//            MainActivity.Cliente.setLocais(fragValAtuais.locais);
-//        }
-//        fragValAtuais.clienteFuture = executorServiceCached.submit(Cliente);
-//        fragValAtuais.mHandler = (IAsyncHandler) this;
-        JSONObject pacoteComunicacao = new JSONObject();
-
-        try {
-            pacoteComunicacao.put("acao", "comunicar");
-            pacoteComunicacao.put("pedido", "ultimos dados");
-        } catch (JSONException e) {
-            Log.e(TAG, "onCreate: ", e);
+        if (runnableCliente != null) {
+            clienteSocketInit();
+        } else {
+            iniciaComunicacaoHttp();
         }
-        TarefaComunicar tarefaComunicar = new TarefaComunicar(this, pacoteComunicacao);
-        tarefaComunicar.configuraConexao(Cliente.getSocket(), Cliente.getObjIn(), Cliente.getObjOut());
-
-        Cliente.novaTarefa(tarefaComunicar);
-
 
         // Inicia os gráficos
         serieLumi = new LineGraphSeries<>();
@@ -171,6 +146,21 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         sair = false;
         idBtGraf = R.id.btLuminosidade;
 
+    }
+
+    private void clienteSocketInit() {
+        JSONObject pacoteComunicacao = new JSONObject();
+
+        try {
+            pacoteComunicacao.put("acao", "comunicar");
+            pacoteComunicacao.put("pedido", "ultimos dados");
+        } catch (JSONException e) {
+            Log.e(TAG, "onCreate: ", e);
+        }
+        TarefaComunicar tarefaComunicar = new TarefaComunicar(this, pacoteComunicacao);
+        tarefaComunicar.configuraConexao(runnableCliente.getSocket(), runnableCliente.getObjIn(), runnableCliente.getObjOut());
+
+        runnableCliente.novaTarefa(tarefaComunicar);
     }
 
     /**
@@ -600,7 +590,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         }
     }
 
-    private void atualizaGrafico(String serieEscolhida){
+    private void atualizaGrafico(String serieEscolhida) {
         /*
         TODO: Continuar vendo como será feita essa parte e a adição dos pontos a cada placa
                 Será feito por R.string ou hardcoded ou no pedido de local
@@ -614,7 +604,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
         for (int i = 0; i < graphSeries.size(); i++) {
             lineGraph = graphSeries.get(i);
-            if (lineGraph.getTitle().equals(serieEscolhida)){
+            if (lineGraph.getTitle().equals(serieEscolhida)) {
                 fragValAtuais.grafAtual = placaAtual.getTitulosSeries().get(i);
 
                 if (lineGraph.isEmpty()) {
@@ -641,7 +631,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     public void escolheGraf(View view) {
         idBtGraf = view.getId();
         String btHint = ((Button) view).getHint().toString();
-        Log.i(TAG, "escolheGraf: "+btHint);
+        Log.i(TAG, "escolheGraf: " + btHint);
 //        attSerie();
 //        attSeriePlaca();
         atualizaGrafico(btHint);
@@ -667,9 +657,9 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         } else if (id == R.id.nav_graficos) {
             goAct(findViewById(id), GraficosAct.class);
 
-        } else if (id == R.id.nav_notificacoes){
+        } else if (id == R.id.nav_notificacoes) {
             goAct(findViewById(id), ListaNotificacoes.class);
-        } else if (id == R.id.nav_salvar){
+        } else if (id == R.id.nav_salvar) {
 
         }
 
@@ -754,5 +744,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
     }
 
-
+    public void iniciaComunicacaoHttp() {
+        
+    }
 }
