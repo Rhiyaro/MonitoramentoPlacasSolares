@@ -79,7 +79,7 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
         spLocal = inf.findViewById(R.id.seletorLocal);
         spPlaca = inf.findViewById(R.id.seletorPlaca);
 
-        atualizaLocaisHttp();
+        MainActivity.executorServiceCached.submit(this::atualizaLocaisHttp);
 
         txtViewValores[0][0] = inf.findViewById(R.id.txtValorLuminosidade);
         txtViewValores[1][0] = inf.findViewById(R.id.txtValorTPlaca);
@@ -188,35 +188,19 @@ public class FragmentValoresAtuais extends Fragment implements IAsyncHandler {
     }
 
     private void atualizaLocaisHttp() {
-
-        MainActivity.executorServiceCached.submit(() -> {
-            try {
-                synchronized (synchronizedAux) {
-                    synchronizedAux.wait();
-                    actAux.runOnUiThread(this::atualizaListaLocais);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        try (Response locaisResponse = MpsHttpClient.instacia().doGet("locais")) {
+            String responseBodyStr = locaisResponse.body().string();
+            int statusCode = locaisResponse.code();
+            if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
+                JSONObject locaisJson = new JSONObject(responseBodyStr);
+                carregaLocais(locaisJson);
+            } else {
+                Log.i(TAG, "atualizaLocaisHttp: Erro: Código de resposta inesperado: " + statusCode);
             }
-        });
-
-        MainActivity.executorServiceCached.submit(() -> {
-            synchronized (synchronizedAux) {
-                try (Response locaisResponse = MpsHttpClient.instacia().doGet("locais")) {
-                    String responseBodyStr = locaisResponse.body().string();
-                    int statusCode = locaisResponse.code();
-                    if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
-                        JSONObject locaisJson = new JSONObject(responseBodyStr);
-                        carregaLocais(locaisJson);
-                    } else {
-                        Log.i(TAG, "atualizaLocaisHttp: Erro: Código de resposta inesperado: " + statusCode);
-                    }
-                    synchronizedAux.notifyAll();
-                } catch (HttpRequestException | IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        } catch (HttpRequestException | IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        actAux.runOnUiThread(this::atualizaListaLocais);
     }
 
     private void atualizaListaLocais() {

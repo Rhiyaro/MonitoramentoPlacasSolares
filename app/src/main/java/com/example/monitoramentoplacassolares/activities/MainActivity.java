@@ -12,6 +12,7 @@ import com.example.monitoramentoplacassolares.conexao.GerenciadorDados;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.conexao.TarefaComunicar;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
+import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
@@ -50,10 +51,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Response;
 
 
 public class MainActivity extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
@@ -78,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     public static ExecutorService executorServiceCached = Executors.newCachedThreadPool();
 
     private static final int DADOS_DELAY = 5;
-    private ExecutorService executorComunicacao = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService executorComunicacao = Executors.newSingleThreadScheduledExecutor();
 
     public static RunnableCliente runnableCliente;
 
@@ -124,7 +130,10 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         if (runnableCliente != null) {
             clienteSocketInit();
         } else {
-            iniciaComunicacaoHttp();
+            executorComunicacao.scheduleAtFixedRate(
+                    this::iniciaComunicacaoHttp, 0,
+                    MpsHttpClient.REQUEST_TIMEOUT_SECONDS,
+                    TimeUnit.SECONDS);
         }
 
         // Inicia os gráficos
@@ -308,12 +317,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 //txtView.setText("---");
                 VALOR_A_SETAR = "---";
             }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    txtView.setText(VALOR_A_SETAR);
-                }
-            });
+            runOnUiThread(() -> txtView.setText(VALOR_A_SETAR));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -577,12 +581,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 break;
         }
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual);
-            }
-        });
+        runOnUiThread(() -> fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual));
 
         if (fragValAtuais.viewport != null) {
             fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
@@ -615,12 +614,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
             }
         }
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual);
-            }
-        });
+        runOnUiThread(() -> fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual));
 
         if (fragValAtuais.viewport != null) {
             fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
@@ -641,16 +635,9 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-//        boolean mesmo = false;
-//
-//        if (id == R.id.nav_home) {
-//            mesmo = true;
-//        }
-//
-//        return navDrawer.navigate(id, mesmo);
-        if (id == R.id.nav_home) {
-            //goAct(findViewById(id), MainActivity.class);
 
+        if (id == R.id.nav_home) {
+            Log.i(TAG, "onNavigationItemSelected: Botão Home");
         } else if (id == R.id.nav_bd) {
             goAct(findViewById(id), DadosAct.class);
 
@@ -660,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         } else if (id == R.id.nav_notificacoes) {
             goAct(findViewById(id), ListaNotificacoes.class);
         } else if (id == R.id.nav_salvar) {
-
+            Log.i(TAG, "onNavigationItemSelected: Botão Salvar");
         }
 
 
@@ -744,7 +731,35 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
     }
 
-    public void iniciaComunicacaoHttp() {
-        
+    private void iniciaComunicacaoHttp() {
+        try (Response comunicacaoResponse = MpsHttpClient.instacia().doGet("ultimos-dados")) {
+            String responseBodyStr = comunicacaoResponse.body().string();
+            JSONObject respostaJson = new JSONObject(responseBodyStr);
+            gerenciaUltimosDados(respostaJson);
+        } catch (HttpRequestException | IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void gerenciaUltimosDados(JSONObject resposta) throws JSONException {
+        JSONObject dados = resposta.getJSONObject("dados");
+
+        while (fragValAtuais.getLocalAtual() == null){}
+
+        JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getNome());
+
+        setValoresJSON(dadosLocalAtual);
+
+        // TODO: Melhorar controle dos gráficos -> otimizar métodos
+        // TODO: Gráficos bugaram após mudança na criação dos locais!!!
+        if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
+            if (!ultimoLocal.equals("") && !ultimaPlaca.equals("")) {
+                attSeriePlaca();
+            }
+            ultimoLocal = fragValAtuais.getLocalAtual().getCodigo();
+            ultimaPlaca = fragValAtuais.getPlacaAtual().getCodigo();
+        }
+        adicionaDataPoints(dados);
+        ajeitaGrafico();
     }
 }

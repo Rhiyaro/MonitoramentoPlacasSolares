@@ -67,12 +67,9 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
 
     public void goMain() {
         final Context thisContext = this;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Intent intAct = new Intent(thisContext, MainActivity.class);
-                startActivity(intAct);
-            }
+        runOnUiThread(() -> {
+            Intent intAct = new Intent(thisContext, MainActivity.class);
+            startActivity(intAct);
         });
         this.finish();
     }
