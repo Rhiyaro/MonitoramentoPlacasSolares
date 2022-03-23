@@ -37,7 +37,7 @@ import java.util.concurrent.TimeoutException;
 
 import okhttp3.Request;
 
-public class LoginAct extends AppCompatActivity implements IAsyncHandler {
+public class LoginAct extends AppCompatActivity {
     private static final String TAG = "LoginAct";
 
     public static final String LOGIN_OK = "sucesso";
@@ -45,11 +45,7 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
     public static final String LOGIN_INEX = "login-inexistente";
     public static final String ERRO = "erro";
 
-    private Cliente con;
-    private Future clienteFuture;
     private EditText edtTxtLogin, edtTxtSenha;
-
-    private boolean tentandoLogar = false;
 
     public LoginAct() {
     }
@@ -78,7 +74,6 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
         if (!checaLoginValido()) {
             return;
         }
-
         try {
             String resultado = logarHttp();
             checaResultadoLogin(resultado);
@@ -90,8 +85,8 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
 
     private boolean checaLoginValido() {
         if (edtTxtLogin.getText().length() < 3 || edtTxtSenha.getText().length() < 3) {
-            tentandoLogar = false;
-            Toast.makeText(LoginAct.this, "Login e/ou senha inseridos inválidos!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginAct.this,
+                    "Login e/ou senha inseridos inválidos!", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -105,32 +100,6 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
         String senha = edtTxtSenha.getText().toString();
 
         return MpsHttpClient.instacia().logarCliente(login, senha);
-    }
-
-    private void logarSocket() {
-        if (!tentandoLogar) {
-            Log.i(TAG, "logar: logando");
-            tentandoLogar = true;
-
-            JSONObject pacoteLogin = new JSONObject();
-
-            try {
-                pacoteLogin.put("acao", "logar");
-                pacoteLogin.put("login", edtTxtLogin.getText());
-                pacoteLogin.put("senha", edtTxtSenha.getText());
-
-                MainActivity.runnableCliente = new RunnableCliente();
-                //MainActivity.Cliente.iniciaCliente();
-                //MainActivity.executorServiceCached.submit(MainActivity.Cliente.iniciar);
-
-                TarefaMensagem tarefaLogin = new TarefaMensagem(this, pacoteLogin);
-
-                MainActivity.runnableCliente.novaTarefa(tarefaLogin);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private void checaResultadoLogin(String resultado) throws HttpLoginException {
@@ -151,97 +120,5 @@ public class LoginAct extends AppCompatActivity implements IAsyncHandler {
         Intent intAct = new Intent(this, CadastroAct.class);
         startActivity(intAct);
 
-    }
-
-    @Override
-    public void postResult(String result) {
-        if (result.toLowerCase().contains("sucesso")) {
-            FirebaseMessaging.getInstance().subscribeToTopic("avisos")
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            String msg = "sucesso inscrição tópico";//getString(R.string.msg_subscribed);
-                            if (!task.isSuccessful()) {
-                                msg = "falha inscrição tópico";//getString(R.string.msg_subscribe_failed);
-                            }
-                            Log.i(TAG, msg);
-                            //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-            goMain();
-        } else if (result.contains("sem conexao")) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(LoginAct.this, "Sem conexao com o servidor!", Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else if (result.toLowerCase().contains("login nao encontrado")) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(LoginAct.this, "Login e/ou senha inválidos!", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
-
-    @Override
-    public void postResult(JSONObject result) {
-        final Context thisContext = this;
-        try {
-            switch (result.getString("resultado")) {
-                case "sucesso":
-                    /*
-                    Inscrição no tópico do Firebase para recebimento das mensagens para notificação
-                    TODO: Mover para outra parte, executando apenas uma vez por aparelho
-                     */
-                    /*FirebaseMessaging.getInstance().subscribeToTopic("avisos")
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    String msg = "sucesso inscrição tópico";//getString(R.string.msg_subscribed);
-                                    if (!task.isSuccessful()) {
-                                        msg = "falha inscrição tópico";//getString(R.string.msg_subscribe_failed);
-                                    }
-                                    Log.i(TAG, msg);
-                                    //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                    */
-                    goMain();
-                    break;
-                case "sem conexao":
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(thisContext, "Sem conexão com o servidor!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    tentandoLogar = false;
-                    break;
-                case "login inexistente":
-                case "senha invalida":
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(thisContext, "Login e/ou senha inválidos!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    tentandoLogar = false;
-                    break;
-                default:
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(thisContext, "Ocorreu um erro", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    tentandoLogar = false;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 }

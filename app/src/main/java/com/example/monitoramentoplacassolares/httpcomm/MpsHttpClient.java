@@ -41,7 +41,7 @@ public class MpsHttpClient {
     public static final int HTTP_NOT_FOUND_RESPONSE = 404;
     public static final int HTTP_NOT_IMPLEMENTED_RESPONSE = 501;
 
-    public static final int REQUEST_TIMEOUT_SECONDS = 5;
+    public static final int REQUEST_TIMEOUT_SECONDS = 3;
 
     private static MpsHttpClient Instancia;
 

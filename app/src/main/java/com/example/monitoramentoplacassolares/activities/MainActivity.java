@@ -8,9 +8,7 @@ import android.os.Environment;
 import androidx.annotation.RequiresApi;
 
 import com.example.monitoramentoplacassolares.R;
-import com.example.monitoramentoplacassolares.conexao.GerenciadorDados;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
-import com.example.monitoramentoplacassolares.conexao.TarefaComunicar;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
 import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
@@ -42,7 +40,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -62,12 +59,11 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.Response;
 
 
-public class MainActivity extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
     public static final String TAG = "MainActivity";
 
     public MyFirebaseMessagingService msgServ = new MyFirebaseMessagingService();
 
-    public GerenciadorDados gerenciadorDados;
     private NavigationDrawer navDrawer;
 
     private Boolean sair;
@@ -83,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
 
     public static ExecutorService executorServiceCached = Executors.newCachedThreadPool();
 
-    private static final int DADOS_DELAY = 5;
     private ScheduledExecutorService executorComunicacao = Executors.newSingleThreadScheduledExecutor();
 
     public static RunnableCliente runnableCliente;
@@ -127,14 +122,11 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if (runnableCliente != null) {
-            clienteSocketInit();
-        } else {
-            executorComunicacao.scheduleAtFixedRate(
-                    this::iniciaComunicacaoHttp, 0,
-                    MpsHttpClient.REQUEST_TIMEOUT_SECONDS,
-                    TimeUnit.SECONDS);
-        }
+
+        executorComunicacao.scheduleAtFixedRate(
+                this::iniciaComunicacaoHttp, 0,
+                MpsHttpClient.REQUEST_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS);
 
         // Inicia os gráficos
         serieLumi = new LineGraphSeries<>();
@@ -149,114 +141,14 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         File folder = new File(Environment.getExternalStorageDirectory() +
                 File.separator + "mps");
         if (!folder.exists()) {
-            folder.mkdirs();
+            boolean mk = folder.mkdirs();
+            if (mk)
+                Log.i(TAG, "onCreate: folder.mkdirs() returned true");
         }
 
         sair = false;
         idBtGraf = R.id.btLuminosidade;
 
-    }
-
-    private void clienteSocketInit() {
-        JSONObject pacoteComunicacao = new JSONObject();
-
-        try {
-            pacoteComunicacao.put("acao", "comunicar");
-            pacoteComunicacao.put("pedido", "ultimos dados");
-        } catch (JSONException e) {
-            Log.e(TAG, "onCreate: ", e);
-        }
-        TarefaComunicar tarefaComunicar = new TarefaComunicar(this, pacoteComunicacao);
-        tarefaComunicar.configuraConexao(runnableCliente.getSocket(), runnableCliente.getObjIn(), runnableCliente.getObjOut());
-
-        runnableCliente.novaTarefa(tarefaComunicar);
-    }
-
-    /**
-     * Irá colocar os valores do vetor 'valor' nos seus devidos textViews baseado no nome
-     * existente na mesma posição em 'strValor'
-     * Coloca os valores nas respectivas placas, se for o caso
-     *
-     * @param strValor vetor de strings com os labels dos dados
-     * @param valor    vetor de strings contendo o valor dos dados
-     * @param idPlaca  id da placa a qual os dados se referem
-     */
-    @SuppressLint("SetTextI18n")
-    private void setValoresPlaca(String[] strValor, String[] valor, int idPlaca) {
-        /*
-          Reseta todos os textViews para o caso de um local ter algum tipo de dado que outro
-          não tem
-         */
-        for (int i = 0; i < fragValAtuais.txtViewValores.length; i++) {
-            for (int j = 0; j < fragValAtuais.txtViewValores[0].length; j++) {
-                fragValAtuais.txtViewValores[i][j].setText("      --- ");
-            }
-        }
-
-        /*
-          Checa se existe somente uma linha/placa. Nesse caso, irá retirar a média de informações
-          que possuem mais de uma aparição e adicionar ao primeiro caso. Também modifica as outras
-          aparições de forma que não se repita o processo
-         */
-        int count, total, totalPlacas = fragValAtuais.getLocalAtual().getPlacas().size();
-        if (totalPlacas == 1 || idPlaca == -1) {
-            for (int i = 0; i < strValor.length - 1; i++) {
-                if (strValor[i].equals("adicionado")) continue;
-                count = 1;
-                total = Integer.parseInt(valor[i]);
-                for (int j = i + 1; j < strValor.length; j++) {
-                    if (strValor[i].replaceAll("[0-9]*", "").matches(strValor[j].replaceAll("[0-9]*", ""))) {
-                        total += Integer.parseInt(valor[j]);
-                        count++;
-                        strValor[j] = "adicionado";
-                    }
-                }
-                valor[i] = "" + total / count;
-            }
-        }
-
-        for (int i = 0; i < strValor.length; i++) {
-            if (strValor[i].contains("luminosidade"))
-                fragValAtuais.txtViewValores[0][0].setText("      " + valor[i] + " L");
-
-            else if (strValor[i].contains("tempPlaca"))
-                fragValAtuais.txtViewValores[1][0].setText("      " + valor[i] + " °C");
-
-            else if (strValor[i].contains("temp")) {
-                if (strValor[i].matches(".*\\d")) {
-                    if (strValor[i].contains(fragValAtuais.getPlacaAtual().getId() + "") || idPlaca == -1) {
-                        fragValAtuais.txtViewValores[1][1].setText("      " + valor[i] + " °C");
-                    }
-                } else {
-                    fragValAtuais.txtViewValores[1][1].setText("      " + valor[i] + " °C");
-                }
-            } else if (strValor[i].contains("chuva"))
-                fragValAtuais.txtViewValores[3][1].setText("      " + valor[i] + " Ch");
-
-            else if (strValor[i].contains("tensao")) {
-                if (strValor[i].matches(".*\\d")) {
-                    if (strValor[i].contains(fragValAtuais.getPlacaAtual().getId() + "") || idPlaca == -1) {
-                        fragValAtuais.txtViewValores[2][0].setText("      " + valor[i] + " V");
-                    }
-                } else {
-                    fragValAtuais.txtViewValores[2][0].setText("      " + valor[i] + " V");
-                }
-            } else if (strValor[i].contains("pressao"))
-                fragValAtuais.txtViewValores[0][1].setText("      " + valor[i] + " Pa");
-
-            else if (strValor[i].contains("umidade"))
-                fragValAtuais.txtViewValores[2][1].setText("      " + valor[i] + " %");
-
-            else if (strValor[i].contains("corrente")) {
-                if (strValor[i].matches(".*\\d")) {
-                    if (strValor[i].contains(fragValAtuais.getPlacaAtual().getId() + "") || idPlaca == -1) {
-                        fragValAtuais.txtViewValores[3][0].setText("      " + valor[i] + " A");
-                    }
-                } else {
-                    fragValAtuais.txtViewValores[3][0].setText("      " + valor[i] + " A");
-                }
-            }
-        }
     }
 
     /**
@@ -337,95 +229,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         }
     }
 
-    /**
-     * Método que trata das respostas recebidas do servidor
-     * Faz o pré-processamento da resposta para ficar nos vetores necessários; chama o método
-     * 'setValoresPlaca' para atualizar a UI
-     *
-     * @param result resultado retornado de algum método rodando em paralelo
-     */
-    @Override
-    public void postResult(String result) {
-        Log.i(TAG, "postResult: " + result);
-        String[] resultados = result.split(";");
-        final String[] strValor = resultados[0].split(",");
-        final String[] strValor2 = resultados[0].split(",");
-        final String[] valor = resultados[1].split(",");
-        final String[] valor2 = resultados[1].split(",");
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setValoresPlaca(strValor, valor, fragValAtuais.getPlacaAtual().getId());
-            }
-        });
-
-        /*
-            Checa se o local selecionado é o mesmo do ciclo anterior. Se for, apenas adiciona os
-            dataPoints e ajeita o gráfico. Se não, atualiza o localAtual e placaAtual
-         */
-        if (!ultimoLocal.equals("") && fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal)) {
-            fragValAtuais.getLocalAtual().adicionaDataPointsStrings(strValor2, valor2);
-            ajeitaGrafico();
-        } else if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
-            if (!ultimoLocal.equals("") && !ultimaPlaca.equals("")) {
-                attSeriePlaca();
-            }
-            ultimoLocal = fragValAtuais.getLocalAtual().getCodigo();
-            ultimaPlaca = fragValAtuais.getPlacaAtual().getCodigo();
-        }
-    }
-
-    /**
-     * Método de controle e comunicação entre as threads. Normalmente é chamado a partir de outro
-     * objeto rodando em outra thread
-     *
-     * @param result Algum tipo de resultado obtido dessa outra thread
-     */
-    @Override
-    public void postResult(JSONObject result) {
-        /*
-        TODO: DEBUGGAR SETVALORES -> ALGUNS DADOS NÃO ESTÃO TROCANDO PARA O NOVO LOCAL
-        TODO: Configurar atualização dos gráficos
-         */
-        Log.i(TAG, "\npostResult: result= " + result.toString() + "\n" + fragValAtuais.getLocalAtual().getNome());
-        try {
-            String pedido = result.getString("pedido"); // Recupera o pedido que foi feito para receber esta resposta
-
-            switch (pedido) {
-                case "ultimos dados":
-                    final JSONObject dados = result.getJSONObject("dados");
-                    final JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getNome());
-
-                    setValoresJSON(dadosLocalAtual);
-
-                    // TODO: Melhorar controle dos gráficos -> otimizar métodos
-                    // TODO: Gráficos bugaram após mudança na criação dos locais!!!
-                    executorServiceCached.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
-                                if (!ultimoLocal.equals("") && !ultimaPlaca.equals("")) {
-                                    attSeriePlaca();
-                                }
-                                ultimoLocal = fragValAtuais.getLocalAtual().getCodigo();
-                                ultimaPlaca = fragValAtuais.getPlacaAtual().getCodigo();
-                            }
-                            adicionaDataPoints(dados);
-                            ajeitaGrafico();
-                        }
-                    });
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + pedido);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "postResult: JSONException", e);
-        }
-
-
-    }
-
     public void ajeitaGrafico() {
         x++;
 
@@ -439,63 +242,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
                 fragValAtuais.viewport.setMinX(0);
                 fragValAtuais.viewport.setMaxX(20);
             }
-        }
-    }
-
-    @SuppressLint({"SetTextI18n", "NonConstantResourceId"})
-    private void attSerie() {
-        fragValAtuais.graf.removeAllSeries();
-
-        switch (idBtGraf) {
-            case R.id.btLuminosidade:
-                fragValAtuais.graf.addSeries(serieLumi);
-                fragValAtuais.txtYGraf.setText("Luminosidade");
-                break;
-
-            case R.id.btTPlaca:
-                fragValAtuais.graf.addSeries(serieTPlaca);
-                fragValAtuais.txtYGraf.setText("Temp. Placa");
-                break;
-
-            case R.id.btTensao:
-                fragValAtuais.graf.addSeries(serieTensao);
-                fragValAtuais.txtYGraf.setText("Tensão");
-                break;
-
-            case R.id.btCorrente:
-                fragValAtuais.graf.addSeries(serieCorrente);
-                fragValAtuais.txtYGraf.setText("Corrente");
-                break;
-
-            case R.id.btPressao:
-                fragValAtuais.graf.addSeries(seriePressao);
-                fragValAtuais.txtYGraf.setText("Pressão");
-                break;
-
-            case R.id.btTemp:
-                fragValAtuais.graf.addSeries(serieTemp);
-                if (fragValAtuais.getLocalAtual().getNome().contains("CEFET")) {
-                    fragValAtuais.txtYGraf.setText("Temp. Caixa");
-                } else if (fragValAtuais.getLocalAtual().getNome().contains("Artigo")) {
-                    fragValAtuais.txtYGraf.setText("Temp. Ambiente");
-                }
-                break;
-
-            case R.id.btUmidade:
-                fragValAtuais.graf.addSeries(serieUmidade);
-                fragValAtuais.txtYGraf.setText("Umidade");
-                break;
-
-            case R.id.btChuva:
-                fragValAtuais.graf.addSeries(serieChuva);
-                fragValAtuais.txtYGraf.setText("Intens. Chuva");
-                break;
-
-        }
-
-        if (fragValAtuais.viewport != null) {
-            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
-            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
         }
     }
 
@@ -626,7 +372,6 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
         idBtGraf = view.getId();
         String btHint = ((Button) view).getHint().toString();
         Log.i(TAG, "escolheGraf: " + btHint);
-//        attSerie();
 //        attSeriePlaca();
         atualizaGrafico(btHint);
     }
@@ -744,7 +489,8 @@ public class MainActivity extends AppCompatActivity implements IAsyncHandler, Na
     private void gerenciaUltimosDados(JSONObject resposta) throws JSONException {
         JSONObject dados = resposta.getJSONObject("dados");
 
-        while (fragValAtuais.getLocalAtual() == null){}
+        while (fragValAtuais.getLocalAtual() == null) {
+        }
 
         JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getNome());
 
