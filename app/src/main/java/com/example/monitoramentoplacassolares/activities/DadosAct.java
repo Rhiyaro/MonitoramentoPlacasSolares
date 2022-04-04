@@ -41,6 +41,7 @@ import java.util.ArrayList;
 public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSelectedListener, IAsyncHandler, NavigationView.OnNavigationItemSelectedListener {
     public static final String TAG = "DadosAct";
 
+    //TODO: Adaptar para HTTP
     private Spinner spMes, spDia;
     private Toolbar tb;
     private RecyclerView rcDados;

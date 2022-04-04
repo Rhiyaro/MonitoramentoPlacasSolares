@@ -9,46 +9,46 @@
     tools:context=".activities.LoginAct">
 
     <EditText
-        android:id="@+id/edtTxtLogin"
+        android:id="@+id/edtTxtLoginLogin"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:ems="10"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
+        android:minHeight="48dp"
         android:textColor="@color/branco"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toBottomOf="@+id/txtLogin"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <EditText
-        android:id="@+id/edtTxtSenha"
+        android:id="@+id/edtTxtSenhaLogin"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:ems="10"
+        android:importantForAutofill="no"
         android:inputType="textPassword"
+        android:minHeight="48dp"
         android:textColor="@color/branco"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintTop_toBottomOf="@+id/txtSenha"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <Button
         android:id="@+id/btEntrar"
-        android:layout_width="411dp"
+        android:layout_width="fill_parent"
         android:layout_height="65dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
         android:background="@color/common_google_signin_btn_text_dark_default"
-        android:onClick="logar"
+        android:elevation="90dp"
+        android:onClick="btLogarAction"
         android:text="Entrar"
         android:textSize="18sp"
-        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,45 +57,53 @@
     <Button
         android:id="@+id/btCadastrar"
         android:layout_width="90dp"
-        android:layout_height="33dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="55dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="64dp"
         android:background="@color/none"
-        android:onClick="cadastrar"
+        android:onClick="irCadastrar"
         android:text="Cadastrar"
         android:textColor="@color/link"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtSenha"
+        app:layout_constraintBottom_toBottomOf="@+id/btConfigs"
+        app:layout_constraintStart_toStartOf="@+id/edtTxtSenhaLogin"
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtSenhaLogin"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btConfigs"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="64dp"
+        android:background="@color/none"
+        android:elevation="0dp"
+        android:onClick="irConfigs"
+        android:text="Configurações"
+        android:textColor="@color/link"
+        app:layout_constraintEnd_toEndOf="@+id/edtTxtSenhaLogin"
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtSenhaLogin"
         tools:ignore="HardcodedText" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/txtLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:text="Login"
         android:textColor="@color/branco"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/edtTxtLogin"
+        app:layout_constraintStart_toStartOf="@+id/edtTxtLoginLogin"
         app:layout_constraintTop_toBottomOf="@+id/textView8"
         tools:ignore="HardcodedText" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/txtSenha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="Senha"
         android:textColor="@color/branco"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/edtTxtSenha"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtLogin"
+        app:layout_constraintStart_toStartOf="@+id/edtTxtSenhaLogin"
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtLoginLogin"
         tools:ignore="HardcodedText" />
 
     <TextView

@@ -1,7 +1,9 @@
 package com.example.monitoramentoplacassolares.activities;
 
 import android.content.Intent;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -19,6 +21,7 @@ import java.text.Normalizer;
 
 public class CadastroAct extends AppCompatActivity implements IAsyncHandler {
 
+    //TODO: Adaptar para HTTP
     private Cliente con;
     private EditText edtTxtLogin, edtTxtSenha, edtTxtSenha2;
 
@@ -27,9 +30,9 @@ public class CadastroAct extends AppCompatActivity implements IAsyncHandler {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_cadastro);
 
-        edtTxtLogin = findViewById(R.id.edtTxtLogin);
-        edtTxtSenha = findViewById(R.id.edtTxtSenha);
-        edtTxtSenha2 = findViewById(R.id.edtTxtSenha2);
+        edtTxtLogin = findViewById(R.id.edtTxtLoginCadastro);
+        edtTxtSenha = findViewById(R.id.edtTxtConfirmaSenhaCadastro);
+        edtTxtSenha2 = findViewById(R.id.edtTxtSenhaCadastro);
     }
 
     public void btAvancar(View v) {
@@ -52,9 +55,9 @@ public class CadastroAct extends AppCompatActivity implements IAsyncHandler {
             } else {
             /*
             con = new Cliente(CadastroAct.this);
-            con.execute("cadastrar;login," + login + ";senha," + senha);
+            con.execute("irCadastrar;login," + login + ";senha," + senha);
              */
-                pacoteCadastro.put("acao", "cadastrar");
+                pacoteCadastro.put("acao", "irCadastrar");
                 pacoteCadastro.put("login", login);
                 pacoteCadastro.put("senha", senha);
 
@@ -66,11 +69,15 @@ public class CadastroAct extends AppCompatActivity implements IAsyncHandler {
 
     }
 
+    public void btRetornar(View v) {
+        finish();
+    }
+
     @Override
     public void postResult(String result) {
-        if(result.contains("login ja existe")){
+        if (result.contains("login ja existe")) {
             Toast.makeText(CadastroAct.this, "Login já em uso!", Toast.LENGTH_SHORT).show();
-        }else if(result.contains("cadastrado com sucesso")){
+        } else if (result.contains("cadastrado com sucesso")) {
             Toast.makeText(CadastroAct.this, "Cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
             Intent intAct = new Intent(this, LoginAct.class);
             startActivity(intAct);

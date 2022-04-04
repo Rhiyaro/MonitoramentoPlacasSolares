@@ -44,7 +44,6 @@ public class RunnableCliente implements Runnable {
     public static IAsyncHandler mHandler;
     private static IAsyncHandler mHandlerAnt;
 
-    private GerenciadorDados gerenciadorDados;
     private List<TarefaCliente> tarefas = Collections.synchronizedList(new ArrayList<TarefaCliente>());
 
     private ArrayList<LocalMonitoramento> locais = new ArrayList<LocalMonitoramento>();
@@ -219,14 +218,6 @@ public class RunnableCliente implements Runnable {
 
     public static IAsyncHandler getmHandler() {
         return mHandler;
-    }
-
-    public GerenciadorDados getGerenciadorDados() {
-        return gerenciadorDados;
-    }
-
-    public void setGerenciadorDados(GerenciadorDados gerenciadorDados) {
-        this.gerenciadorDados = gerenciadorDados;
     }
 
     public ArrayList<LocalMonitoramento> getLocais() {

@@ -33,6 +33,7 @@ import java.util.List;
 public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener {
     public static final String TAG = "ListaNotificacoes";
 
+    //TODO: Adaptar para HTTP
     private NavigationDrawer navDrawer;
     private DrawerLayout drawer;
     private Toolbar tb;
@@ -114,8 +115,9 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
 
         } else if (id == R.id.nav_notificacoes) {
             //goAct(findViewById(id), ListaNotificacoes.class);
+            Log.i(TAG, "onNavigationItemSelected: Botão Notificações");
         } else if (id == R.id.nav_salvar) {
-
+            Log.i(TAG, "onNavigationItemSelected: Botão Salvar");
         }
 
 
@@ -177,7 +179,7 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
             }
             Log.i(TAG, "AtualizaLista: " + notificacoes.toString());
 
-            runOnUiThread(() -> atualizaLista());
+            runOnUiThread(this::atualizaLista);
         });
     }
 

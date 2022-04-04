@@ -1,5 +1,7 @@
 package com.example.monitoramentoplacassolares.locais;
 
+import androidx.annotation.NonNull;
+
 import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -9,23 +11,21 @@ import java.util.Iterator;
 import java.util.List;
 
 public class PlacaMonitoramento {
-    private String nome;
-    private String codigo;
+    private final String nome;
+    private final String codigo;
     int id;
 
-    private String strValores, valores;
+    private final List<LineGraphSeries<DataPoint>> series = new ArrayList<>();
+    private final List<String> titulosSeries = new ArrayList<>();
 
-    private List<LineGraphSeries<DataPoint>> series = new ArrayList<>();
-    private List<String> titulosSeries = new ArrayList<>();
-
-    private LineGraphSeries<DataPoint> serieLumi = new LineGraphSeries<>();
-    private LineGraphSeries<DataPoint> serieTPlaca = new LineGraphSeries<>();
-    private LineGraphSeries<DataPoint> serieTensao = new LineGraphSeries<>();
-    private LineGraphSeries<DataPoint> serieCorrente = new LineGraphSeries<>();
-    private LineGraphSeries<DataPoint> seriePressao = new LineGraphSeries<>();
-    private LineGraphSeries<DataPoint> serieTemp = new LineGraphSeries<>();
-    private LineGraphSeries<DataPoint> serieUmidade = new LineGraphSeries<>();
-    private LineGraphSeries<DataPoint> serieChuva = new LineGraphSeries<>();
+    private final LineGraphSeries<DataPoint> serieLumi = new LineGraphSeries<>();
+    private final LineGraphSeries<DataPoint> serieTPlaca = new LineGraphSeries<>();
+    private final LineGraphSeries<DataPoint> serieTensao = new LineGraphSeries<>();
+    private final LineGraphSeries<DataPoint> serieCorrente = new LineGraphSeries<>();
+    private final LineGraphSeries<DataPoint> seriePressao = new LineGraphSeries<>();
+    private final LineGraphSeries<DataPoint> serieTemp = new LineGraphSeries<>();
+    private final LineGraphSeries<DataPoint> serieUmidade = new LineGraphSeries<>();
+    private final LineGraphSeries<DataPoint> serieChuva = new LineGraphSeries<>();
 
     public PlacaMonitoramento(String nome, String codigo, int id){
         this.nome = nome;
@@ -77,7 +77,7 @@ public class PlacaMonitoramento {
             alvo = it.next();
             titulo = alvo.getTitle();
             if(serie.equals(titulo)){
-                alvo.appendData(new DataPoint(MainActivity.x, valor), false, 100);
+                alvo.appendData(new DataPoint(MainActivity.grafX, valor), false, 100);
             }
         }
     }
@@ -96,6 +96,7 @@ public class PlacaMonitoramento {
         return null;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return nome;

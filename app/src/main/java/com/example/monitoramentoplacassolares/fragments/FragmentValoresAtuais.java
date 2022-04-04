@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.example.monitoramentoplacassolares.R;
-import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
@@ -39,9 +38,12 @@ public class FragmentValoresAtuais extends Fragment {
     public static final String TAG = "FragmentValoresAtuais";
 
     private FragmentValoresAtuais objetoPrincipal;
+    private MainActivity mainActivity;
     private final Activity actAux = new Activity();
 
     public TextView[][] txtViewValores = new TextView[4][2];
+    private TextView txtMedidaCorrente;
+
     public TextView txtYGraf;
     public Switch switchAutoScroll;
     public Button[][] btStrDados = new Button[4][2];
@@ -71,6 +73,7 @@ public class FragmentValoresAtuais extends Fragment {
 
         MainActivity.executorServiceCached.submit(this::atualizaLocaisHttp);
 
+        // Txts Valores
         txtViewValores[0][0] = inf.findViewById(R.id.txtValorLuminosidade);
         txtViewValores[1][0] = inf.findViewById(R.id.txtValorTPlaca);
         txtViewValores[2][0] = inf.findViewById(R.id.txtTensao);
@@ -79,6 +82,9 @@ public class FragmentValoresAtuais extends Fragment {
         txtViewValores[1][1] = inf.findViewById(R.id.txtTemp);
         txtViewValores[2][1] = inf.findViewById(R.id.txtUmidade);
         txtViewValores[3][1] = inf.findViewById(R.id.txtChuva);
+
+        // Txts Medidas
+        txtMedidaCorrente = inf.findViewById(R.id.txtMedidaCorrente);
 
         txtYGraf = inf.findViewById(R.id.txtYGraf);
 
@@ -115,7 +121,6 @@ public class FragmentValoresAtuais extends Fragment {
         public void onItemSelected(final AdapterView<?> adapterView, View view, final int i, long l) {
 
             LocalMonitoramento localSelecionado = locais.get(0);
-            Object aux = adapterView.getItemAtPosition(i);
             for (int j = 0; j < locais.size(); j++) {
                 if (locais.get(j).equals(adapterView.getItemAtPosition(i))) {
                     localSelecionado = locais.get(j);
@@ -124,6 +129,7 @@ public class FragmentValoresAtuais extends Fragment {
 
             if (localSelecionado != localAtual) {
                 localAtual = localSelecionado;
+                atualizaGrandezas();
                 ArrayAdapter<String> placasAdapter = new ArrayAdapter(adapterView.getContext(), android.R.layout.simple_spinner_item, localSelecionado.getPlacas());
                 placasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spPlaca.setAdapter(placasAdapter);
@@ -160,6 +166,24 @@ public class FragmentValoresAtuais extends Fragment {
         }
     };
 
+    private void atualizaGrandezas() {
+        String[] configsGrandezas = localAtual.getGrandezas().split(";");
+        if (configsGrandezas.length > 0) {
+            for (String config : configsGrandezas) {
+                if (config.equals("")) continue;
+                String grandeza = config.split("=")[0];
+                String unidade = config.split("=")[1];
+                mudaTxtGrandeza(grandeza, unidade);
+            }
+        }
+    }
+
+    private void mudaTxtGrandeza(String grandeza, String unidade) {
+        if ("I".equals(grandeza)) {
+            txtMedidaCorrente.setText(unidade);
+        }
+    }
+
     private void atualizaLocaisHttp() {
         try (Response locaisResponse = MpsHttpClient.instacia().doGet("locais")) {
             String responseBodyStr = locaisResponse.body().string();
@@ -167,13 +191,14 @@ public class FragmentValoresAtuais extends Fragment {
             if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
                 JSONObject locaisJson = new JSONObject(responseBodyStr);
                 carregaLocais(locaisJson);
+                actAux.runOnUiThread(this::atualizaListaLocais);
             } else {
                 Log.i(TAG, "atualizaLocaisHttp: Erro: Código de resposta inesperado: " + statusCode);
             }
         } catch (HttpRequestException | IOException | JSONException e) {
             e.printStackTrace();
         }
-        actAux.runOnUiThread(this::atualizaListaLocais);
+
     }
 
     private void atualizaListaLocais() {
@@ -209,16 +234,8 @@ public class FragmentValoresAtuais extends Fragment {
         return ultimoLocal;
     }
 
-    public void setUltimoLocal(String ultimoLocal) {
-        this.ultimoLocal = ultimoLocal;
-    }
-
     public String getUltimaPlaca() {
         return ultimaPlaca;
-    }
-
-    public void setUltimaPlaca(String ultimaPlaca) {
-        this.ultimaPlaca = ultimaPlaca;
     }
 
     private void carregaLocais(JSONObject locaisJson) throws JSONException {
@@ -227,11 +244,12 @@ public class FragmentValoresAtuais extends Fragment {
         for (int i = 0; i < jsArrLocais.length(); i++) {
             JSONObject jsLocal = jsArrLocais.optJSONObject(i);
             String nomeLocal = jsLocal.optString("local");
-            String codigoLocal = jsLocal.optString("local").toLowerCase();
+            String codigoLocal = nomeLocal.toLowerCase();
+            String grandezas = jsLocal.optString("grandezas", "");
             int numPlacas = jsLocal.optInt("matrizes");
 
             LocalMonitoramento local = new LocalMonitoramento(nomeLocal, codigoLocal,
-                    RunnableCliente.host_atual, RunnableCliente.porta_atual, numPlacas);
+                    grandezas, numPlacas);
 
             locais.add(local);
         }

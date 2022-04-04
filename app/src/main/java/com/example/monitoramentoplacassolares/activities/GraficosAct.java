@@ -42,6 +42,7 @@ import java.io.IOException;
 public class GraficosAct extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
     public static final String TAG = "GraficosAct";
 
+    //TODO: Adaptar para HTTP
     private GraphView graf;
     private LineGraphSeries<DataPoint> series;
     private Viewport viewport;

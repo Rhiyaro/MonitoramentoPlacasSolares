@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/act_cadastro.xml" value="0.22" />
         <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/act_dados.xml" value="0.1897644927536232" />
         <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/act_graficos.xml" value="0.19746376811594202" />
         <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/act_lista_notificacoes.xml" value="0.20416666666666666" />
@@ -23,8 +24,11 @@
         <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/fragment_valores_atuais.xml" value="0.20416666666666666" />
         <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/layout_rcdados.xml" value="0.19746376811594202" />
         <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/nav_header_main.xml" value="0.18704710144927536" />
+        <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/preferences_category.xml" value="0.14945652173913043" />
+        <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/layout/settings_activity.xml" value="0.22" />
         <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/menu/app_drawer.xml" value="0.33" />
         <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/menu/nav_test.xml" value="0.20416666666666666" />
+        <entry key="..\:/Projetos/MonitoramentoPlacasSolares/MonitoramentoPlacasSolares/app/src/main/res/xml/root_preferences.xml" value="0.25" />
       </map>
     </option>
   </component>

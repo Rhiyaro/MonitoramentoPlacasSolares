@@ -17,10 +17,16 @@
         android:icon="@drawable/solzin"
         android:label="MPS"
         android:roundIcon="@drawable/solzin"
+        android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".activities.ConfigAct"
+            android:exported="false"
+            android:parentActivityName=".activities.LoginAct"
+            android:label="@string/title_activity_config" />
         <activity
             android:name=".activities.ListaNotificacoes"
             android:exported="false"
@@ -33,9 +39,10 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.LoginAct"
-            android:screenOrientation="fullSensor"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize">
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -53,7 +60,6 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/title_activity_home"
-            android:screenOrientation="fullSensor"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--
  Set custom default icon. This is used when no icon is set for incoming notification messages.

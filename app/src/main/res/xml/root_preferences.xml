@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <PreferenceCategory
+        app:icon="@drawable/ic_conexao"
+        app:title="Conexão">
+
+        <EditTextPreference
+            app:defaultValue="192.168.0.8"
+            app:key="ip"
+            app:title="IP" />
+
+        <EditTextPreference
+            app:defaultValue="8080"
+            app:key="port"
+            app:title="Porta" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

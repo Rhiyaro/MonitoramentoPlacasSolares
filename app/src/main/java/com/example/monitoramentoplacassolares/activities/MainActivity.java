@@ -51,12 +51,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
@@ -67,11 +69,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationDrawer navDrawer;
 
     private Boolean sair;
-    private LineGraphSeries<DataPoint> serieLumi, serieTPlaca, serieTensao, serieCorrente, seriePressao,
-            serieTemp, serieUmidade, serieChuva;
     private Toolbar tb;
     private int idBtGraf;
-    public static int x = 0;
+    public static int grafX = 0;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private Fragment[] fragments;
@@ -79,12 +79,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static ExecutorService executorServiceCached = Executors.newCachedThreadPool();
 
-    private ScheduledExecutorService executorComunicacao = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executorComunicacao = Executors.newSingleThreadScheduledExecutor();
 
     public static RunnableCliente runnableCliente;
 
     public FragmentValoresAtuais fragValAtuais;
     public String ultimoLocal = "", ultimaPlaca = "";
+    private View viewGrafAtual;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //navDrawer = new NavigationDrawer(this);
 
-        tabLayout = findViewById(R.id.tabLayout);
+        tabLayout = findViewById(R.id.mainActTabLayout);
 
         fragments = new Fragment[2];
         fragments[0] = new FragmentValoresAtuais();
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         fragValAtuais = (FragmentValoresAtuais) fragments[0];
 
-        viewPager = findViewById(R.id.viewPager);
+        viewPager = findViewById(R.id.mainActViewPager);
         viewPager.setAdapter(new MyFragmentPagerAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.tabTitles), fragments));
 
         tabLayout.setupWithViewPager(viewPager);
@@ -122,21 +123,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         executorComunicacao.scheduleAtFixedRate(
-                this::iniciaComunicacaoHttp, 0,
+                this::comunicacaoHttp, 0,
                 MpsHttpClient.REQUEST_TIMEOUT_SECONDS,
                 TimeUnit.SECONDS);
-
-        // Inicia os gráficos
-        serieLumi = new LineGraphSeries<>();
-        serieTPlaca = new LineGraphSeries<>();
-        serieTensao = new LineGraphSeries<>();
-        serieCorrente = new LineGraphSeries<>();
-        seriePressao = new LineGraphSeries<>();
-        serieTemp = new LineGraphSeries<>();
-        serieUmidade = new LineGraphSeries<>();
-        serieChuva = new LineGraphSeries<>();
 
         File folder = new File(Environment.getExternalStorageDirectory() +
                 File.separator + "mps");
@@ -151,6 +141,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    private void comunicacaoHttp() {
+        try (Response comunicacaoResponse = MpsHttpClient.instacia().doGet("ultimos-dados")) {
+            ResponseBody responseBody = comunicacaoResponse.body();
+            String responseBodyStr;
+            if (responseBody != null) {
+                responseBodyStr = responseBody.string();
+                JSONObject respostaJson = new JSONObject(responseBodyStr);
+                gerenciaUltimosDados(respostaJson);
+            }
+        } catch (HttpRequestException | IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void gerenciaUltimosDados(JSONObject resposta) throws JSONException {
+        JSONObject dados = resposta.getJSONObject("dados");
+
+        if (fragValAtuais.getLocalAtual() == null) {
+            return;
+        }
+
+        JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getNome());
+
+        setValoresJSON(dadosLocalAtual);
+
+        // TODO: Melhorar controle dos gráficos -> otimizar métodos
+        // TODO: Gráficos bugaram após mudança na criação dos locais!!!
+        boolean mudou = false;
+        if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) ||
+                !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
+            if (!ultimoLocal.equals("") && !ultimaPlaca.equals("")) {
+                mudou = true;
+            }
+            ultimoLocal = fragValAtuais.getLocalAtual().getCodigo();
+            ultimaPlaca = fragValAtuais.getPlacaAtual().getCodigo();
+        }
+        adicionaDataPoints(dados);
+        grafX++;
+        if (fragValAtuais.switchAutoScroll.isChecked()) ajeitaGrafico();
+        if (mudou) runOnUiThread(() -> escolheGraf(viewGrafAtual));
+    }
+
     /**
      * Seta os valores da tela principal para os últimos dados recebidos
      *
@@ -160,7 +192,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void setValoresJSON(JSONObject dados) {
         for (int i = 0; i < fragValAtuais.txtViewValores.length; i++) {
             for (int j = 0; j < fragValAtuais.txtViewValores[i].length; j++) {
-                setTxtView(fragValAtuais.txtViewValores[i][j], dados, fragValAtuais.txtViewValores[i][j].getHint().toString());
+                setTxtView(fragValAtuais.txtViewValores[i][j], dados,
+                        fragValAtuais.txtViewValores[i][j].getHint().toString());
             }
         }
     }
@@ -188,8 +221,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // se não, o dado pertence à matriz toda, isto é, a todas as placas
                 arrayAux = conjunto.optJSONArray(dado);
                 if (arrayAux == null) {
-                    //txtView.setText(conjunto.opt(dado).toString());
-                    VALOR_A_SETAR = conjunto.opt(dado).toString();
+                    VALOR_A_SETAR = conjunto.optString(dado, "SEM-DADO");
                 } else {
                     // se a placa seleciona for a placaMédia, retira a média dos valores
                     // se não, retira o valor referente a placa específica
@@ -198,50 +230,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             valor += arrayAux.optDouble(i);
                         }
                         valor /= arrayAux.length();
-                        //txtView.setText(String.format("%s", valor));
-                        VALOR_A_SETAR = String.format("%s", valor);
+                        VALOR_A_SETAR = String.format(new Locale("en", "US"),
+                                "%.2f", valor);
                     } else {
-                        //txtView.setText(conjunto.optJSONArray(dado).get(idPlaca).toString());
-                        VALOR_A_SETAR = conjunto.optJSONArray(dado).get(idPlaca - 1).toString();
+                        VALOR_A_SETAR = arrayAux.getString(idPlaca - 1);
                     }
                 }
             } else { // caso o local não possua o tipo de dado, seta como "nulo"
-                //txtView.setText("---");
                 VALOR_A_SETAR = "---";
             }
             runOnUiThread(() -> txtView.setText(VALOR_A_SETAR));
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void adicionaDataPoints(JSONObject dados) {
-        Iterator<LocalMonitoramento> locaisIt = fragValAtuais.locais.iterator();
-        JSONObject dadosLocal;
-        LocalMonitoramento localAux;
-
-        while (locaisIt.hasNext()) {
-            localAux = locaisIt.next();
-            dadosLocal = dados.optJSONObject(localAux.getNome());
-            if (dadosLocal != null) {
-                localAux.adicionaDataPoints(dadosLocal);
-            }
-        }
-    }
-
-    public void ajeitaGrafico() {
-        x++;
-
-        if (fragValAtuais.viewport != null && fragValAtuais.switchAutoScroll.isChecked()) {
-            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.05);
-            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.05);
-            if (x > 20) {
-                fragValAtuais.viewport.setMinX(fragValAtuais.viewport.getMaxX(true) - 20);
-                fragValAtuais.viewport.setMaxX(fragValAtuais.viewport.getMaxX(true));
-            } else {
-                fragValAtuais.viewport.setMinX(0);
-                fragValAtuais.viewport.setMaxX(20);
-            }
         }
     }
 
@@ -329,10 +329,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         runOnUiThread(() -> fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual));
 
-        if (fragValAtuais.viewport != null) {
-            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
-            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
+//        if (fragValAtuais.viewport != null) {
+//            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
+//            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
+//        }
+    }
+
+    private void adicionaDataPoints(JSONObject dados) {
+        Iterator<LocalMonitoramento> locaisIt = fragValAtuais.locais.iterator();
+        JSONObject dadosLocal;
+        LocalMonitoramento localAux;
+
+        while (locaisIt.hasNext()) {
+            localAux = locaisIt.next();
+            try {
+                dadosLocal = dados.getJSONObject(localAux.getNome());
+                localAux.adicionaDataPoints(dadosLocal);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public void ajeitaGrafico() {
+
+        if (fragValAtuais.viewport != null) {
+            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.01);
+            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) -
+                    fragValAtuais.viewport.getMinY(true) * 0.01);
+            if (grafX > 20) {
+                fragValAtuais.viewport.setMinX(fragValAtuais.viewport.getMaxX(true) - 20);
+                fragValAtuais.viewport.setMaxX(fragValAtuais.viewport.getMaxX(true));
+            } else {
+                fragValAtuais.viewport.setMinX(0);
+                fragValAtuais.viewport.setMaxX(20);
+            }
+        }
+    }
+
+    public void escolheGraf(View view) {
+        idBtGraf = view.getId();
+        viewGrafAtual = view;
+        String btHint = ((Button) view).getHint().toString();
+//        Log.i(TAG, "escolheGraf: " + btHint);
+//        attSeriePlaca();
+        atualizaGrafico(btHint);
+        ajeitaGrafico();
     }
 
     private void atualizaGrafico(String serieEscolhida) {
@@ -353,27 +395,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragValAtuais.grafAtual = placaAtual.getTitulosSeries().get(i);
 
                 if (lineGraph.isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacaMedia().getSeriesByTitle(serieEscolhida));
+                    runOnUiThread(() -> fragValAtuais.graf.addSeries(
+                            fragValAtuais.getLocalAtual().getPlacaMedia().getSeriesByTitle(serieEscolhida)));
                 } else {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getPlacaAtual().getSeriesByTitle(serieEscolhida));
+                    runOnUiThread(() -> fragValAtuais.graf.addSeries(
+                            fragValAtuais.getPlacaAtual().getSeriesByTitle(serieEscolhida)));
                 }
+
+                break;
             }
         }
 
         runOnUiThread(() -> fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual));
 
-        if (fragValAtuais.viewport != null) {
-            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
-            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
-        }
-    }
-
-    public void escolheGraf(View view) {
-        idBtGraf = view.getId();
-        String btHint = ((Button) view).getHint().toString();
-        Log.i(TAG, "escolheGraf: " + btHint);
-//        attSeriePlaca();
-        atualizaGrafico(btHint);
+//        if (fragValAtuais.viewport != null) {
+//            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.01);
+//            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.1);
+//        }
     }
 
     @Override
@@ -402,6 +440,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @SuppressWarnings("rawtypes")
     public void goAct(View v, Class act) {
 
         Intent intAct = new Intent(this, act);
@@ -476,36 +515,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void iniciaComunicacaoHttp() {
-        try (Response comunicacaoResponse = MpsHttpClient.instacia().doGet("ultimos-dados")) {
-            String responseBodyStr = comunicacaoResponse.body().string();
-            JSONObject respostaJson = new JSONObject(responseBodyStr);
-            gerenciaUltimosDados(respostaJson);
-        } catch (HttpRequestException | IOException | JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
-    private void gerenciaUltimosDados(JSONObject resposta) throws JSONException {
-        JSONObject dados = resposta.getJSONObject("dados");
-
-        while (fragValAtuais.getLocalAtual() == null) {
-        }
-
-        JSONObject dadosLocalAtual = dados.getJSONObject(fragValAtuais.getLocalAtual().getNome());
-
-        setValoresJSON(dadosLocalAtual);
-
-        // TODO: Melhorar controle dos gráficos -> otimizar métodos
-        // TODO: Gráficos bugaram após mudança na criação dos locais!!!
-        if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) || !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
-            if (!ultimoLocal.equals("") && !ultimaPlaca.equals("")) {
-                attSeriePlaca();
-            }
-            ultimoLocal = fragValAtuais.getLocalAtual().getCodigo();
-            ultimaPlaca = fragValAtuais.getPlacaAtual().getCodigo();
-        }
-        adicionaDataPoints(dados);
-        ajeitaGrafico();
-    }
 }

@@ -2,40 +2,21 @@ package com.example.monitoramentoplacassolares.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.example.monitoramentoplacassolares.R;
-import com.example.monitoramentoplacassolares.conexao.Cliente;
-import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
-import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
-import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;
 import com.example.monitoramentoplacassolares.excecoes.HttpLoginException;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.messaging.FirebaseMessaging;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import okhttp3.Request;
 
 public class LoginAct extends AppCompatActivity {
     private static final String TAG = "LoginAct";
@@ -55,10 +36,18 @@ public class LoginAct extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_login);
 
-        edtTxtLogin = findViewById(R.id.edtTxtLogin);
-        edtTxtSenha = findViewById(R.id.edtTxtSenha);
+        edtTxtLogin = findViewById(R.id.edtTxtLoginLogin);
+        edtTxtSenha = findViewById(R.id.edtTxtSenhaLogin);
 
+        carregaLoginSenha();
+    }
 
+    private void carregaLoginSenha() {
+        SharedPreferences configs = PreferenceManager.getDefaultSharedPreferences(this);
+        String login = configs.getString("login", "");
+        String senha = configs.getString("senha", "");
+        edtTxtLogin.setText(login);
+        edtTxtSenha.setText(senha);
     }
 
     public void goMain() {
@@ -70,7 +59,8 @@ public class LoginAct extends AppCompatActivity {
         this.finish();
     }
 
-    public void logar(View view) {
+    public void btLogarAction(View view) {
+        salvarLogin();
         if (!checaLoginValido()) {
             return;
         }
@@ -83,6 +73,14 @@ public class LoginAct extends AppCompatActivity {
         }
     }
 
+    private void salvarLogin() {
+        SharedPreferences configs = PreferenceManager.getDefaultSharedPreferences(this);
+        String login = edtTxtLogin.getText().toString();
+        String senha = edtTxtSenha.getText().toString();
+        configs.edit().putString("login", login).apply();
+        configs.edit().putString("senha", senha).apply();
+    }
+
     private boolean checaLoginValido() {
         if (edtTxtLogin.getText().length() < 3 || edtTxtSenha.getText().length() < 3) {
             Toast.makeText(LoginAct.this,
@@ -93,8 +91,11 @@ public class LoginAct extends AppCompatActivity {
     }
 
     private String logarHttp() throws HttpLoginException {
-        //TODO: Implementar leitura de propriedades
-        MpsHttpClient.criaInstancia(new MpsHttpClient("192.168.25.9", 8080, this));
+        SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(this );
+        String ip = sharedPreferences.getString("ip", "192.168.0.8");
+        int port = Integer.parseInt(sharedPreferences.getString("port", "8080"));
+        MpsHttpClient.criaInstancia(new MpsHttpClient(ip, port, this));
 
         String login = edtTxtLogin.getText().toString();
         String senha = edtTxtSenha.getText().toString();
@@ -116,9 +117,13 @@ public class LoginAct extends AppCompatActivity {
         }
     }
 
-    public void cadastrar(View view) {
+    public void irCadastrar(View view) {
         Intent intAct = new Intent(this, CadastroAct.class);
         startActivity(intAct);
+    }
 
+    public void irConfigs(View view) {
+        Intent intAct = new Intent(this, ConfigAct.class);
+        startActivity(intAct);
     }
 }
