@@ -65,7 +65,7 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
 //        MenuItem salvar = findViewById(R.id.nav_salvar);
 //        salvar.setEnabled(true);
 
-        tb = findViewById(R.id.toolbar);
+        tb = findViewById(R.id.toolbarDadosAct);
         setSupportActionBar(tb);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

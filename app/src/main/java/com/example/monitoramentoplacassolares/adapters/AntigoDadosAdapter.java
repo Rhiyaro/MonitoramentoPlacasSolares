@@ -10,15 +10,15 @@ import com.example.monitoramentoplacassolares.R;
 
 import org.json.JSONObject;
 
-public class DadosAdapter extends RecyclerView.Adapter<DadosAdapter.DadosViewHolder> {
-    public static final String TAG = "DadosAdapter";
+public class AntigoDadosAdapter extends RecyclerView.Adapter<AntigoDadosAdapter.AntigoDadosViewHolder> {
+    public static final String TAG = "AntigoDadosAdapter";
 
     //TODO: Adaptar para JSONObjects
 
     private String[] Dados;
     private JSONObject dados;
 
-    public DadosAdapter(String Dados) {
+    public AntigoDadosAdapter(String Dados) {
         if (Dados != null) {
             this.Dados = Dados.split(";");
 
@@ -26,24 +26,24 @@ public class DadosAdapter extends RecyclerView.Adapter<DadosAdapter.DadosViewHol
             this.Dados = null;
     }
 
-    public DadosAdapter(JSONObject dados){
+    public AntigoDadosAdapter(JSONObject dados){
         this.dados = dados;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public DadosViewHolder onCreateViewHolder(ViewGroup parent,
-                                              int viewType) {
+    public AntigoDadosViewHolder onCreateViewHolder(ViewGroup parent,
+                                                    int viewType) {
         // create a new view
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         View view = layoutInflater.inflate(R.layout.layout_rcdados, parent, false);
-        DadosViewHolder vh = new DadosViewHolder(view);
+        AntigoDadosViewHolder vh = new AntigoDadosViewHolder(view);
         return vh;
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(DadosViewHolder holder, int position) {
+    public void onBindViewHolder(AntigoDadosViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
@@ -67,11 +67,11 @@ public class DadosAdapter extends RecyclerView.Adapter<DadosAdapter.DadosViewHol
         return this.Dados.length;
     }
 
-    public static class DadosViewHolder extends RecyclerView.ViewHolder {
+    public static class AntigoDadosViewHolder extends RecyclerView.ViewHolder {
 
         public TextView[] textView = new TextView[7];
 
-        public DadosViewHolder(View v) {
+        public AntigoDadosViewHolder(View v) {
             super(v);
             textView[0] = (TextView) v.findViewById(R.id.txtDados1);
             textView[1] = (TextView) v.findViewById(R.id.txtDados2);

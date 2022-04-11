@@ -186,6 +186,10 @@ public class MpsHttpClient {
         return doGet(instacia().newGetRequest(path));
     }
 
+    public Response doGet(String path, Map<String, String> queryParams) throws HttpRequestException {
+        return doGet(instacia().newGetRequest(path, queryParams));
+    }
+
     private static class CallbackFuture extends CompletableFuture<Response> implements Callback {
         public void onResponse(@NotNull Call call, @NotNull Response response) {
             super.complete(response);

@@ -1,63 +1,96 @@
 package com.example.monitoramentoplacassolares.activities;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
 import com.example.monitoramentoplacassolares.R;
-import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;
-import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
+import com.example.monitoramentoplacassolares.adapters.AntigoDadosAdapter;
+import com.example.monitoramentoplacassolares.adapters.DadosDataAdapter;
+import com.example.monitoramentoplacassolares.adapters.ListaNotificacaoAdapter;
+import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpServerInfo;
 import com.google.android.material.navigation.NavigationView;
+
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.Color;
 import android.os.Bundle;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.monitoramentoplacassolares.adapters.DadosAdapter;
-import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.opencsv.CSVWriter;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
-public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSelectedListener, IAsyncHandler, NavigationView.OnNavigationItemSelectedListener {
+import okhttp3.Response;
+
+public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSelectedListener, NavigationView.OnNavigationItemSelectedListener {
     public static final String TAG = "DadosAct";
 
-    //TODO: Adaptar para HTTP
     private Spinner spMes, spDia;
-    private Toolbar tb;
+    //TODO: Adaptar para HTTP
     private RecyclerView rcDados;
-    private String  Dados = null;
+    private final String Dados = null;
     private boolean sair;
 
-    private NavigationDrawer navDrawer;
+    private Calendar calendar;
 
-    private ArrayList<LocalMonitoramento> locais = new ArrayList<LocalMonitoramento>();
+    private TextView tvDataHoraInicio;
+    private TextView tvDataHoraFim;
+
+    private int ano, mes, dia;
+    private int hora, minuto;
+
+    private List<JSONObject> listaDados = Collections.synchronizedList(new ArrayList<>());
+    private DadosAct objetoPrincipal;
+    private JSONObject dadoCabecalho = new JSONObject();
+    private final Object esperaResposta = new Object();
+
+    private NavigationDrawer navDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_dados);
-
-        Log.i(TAG, "onCreate: \ndados");
+        objetoPrincipal = this;
 
 //        navDrawer = new NavigationDrawer(this);
 //        MenuItem salvar = findViewById(R.id.nav_salvar);
@@ -65,7 +98,8 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 
         sair = false;
 
-        tb = findViewById(R.id.toolbar);
+        // Init Toolbar e Drawer
+        Toolbar tb = findViewById(R.id.toolbarDadosAct);
         setSupportActionBar(tb);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -76,29 +110,64 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        // end
 
-        spDia = findViewById(R.id.spDia);
-        ArrayAdapter<CharSequence> adapterspDia = ArrayAdapter.createFromResource(this,
-                R.array.strSpDia, android.R.layout.simple_spinner_item);
-        adapterspDia.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spDia.setAdapter(adapterspDia);
-        spDia.setOnItemSelectedListener(this);
+        // Inicia TxTs Seleção Data
+        calendar = Calendar.getInstance();
 
-        spMes = findViewById(R.id.spMes);
-        ArrayAdapter<CharSequence> adapterspMes = ArrayAdapter.createFromResource(this,
-                R.array.strSpMes, android.R.layout.simple_spinner_item);
-        adapterspMes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spMes.setAdapter(adapterspMes);
-        spMes.setOnItemSelectedListener(this);
+        tvDataHoraInicio = findViewById(R.id.txtSelecionaDataHoraInicioDados);
+        tvDataHoraInicio.setOnClickListener(v -> mostrarSelecaoData(tvDataHoraInicio));
+
+        tvDataHoraFim = findViewById(R.id.txtSelecionaDataHoraTerminoDados);
+        tvDataHoraFim.setOnClickListener(v -> mostrarSelecaoData(tvDataHoraFim));
+        // end
 
         rcDados = findViewById(R.id.rcDados);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rcDados.setLayoutManager(layoutManager);
 
-        DadosAdapter mAdapter = new DadosAdapter(Dados);
+        AntigoDadosAdapter mAdapter = new AntigoDadosAdapter(Dados);
         rcDados.setAdapter(mAdapter);
+    }
 
-        this.locais = MainActivity.runnableCliente.getLocais();
+    private void mostrarSelecaoData(TextView tvDataHora) {
+        DatePickerDialog.OnDateSetListener dateSetListener = (view, year, month, dayOfMonth) -> {
+            calendar.set(Calendar.YEAR, year);
+            ano = year;
+            calendar.set(Calendar.MONTH, month);
+            mes = month + 1;
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            dia = dayOfMonth;
+
+            mostrarSelecaoHora(tvDataHora);
+        };
+
+        new DatePickerDialog(DadosAct.this,
+                dateSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH))
+                .show();
+    }
+
+    private void mostrarSelecaoHora(TextView tvDataHora) {
+        TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute) -> {
+            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            hora = hourOfDay;
+            calendar.set(Calendar.MINUTE, minute);
+            minuto = minute;
+
+            tvDataHora.setText(String.format(new Locale("pt", "BR"),
+                    "%d-%02d-%02d %02d:%02d:00",
+                    ano, mes, dia, hora, minuto));
+        };
+
+        new TimePickerDialog(DadosAct.this,
+                timeSetListener,
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                true)
+                .show();
     }
 
     @Override
@@ -113,9 +182,9 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
         //Toast.makeText(this, parent.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
     }
 
-    private void salvarDados(){
+    private void salvarDados() {
 
-        String pathName = android.os.Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator + "mps" + File.separator + "dados";
+        String pathName = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "mps" + File.separator + "dados";
 
         File f = new File(pathName);
         CSVWriter writer;
@@ -126,17 +195,17 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 
         // File exist
         writer = null;
-        if(f.exists()&&!f.isDirectory()) {
+        if (f.exists() && !f.isDirectory()) {
             FileWriter mFileWriter = null;
             try {
-                mFileWriter = new FileWriter(pathName + File.separator +  spDia.getSelectedItem() +  spMes.getSelectedItem() + ".csv");
+                mFileWriter = new FileWriter(pathName + File.separator + spDia.getSelectedItem() + spMes.getSelectedItem() + ".csv");
             } catch (IOException e) {
                 e.printStackTrace();
             }
             writer = new CSVWriter(mFileWriter);
-        }else {
+        } else {
             try {
-                writer = new CSVWriter(new FileWriter(pathName + File.separator +  spDia.getSelectedItem() +  spMes.getSelectedItem() + ".csv"));
+                writer = new CSVWriter(new FileWriter(pathName + File.separator + spDia.getSelectedItem() + spMes.getSelectedItem() + ".csv"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -154,7 +223,7 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Toast.makeText(DadosAct.this, pathName + '/' + spDia.getSelectedItem() +  spMes.getSelectedItem() + ".csv", Toast.LENGTH_LONG).show();
+        Toast.makeText(DadosAct.this, pathName + '/' + spDia.getSelectedItem() + spMes.getSelectedItem() + ".csv", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -168,37 +237,26 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            if(sair) {
+            if (sair) {
                 super.finish();
-            }else
+            } else
                 Toast.makeText(this, "Pressione novamente para sair.", Toast.LENGTH_SHORT).show();
             sair = true;
         }
     }
 
-    @Override
-    public void postResult(String result) {
-        Dados = result;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                DadosAdapter mAdapter = new DadosAdapter(Dados);
-                rcDados.setAdapter(mAdapter);
-            }
+    public void btRequestAction(View v) {
+        //TODO: Debuggar
+
+        MainActivity.executorServiceCached.submit(() -> {
+            pedeDados();
+            runOnUiThread(this::atualizaListaDados);
+            runOnUiThread(() -> criaCabecalho(dadoCabecalho));
         });
 
-    }
-
-    @Override
-    public void postResult(JSONObject result){
-        //TODO: Montar funcionamento com JSONObjects
-
-    }
-
-    public void request(View v){
-        String data;
-        data  =  spDia.getSelectedItem() + "-";
-        data +=  spMes.getSelectedItem();
+        /*String data;
+        data = spDia.getSelectedItem() + "-";
+        data += spMes.getSelectedItem();
 
         //Cliente task = new Cliente(DadosAct.this);
         //task.execute("DADOS DATA " + data);
@@ -208,15 +266,120 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
             pacotePedido.put("data", data);
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
 
 //        MainActivity.Cliente.setPacoteConfig(pacotePedido);
 //        MainActivity.executorServiceCached.submit(MainActivity.Cliente);
-        TarefaMensagem tarefaMensagem = new TarefaMensagem(this, pacotePedido);
-        MainActivity.runnableCliente.novaTarefa(tarefaMensagem);
+//        TarefaMensagem tarefaMensagem = new TarefaMensagem(this, pacotePedido);
+//        MainActivity.runnableCliente.novaTarefa(tarefaMensagem);
     }
 
-    public void goAct(View v, Class act){
+    private void pedeDados() {
+        //TODO: Adicionar seleção de local
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("local", "VR");
+        String dataInicio = tvDataHoraInicio.getText().toString().replace(" ", "+");
+        queryParams.put("inicio", dataInicio);
+        String dataFim = tvDataHoraFim.getText().toString().replace(" ", "+");
+        queryParams.put("fim", dataFim);
+
+        try (Response dadosResponse =
+                     MpsHttpClient.instacia().doGet(MpsHttpServerInfo.PATH_DADOS_DATA, queryParams)) {
+            String responseBodyStr = dadosResponse.body().string();
+
+            int statusCode = dadosResponse.code();
+            if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
+                JSONArray dadosJson = new JSONArray(responseBodyStr);
+
+                if (dadosJson.length() == 0) {
+                    runOnUiThread(() -> Toast.makeText(this,
+                            "Sem dados entre essas datas", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
+                dadoCabecalho = dadosJson.getJSONObject(0);
+                //runOnUiThread(() -> criaCabecalho(dadoCabecalho));
+                carregaDados(dadosJson);
+            } else {
+                Log.i(TAG, "pedeDados: Erro: Código de resposta inesperado: "
+                        + statusCode + "\nCorpo mensagem: " + responseBodyStr);
+            }
+        } catch (HttpRequestException | IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void criaCabecalho(JSONObject dados) {
+        Iterator<String> keysIt = dados.keys();
+        String key;
+        boolean evenView = false; // O ultimo a ser inserido foi o 0-ésimo (par)
+
+        TableRow cabecalho = findViewById(R.id.tblRow_Cabecalho);
+        cabecalho.removeAllViews();
+
+        // Inicia data separado, garantindo ser o primeiro
+        addTextViewCabecalho("Data", evenView);
+        evenView = true; // 2o text view
+
+        List<String> listaTitulos = Arrays.asList(MainActivity.titulosDados);
+        List<String> listaNomes = Arrays.asList(MainActivity.nomesDados);
+
+        while (keysIt.hasNext()) {
+            key = keysIt.next();
+            if (key.equals("data")) continue;
+
+            int indexTitulo = listaTitulos.indexOf(key);
+            String nomeDado = listaNomes.get(indexTitulo);
+
+            addTextViewCabecalho(nomeDado, evenView);
+            evenView = !evenView;
+        }
+    }
+
+    private void addTextViewCabecalho(String text, boolean evenColumn) {
+        TableRow cabecalho = findViewById(R.id.tblRow_Cabecalho);
+
+        TextView tvToAdd = new TextView(this);
+
+        cabecalho.addView(tvToAdd);
+
+        tvToAdd.setText(text);
+//        tvToAdd.setHeight(TableRow.LayoutParams.WRAP_CONTENT);
+
+        int dps = 95;
+        final float scale = getResources().getDisplayMetrics().density;
+        int pixels = (int) (dps * scale + 0.5f);
+        tvToAdd.getLayoutParams().width = pixels;
+
+        tvToAdd.setTextColor(Color.BLACK);
+        if (evenColumn) {
+            tvToAdd.setBackgroundResource(R.color.cinzaClaro);
+        } else {
+            tvToAdd.setBackgroundResource(R.color.cinzaEscuro);
+        }
+        tvToAdd.setGravity(Gravity.CENTER);
+
+    }
+
+    private void carregaDados(JSONArray dados) throws JSONException {
+        if (dados == null) {
+            Log.i(TAG, "carregaDados: dados is null");
+            return;
+        }
+
+        listaDados.clear();
+        for (int i = 0; i < dados.length(); i++) {
+            listaDados.add(dados.getJSONObject(i));
+        }
+    }
+
+    private void atualizaListaDados() {
+        DadosDataAdapter listaAdapter = new DadosDataAdapter(objetoPrincipal, listaDados);
+        rcDados.setAdapter(listaAdapter);
+        rcDados.setLayoutManager(new LinearLayoutManager(objetoPrincipal));
+    }
+
+    public void goAct(View v, Class act) {
         Intent intAct = new Intent(this, act);
         startActivity(intAct);
         this.finish();
@@ -240,15 +403,15 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
             goAct(findViewById(id), MainActivity.class);
 
         } else if (id == R.id.nav_bd) {
-            //goAct(findViewById(id), DadosAct.class);
+            Log.i(TAG, "onNavigationItemSelected: Botão Dados");
 
         } else if (id == R.id.nav_graficos) {
             goAct(findViewById(id), GraficosAct.class);
 
-        } else if (id == R.id.nav_notificacoes){
+        } else if (id == R.id.nav_notificacoes) {
             goAct(findViewById(id), ListaNotificacoes.class);
-        } else if (id == R.id.nav_salvar){
-
+        } else if (id == R.id.nav_salvar) {
+            Log.i(TAG, "onNavigationItemSelected: Botão Salvar");
         }
 
 
@@ -256,13 +419,5 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
-    }
-
-    public ArrayList<LocalMonitoramento> getLocais() {
-        return locais;
-    }
-
-    public void setLocais(ArrayList<LocalMonitoramento> locais) {
-        this.locais = locais;
     }
 }

@@ -70,17 +70,17 @@ public class LocalMonitoramento {
              */
             arrayAux = dados.optJSONArray(chave);
             if (arrayAux == null) { // Se não for, adiciona o dado à placa 'Média' -> "dado pertence a todas as placas" (à matriz)
-                this.placaMedia.adicionaPonto(chave, dados.optDouble(chave, 0.0));
+                placaMedia.adicionaPonto(chave, dados.optDouble(chave, 0.0));
             } else { // Se for, retira a média dos valores para adicionar na placa 'Média' e adiciona cada valor à sua placa
                 for (int i = 0; i < arrayAux.length(); i++) {
                     valor = arrayAux.optDouble(i, 0.0);
                     media += valor;
-                    if (this.placas.size() > 1) {
-                        this.placas.get(i + 1).adicionaPonto(chave, valor);
+                    if (placas.size() > 1) {
+                        placas.get(i + 1).adicionaPonto(chave, valor);
                     }
                 }
                 media /= arrayAux.length();
-                this.placaMedia.adicionaPonto(chave, media);
+                placaMedia.adicionaPonto(chave, media);
             }
         }
     }

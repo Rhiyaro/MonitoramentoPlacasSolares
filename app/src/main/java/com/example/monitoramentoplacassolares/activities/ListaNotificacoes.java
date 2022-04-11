@@ -20,20 +20,27 @@ import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.adapters.ListaNotificacaoAdapter;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;
+import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpServerInfo;
 import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.Response;
+
 public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener {
     public static final String TAG = "ListaNotificacoes";
 
-    //TODO: Adaptar para HTTP
+    //TODO: Adaptar para HTTP -> Limpar restos de comunicação por Socket
+    //TODO: Implementar filtro
     private NavigationDrawer navDrawer;
     private DrawerLayout drawer;
     private Toolbar tb;
@@ -41,7 +48,7 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
     private RecyclerView listaNotificacaoRV;
     private Button bt_refresh;
 
-    private List<JSONObject> notificacoes = Collections.synchronizedList(new ArrayList<JSONObject>());
+    private List<JSONObject> notificacoes = Collections.synchronizedList(new ArrayList<>());
     private final Object esperaResposta = new Object();
     private ListaNotificacoes objetoPrincipal;
 
@@ -53,7 +60,7 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
 
         //navDrawer = new NavigationDrawer(this);
 
-        tb = findViewById(R.id.toolbar);
+        tb = findViewById(R.id.toolbarDadosAct);
         setSupportActionBar(tb);
 
         drawer = findViewById(R.id.drawer_layout);
@@ -72,21 +79,74 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
 
     }
 
+    public void btAtualizaLista(View view) {
+//        MainActivity.executorServiceCached.submit(() -> {
+//            try {
+//                synchronized (esperaResposta) {
+//                    atualizaNotificacoes();
+//                    esperaResposta.wait();
+//                }
+//            } catch (JSONException | InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            Log.i(TAG, "AtualizaLista: " + notificacoes.toString());
+//
+//            runOnUiThread(this::atualizaLista);
+//        });
+        MainActivity.executorServiceCached.submit(() -> {
+            try {
+                atualizaNotificacoes();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Log.i(TAG, "AtualizaLista: " + notificacoes.toString());
+
+            runOnUiThread(this::atualizaLista);
+        });
+    }
+
     private void atualizaNotificacoes() throws JSONException {
-        JSONObject pedido = new JSONObject();
-        pedido.put("acao", "notificacoes");
-        pedido.put("pedido", "lista notificacoes");
+//        JSONObject pedido = new JSONObject();
+//        pedido.put("acao", "notificacoes");
+//        pedido.put("pedido", "lista notificacoes");
+//
+//        TarefaMensagem tarefaMsg = new TarefaMensagem(objetoPrincipal, pedido);
+//        tarefaMsg.configuraConexao(MainActivity.runnableCliente.getSocket(),
+//                MainActivity.runnableCliente.getObjIn(),
+//                MainActivity.runnableCliente.getObjOut());
+//
+//        MainActivity.runnableCliente.novaTarefa(tarefaMsg);
 
-        TarefaMensagem tarefaMsg = new TarefaMensagem(objetoPrincipal, pedido);
-        tarefaMsg.configuraConexao(MainActivity.runnableCliente.getSocket(),
-                MainActivity.runnableCliente.getObjIn(),
-                MainActivity.runnableCliente.getObjOut());
+        try (Response notifsResponse = MpsHttpClient.instacia().doGet(MpsHttpServerInfo.PATH_NOTIFICACOES)) {
+            String responseBodyStr = notifsResponse.body().string();
+            Log.i(TAG, "atualizaNotificacoes: \n"+responseBodyStr);
+            int statusCode = notifsResponse.code();
+            if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
+                JSONObject notifsJson = new JSONObject(responseBodyStr);
+                carregaNotificacoes(notifsJson);
+            } else {
+                Log.i(TAG, "atualizaLocaisHttp: Erro: Código de resposta inesperado: " + statusCode);
+            }
+        } catch (HttpRequestException | IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
-        MainActivity.runnableCliente.novaTarefa(tarefaMsg);
+    private void carregaNotificacoes(JSONObject notifsJson) throws JSONException {
+        JSONArray notifs = notifsJson.optJSONArray("lista-notificacoes");
+
+        if (notifs == null) {
+            Log.i(TAG, "carregaNotificacoes: notifs is null");
+            return;
+        }
+
+        notificacoes.clear();
+        for (int i = 0; i < notifs.length(); i++) {
+            notificacoes.add(notifs.getJSONObject(i));
+        }
     }
 
     private void atualizaLista() {
-
         ListaNotificacaoAdapter listaAdapter = new ListaNotificacaoAdapter(objetoPrincipal, notificacoes);
         listaNotificacaoRV.setAdapter(listaAdapter);
         listaNotificacaoRV.setLayoutManager(new LinearLayoutManager(objetoPrincipal));
@@ -166,22 +226,5 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
                 Log.w(TAG, "postResult: error");
         }
     }
-
-    public void btAtualizaLista(View view) {
-        MainActivity.executorServiceCached.submit(() -> {
-            try {
-                synchronized (esperaResposta) {
-                    atualizaNotificacoes();
-                    esperaResposta.wait();
-                }
-            } catch (JSONException | InterruptedException e) {
-                e.printStackTrace();
-            }
-            Log.i(TAG, "AtualizaLista: " + notificacoes.toString());
-
-            runOnUiThread(this::atualizaLista);
-        });
-    }
-
 
 }

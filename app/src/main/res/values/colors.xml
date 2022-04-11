@@ -9,4 +9,6 @@
     <color name="tabcolor">#3F6F96</color>
     <color name="none">#00000000</color>
     <color name="link">#B5DEFF</color>
+    <color name="cinzaClaro">#dcdcdc</color>
+    <color name="cinzaEscuro">#aaaaaa</color>
 </resources>

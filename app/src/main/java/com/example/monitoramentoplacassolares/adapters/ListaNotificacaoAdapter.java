@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,20 +24,11 @@ import java.util.List;
 public class ListaNotificacaoAdapter extends RecyclerView.Adapter<ListaNotificacaoAdapter.ListaNotifViewHolder> {
 
     private Context context;
-    private List<JSONObject> notificacoes = Collections.synchronizedList(new ArrayList<JSONObject>());
-
-    public ListaNotificacaoAdapter(Context context) {
-        this.context = context;
-    }
+    private List<JSONObject> notificacoes = Collections.synchronizedList(new ArrayList<>());
 
     public ListaNotificacaoAdapter(Context context, List<JSONObject> notificacoes) {
         this.context = context;
-        this.notificacoes = notificacoes;
-    }
-
-    public ListaNotificacaoAdapter(Context context, ArrayList<JSONObject> notificacoes) {
-        this.context = context;
-        this.notificacoes = notificacoes;
+        this.notificacoes.addAll(notificacoes);
     }
 
     @NonNull
@@ -59,7 +49,7 @@ public class ListaNotificacaoAdapter extends RecyclerView.Adapter<ListaNotificac
         holder.txtTipo.setText(estado);
 
         int cor = Color.RED;
-        if(estado.toLowerCase().equals("normal")){
+        if(estado.equalsIgnoreCase("normal")){
             cor = Color.GREEN;
             holder.txtIndicador.setText("OK");
         } else {
@@ -71,12 +61,7 @@ public class ListaNotificacaoAdapter extends RecyclerView.Adapter<ListaNotificac
 
         final ListaNotifViewHolder auxHolder = holder;
 
-        holder.btDetalhes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                abreDetalhes(v, auxHolder);
-            }
-        });
+        holder.btDetalhes.setOnClickListener(v -> abreDetalhes(v, auxHolder));
     }
 
     @Override
@@ -92,7 +77,7 @@ public class ListaNotificacaoAdapter extends RecyclerView.Adapter<ListaNotificac
         Toast.makeText(view.getContext(), "Detalhes Notificação de "+holder.txtData.getText().toString(), Toast.LENGTH_SHORT).show();
     }
 
-    public class ListaNotifViewHolder extends RecyclerView.ViewHolder {
+    public static class ListaNotifViewHolder extends RecyclerView.ViewHolder {
 
         TextView txtDisparada, txtData;
         TextView txtDizTipo, txtTipo;

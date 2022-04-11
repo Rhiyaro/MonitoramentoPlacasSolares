@@ -15,8 +15,10 @@ public class PlacaMonitoramento {
     private final String codigo;
     int id;
 
-    private final List<LineGraphSeries<DataPoint>> series = new ArrayList<>();
+    private final List<LineGraphSeries<DataPoint>> lineGraphSeries = new ArrayList<>();
     private final List<String> titulosSeries = new ArrayList<>();
+
+    private List<SeriePlaca> series = new ArrayList<>();
 
     private final LineGraphSeries<DataPoint> serieLumi = new LineGraphSeries<>();
     private final LineGraphSeries<DataPoint> serieTPlaca = new LineGraphSeries<>();
@@ -35,60 +37,90 @@ public class PlacaMonitoramento {
     }
 
     private void inicializaTitulosSeries(){
+
+        for (int i = 0; i < MainActivity.titulosDados.length; i++) {
+            SeriePlaca serie = new SeriePlaca(MainActivity.titulosDados[i], MainActivity.nomesDados[i]);
+            series.add(serie);
+        }
+
         serieLumi.setTitle("luminosidade");
-        series.add(serieLumi);
+        lineGraphSeries.add(serieLumi);
         titulosSeries.add("Luminosidade");
 
         serieTPlaca.setTitle("tempPlaca");
-        series.add(serieTPlaca);
+        lineGraphSeries.add(serieTPlaca);
         titulosSeries.add("Temp. Placa");
 
         serieTensao.setTitle("tensao");
-        series.add(serieTensao);
+        lineGraphSeries.add(serieTensao);
         titulosSeries.add("Tensão");
 
         serieCorrente.setTitle("corrente");
-        series.add(serieCorrente);
+        lineGraphSeries.add(serieCorrente);
         titulosSeries.add("Corrente");
 
         seriePressao.setTitle("pressao");
-        series.add(seriePressao);
+        lineGraphSeries.add(seriePressao);
         titulosSeries.add("Pressão");
 
         serieTemp.setTitle("temp");
-        series.add(serieTemp);
+        lineGraphSeries.add(serieTemp);
         titulosSeries.add("Temperatura");
 
         serieUmidade.setTitle("umidade");
-        series.add(serieUmidade);
+        lineGraphSeries.add(serieUmidade);
         titulosSeries.add("Umidade");
 
         serieChuva.setTitle("chuva");
-        series.add(serieChuva);
+        lineGraphSeries.add(serieChuva);
         titulosSeries.add("Chuva");
     }
 
     public void adicionaPonto(String serie, double valor){
-        Iterator<LineGraphSeries<DataPoint>> it = this.series.iterator();
-        String titulo;
-        LineGraphSeries<DataPoint> alvo;
+//        Iterator<LineGraphSeries<DataPoint>> it = lineGraphSeries.iterator();
+//        String titulo;
+//        LineGraphSeries<DataPoint> alvo;
+//
+//        while(it.hasNext()){
+//            alvo = it.next();
+//            titulo = alvo.getTitle();
+//            if(serie.equals(titulo)){
+//                alvo.appendData(new DataPoint(MainActivity.grafX, valor), false, 100);
+//            }
+//        }
 
-        while(it.hasNext()){
-            alvo = it.next();
-            titulo = alvo.getTitle();
-            if(serie.equals(titulo)){
-                alvo.appendData(new DataPoint(MainActivity.grafX, valor), false, 100);
+        Iterator<SeriePlaca> iterator = series.iterator();
+        SeriePlaca serieAlvo;
+
+        while(iterator.hasNext()){
+            serieAlvo = iterator.next();
+            if(serie.equals(serieAlvo.getTitulo())){
+                serieAlvo.getSerie().appendData(new DataPoint(MainActivity.grafX, valor), false, 100);
             }
         }
     }
 
-    public LineGraphSeries<DataPoint> getSeriesByTitle(String title){
-        Iterator<LineGraphSeries<DataPoint>> it = this.series.iterator();
+    public LineGraphSeries<DataPoint> getLineGraphSeriesByTitle(String title){
+        Iterator<LineGraphSeries<DataPoint>> it = this.lineGraphSeries.iterator();
         LineGraphSeries<DataPoint> alvo;
 
         while(it.hasNext()){
             alvo = it.next();
             if(alvo.getTitle().equals(title)){
+                return alvo;
+            }
+        }
+
+        return null;
+    }
+
+    public SeriePlaca getSerieByTitle (String title) {
+        Iterator<SeriePlaca> iterator = series.iterator();
+        SeriePlaca alvo;
+
+        while (iterator.hasNext()){
+            alvo = iterator.next();
+            if (alvo.getTitulo().equals(title)){
                 return alvo;
             }
         }
@@ -146,11 +178,42 @@ public class PlacaMonitoramento {
         return codigo;
     }
 
-    public List<LineGraphSeries<DataPoint>> getSeries() {
-        return series;
+    public List<LineGraphSeries<DataPoint>> getLineGraphSeries() {
+        return lineGraphSeries;
     }
 
     public List<String> getTitulosSeries() {
         return titulosSeries;
+    }
+
+    public List<SeriePlaca> getSeries() {
+        return series;
+    }
+
+    public class SeriePlaca {
+        private String titulo;
+        private String nome;
+
+        private LineGraphSeries<DataPoint> serie;
+        //TODO: Modificar placa para usar classe SeriePlaca
+        public SeriePlaca(String titulo, String nome) {
+            this.titulo = titulo;
+            this.nome = nome;
+
+            serie = new LineGraphSeries<>();
+            serie.setTitle(titulo);
+        }
+
+        public String getTitulo() {
+            return titulo;
+        }
+
+        public String getNome() {
+            return nome;
+        }
+
+        public LineGraphSeries<DataPoint> getSerie() {
+            return serie;
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
 import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpServerInfo;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
 import com.google.android.material.navigation.NavigationView;
@@ -69,13 +70,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationDrawer navDrawer;
 
     private Boolean sair;
-    private Toolbar tb;
     private int idBtGraf;
     public static int grafX = 0;
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private Fragment[] fragments;
-    private DrawerLayout drawer;
 
     public static ExecutorService executorServiceCached = Executors.newCachedThreadPool();
 
@@ -85,7 +81,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public FragmentValoresAtuais fragValAtuais;
     public String ultimoLocal = "", ultimaPlaca = "";
+    public String grafAtual;
     private View viewGrafAtual;
+
+    public static String[] titulosDados;
+    public static String[] nomesDados;
+
+    private Toolbar tb;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private Fragment[] fragments;
+    private DrawerLayout drawer;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -95,9 +101,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setContentView(R.layout.activity_main);
 
-        tb = findViewById(R.id.toolbar);
-
+        tb = findViewById(R.id.toolbarMainAct);
         setSupportActionBar(tb);
+
+        titulosDados = getResources().getStringArray(R.array.tituloColunasDados);
+        nomesDados = getResources().getStringArray(R.array.nomeColunasDados);
 
         //navDrawer = new NavigationDrawer(this);
 
@@ -114,6 +122,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         tabLayout.setupWithViewPager(viewPager);
 
+        // Init Toolbar e Drawer
+
+
         drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, tb, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -122,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        // end Init
 
         executorComunicacao.scheduleAtFixedRate(
                 this::comunicacaoHttp, 0,
@@ -138,11 +150,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         sair = false;
         idBtGraf = R.id.btLuminosidade;
-
+        viewGrafAtual = findViewById(R.id.btLuminosidade);
     }
 
     private void comunicacaoHttp() {
-        try (Response comunicacaoResponse = MpsHttpClient.instacia().doGet("ultimos-dados")) {
+        try (Response comunicacaoResponse = MpsHttpClient.instacia().doGet(MpsHttpServerInfo.PATH_ULT_DADOS)) {
             ResponseBody responseBody = comunicacaoResponse.body();
             String responseBodyStr;
             if (responseBody != null) {
@@ -245,96 +257,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @SuppressLint({"SetTextI18n", "NonConstantResourceId"})
-    public void attSeriePlaca() {
-        fragValAtuais.graf.removeAllSeries();
-
-        switch (idBtGraf) {
-            case R.id.btLuminosidade:
-                if (fragValAtuais.getPlacaAtual().getSerieLumi().isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieLumi());
-                } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieLumi());
-                }
-                fragValAtuais.grafAtual = "Luminosidade";
-                break;
-
-            case R.id.btTPlaca:
-                if (fragValAtuais.getPlacaAtual().getSerieTPlaca().isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieTPlaca());
-                } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieTPlaca());
-                }
-                fragValAtuais.grafAtual = "Temp. Placa";
-                break;
-
-            case R.id.btTensao:
-                if (fragValAtuais.getPlacaAtual().getSerieTensao().isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieTensao());
-                } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieTensao());
-                }
-                fragValAtuais.grafAtual = "Tensão";
-                break;
-
-            case R.id.btCorrente:
-                if (fragValAtuais.getPlacaAtual().getSerieCorrente().isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieCorrente());
-                } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieCorrente());
-                }
-                fragValAtuais.grafAtual = "Corrente";
-                break;
-
-            case R.id.btPressao:
-                if (fragValAtuais.getPlacaAtual().getSeriePressao().isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSeriePressao());
-                } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSeriePressao());
-                }
-                fragValAtuais.grafAtual = "Pressão";
-                break;
-
-            case R.id.btTemp:
-                if (fragValAtuais.getPlacaAtual().getSerieTemp().isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieTemp());
-                } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieTemp());
-                }
-                if (fragValAtuais.getLocalAtual().getNome().contains("CEFET")) {
-                    fragValAtuais.grafAtual = "Temp. Caixa";
-                } else if (fragValAtuais.getLocalAtual().getNome().contains("Artigo")) {
-                    fragValAtuais.grafAtual = "Temp. Ambiente";
-                }
-                break;
-
-            case R.id.btUmidade:
-                if (fragValAtuais.getPlacaAtual().getSerieUmidade().isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieUmidade());
-                } else {
-                    ((FragmentValoresAtuais) fragments[0]).graf.addSeries(fragValAtuais.getPlacaAtual().getSerieUmidade());
-                }
-                fragValAtuais.grafAtual = "Umidade";
-                break;
-
-            case R.id.btChuva:
-                if (fragValAtuais.getPlacaAtual().getSerieChuva().isEmpty()) {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getLocalAtual().getPlacas().get(0).getSerieChuva());
-                } else {
-                    fragValAtuais.graf.addSeries(fragValAtuais.getPlacaAtual().getSerieChuva());
-                }
-                fragValAtuais.grafAtual = "Intens. Chuva";
-                break;
-        }
-
-        runOnUiThread(() -> fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual));
-
-//        if (fragValAtuais.viewport != null) {
-//            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.2);
-//            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.2);
-//        }
-    }
-
     private void adicionaDataPoints(JSONObject dados) {
         Iterator<LocalMonitoramento> locaisIt = fragValAtuais.locais.iterator();
         JSONObject dadosLocal;
@@ -368,6 +290,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void escolheGraf(View view) {
+        if (view == null) {
+            view = findViewById(R.id.btLuminosidade);
+        }
         idBtGraf = view.getId();
         viewGrafAtual = view;
         String btHint = ((Button) view).getHint().toString();
@@ -386,32 +311,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragValAtuais.graf.removeAllSeries();
 
         PlacaMonitoramento placaAtual = fragValAtuais.getPlacaAtual();
-        List<LineGraphSeries<DataPoint>> graphSeries = placaAtual.getSeries();
-        LineGraphSeries<DataPoint> lineGraph;
 
-        for (int i = 0; i < graphSeries.size(); i++) {
-            lineGraph = graphSeries.get(i);
-            if (lineGraph.getTitle().equals(serieEscolhida)) {
-                fragValAtuais.grafAtual = placaAtual.getTitulosSeries().get(i);
+//        List<LineGraphSeries<DataPoint>> graphSeries = placaAtual.getLineGraphSeries();
+//        LineGraphSeries<DataPoint> lineGraph;
+//
+//        for (int i = 0; i < graphSeries.size(); i++) {
+//            lineGraph = graphSeries.get(i);
+//            if (lineGraph.getTitle().equals(serieEscolhida)) {
+//                fragValAtuais.grafAtual = placaAtual.getTitulosSeries().get(i);
+//
+//                if (lineGraph.isEmpty()) {
+//                    runOnUiThread(() -> fragValAtuais.graf.addSeries(
+//                            fragValAtuais.getLocalAtual().getPlacaMedia().getLineGraphSeriesByTitle(serieEscolhida)));
+//                } else {
+//                    runOnUiThread(() -> fragValAtuais.graf.addSeries(
+//                            fragValAtuais.getPlacaAtual().getLineGraphSeriesByTitle(serieEscolhida)));
+//                }
+//
+//                break;
+//            }
+//        }
 
-                if (lineGraph.isEmpty()) {
-                    runOnUiThread(() -> fragValAtuais.graf.addSeries(
-                            fragValAtuais.getLocalAtual().getPlacaMedia().getSeriesByTitle(serieEscolhida)));
+        List<PlacaMonitoramento.SeriePlaca> series = placaAtual.getSeries();
+        PlacaMonitoramento.SeriePlaca seriePlaca;
+
+        for (int i = 0; i < series.size(); i++) {
+            seriePlaca = series.get(i);
+            if (seriePlaca.getTitulo().equals(serieEscolhida)) {
+                grafAtual = seriePlaca.getNome();
+
+                if (seriePlaca.getSerie().isEmpty()){
+                    PlacaMonitoramento.SeriePlaca seriePlacaMedia = fragValAtuais.getLocalAtual().getPlacaMedia().getSerieByTitle(serieEscolhida);
+                    runOnUiThread(() -> fragValAtuais.graf.addSeries(seriePlacaMedia.getSerie()));
                 } else {
-                    runOnUiThread(() -> fragValAtuais.graf.addSeries(
-                            fragValAtuais.getPlacaAtual().getSeriesByTitle(serieEscolhida)));
+                    PlacaMonitoramento.SeriePlaca finalSeriePlaca = seriePlaca;
+                    runOnUiThread(() -> fragValAtuais.graf.addSeries(finalSeriePlaca.getSerie()));
                 }
-
-                break;
             }
         }
 
-        runOnUiThread(() -> fragValAtuais.txtYGraf.setText(fragValAtuais.grafAtual));
-
-//        if (fragValAtuais.viewport != null) {
-//            fragValAtuais.viewport.setMaxY(fragValAtuais.viewport.getMaxY(true) * 1.01);
-//            fragValAtuais.viewport.setMinY(fragValAtuais.viewport.getMinY(true) - fragValAtuais.viewport.getMinY(true) * 0.1);
-//        }
+        runOnUiThread(() -> fragValAtuais.txtYGraf.setText(grafAtual));
     }
 
     @Override

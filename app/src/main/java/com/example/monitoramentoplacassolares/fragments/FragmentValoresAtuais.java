@@ -20,6 +20,7 @@ import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpServerInfo;
 import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.example.monitoramentoplacassolares.locais.PlacaMonitoramento;
 import com.jjoe64.graphview.GraphView;
@@ -185,7 +186,7 @@ public class FragmentValoresAtuais extends Fragment {
     }
 
     private void atualizaLocaisHttp() {
-        try (Response locaisResponse = MpsHttpClient.instacia().doGet("locais")) {
+        try (Response locaisResponse = MpsHttpClient.instacia().doGet(MpsHttpServerInfo.PATH_LOCAIS)) {
             String responseBodyStr = locaisResponse.body().string();
             int statusCode = locaisResponse.code();
             if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
@@ -198,7 +199,6 @@ public class FragmentValoresAtuais extends Fragment {
         } catch (HttpRequestException | IOException | JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     private void atualizaListaLocais() {
