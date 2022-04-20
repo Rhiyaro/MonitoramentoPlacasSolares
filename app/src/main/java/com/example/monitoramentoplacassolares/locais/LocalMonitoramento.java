@@ -1,6 +1,9 @@
 package com.example.monitoramentoplacassolares.locais;
 
+import android.content.Context;
+
 import com.example.monitoramentoplacassolares.activities.MainActivity;
+import com.example.monitoramentoplacassolares.adapters.PlacaAdapter;
 import com.jjoe64.graphview.series.DataPoint;
 
 import org.jetbrains.annotations.NotNull;
@@ -14,15 +17,13 @@ import java.util.List;
 public class LocalMonitoramento {
     public static final String TAG = "LocalMonitoramento";
 
-    /*
-      TODO: Remontar métodos para trabalhar com JSON Object -> EM ANDAMENTO
-     */
-
     private final String nome;
     private final String codigo;
     private final String grandezas;
     private final List<PlacaMonitoramento> placas = new ArrayList<PlacaMonitoramento>();
     private PlacaMonitoramento placaMedia;
+
+    private PlacaAdapter placasAdapter;
 
     public LocalMonitoramento(String nome, String codigo, String grandezas, int numPlacas) {
         this.nome = nome;
@@ -44,6 +45,10 @@ public class LocalMonitoramento {
             this.placaMedia = new PlacaMonitoramento("Placa Principal", "media", 0);
             this.placas.add(placaMedia);
         }
+    }
+
+    public void criaAdapter(Context context) {
+        placasAdapter = new PlacaAdapter(context, placas);
     }
 
     /**
@@ -200,5 +205,9 @@ public class LocalMonitoramento {
 
     public PlacaMonitoramento getPlacaMedia() {
         return placaMedia;
+    }
+
+    public PlacaAdapter getPlacasAdapter() {
+        return placasAdapter;
     }
 }

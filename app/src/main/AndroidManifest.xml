@@ -30,12 +30,14 @@
         <activity
             android:name=".activities.ListaNotificacoes"
             android:exported="false"
+            android:launchMode="singleTop"
             android:label="@string/title_activity_lista_notificacoes"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.CadastroAct"
             android:label="Cadastrar"
             android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activities.LoginAct"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.LoginAct"
@@ -51,14 +53,17 @@
         </activity>
         <activity
             android:name=".activities.DadosAct"
+            android:launchMode="singleTop"
             android:label="@string/title_activity_dados"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.GraficosAct"
+            android:launchMode="singleTop"
             android:label="@string/title_activity_graficos"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.MainActivity"
+            android:launchMode="singleTop"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--

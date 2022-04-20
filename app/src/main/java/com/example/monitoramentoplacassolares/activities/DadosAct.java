@@ -73,6 +73,8 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 
     private Calendar calendar;
 
+    private DrawerLayout drawer;
+
     private TextView tvDataHoraInicio;
     private TextView tvDataHoraFim;
 
@@ -102,7 +104,7 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
         Toolbar tb = findViewById(R.id.toolbarDadosAct);
         setSupportActionBar(tb);
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, tb, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -381,8 +383,9 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 
     public void goAct(View v, Class act) {
         Intent intAct = new Intent(this, act);
+        intAct.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intAct);
-        this.finish();
+//        this.finish();
     }
 
 
@@ -406,7 +409,8 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
             Log.i(TAG, "onNavigationItemSelected: Botão Dados");
 
         } else if (id == R.id.nav_graficos) {
-            goAct(findViewById(id), GraficosAct.class);
+//            goAct(findViewById(id), GraficosAct.class);
+            Toast.makeText(this, "Não implementado", Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_notificacoes) {
             goAct(findViewById(id), ListaNotificacoes.class);

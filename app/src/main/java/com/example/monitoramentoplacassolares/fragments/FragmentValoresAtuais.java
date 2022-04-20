@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -18,6 +17,8 @@ import android.widget.TextView;
 
 import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.example.monitoramentoplacassolares.R;
+import com.example.monitoramentoplacassolares.adapters.LocalAdapter;
+import com.example.monitoramentoplacassolares.adapters.PlacaAdapter;
 import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpServerInfo;
@@ -34,12 +35,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class FragmentValoresAtuais extends Fragment {
     public static final String TAG = "FragmentValoresAtuais";
 
     private FragmentValoresAtuais objetoPrincipal;
-    private MainActivity mainActivity;
     private final Activity actAux = new Activity();
 
     public TextView[][] txtViewValores = new TextView[4][2];
@@ -57,9 +58,6 @@ public class FragmentValoresAtuais extends Fragment {
     private LocalMonitoramento localAtual;
     private PlacaMonitoramento placaAtual;
     public String grafAtual = "";
-
-    private String ultimoLocal = "";
-    private String ultimaPlaca = "";
 
     public ArrayList<LocalMonitoramento> locais = new ArrayList<>();
 
@@ -117,55 +115,7 @@ public class FragmentValoresAtuais extends Fragment {
         return inf;
     }
 
-    public AdapterView.OnItemSelectedListener selecaoLocal = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(final AdapterView<?> adapterView, View view, final int i, long l) {
 
-            LocalMonitoramento localSelecionado = locais.get(0);
-            for (int j = 0; j < locais.size(); j++) {
-                if (locais.get(j).equals(adapterView.getItemAtPosition(i))) {
-                    localSelecionado = locais.get(j);
-                }
-            }
-
-            if (localSelecionado != localAtual) {
-                localAtual = localSelecionado;
-                atualizaGrandezas();
-                ArrayAdapter<String> placasAdapter = new ArrayAdapter(adapterView.getContext(), android.R.layout.simple_spinner_item, localSelecionado.getPlacas());
-                placasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spPlaca.setAdapter(placasAdapter);
-
-                spPlaca.setOnItemSelectedListener(selecaoPlaca);
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> adapterView) {
-
-        }
-    };
-
-    public AdapterView.OnItemSelectedListener selecaoPlaca = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(final AdapterView<?> adapterView, View view, final int i, long l) {
-            //TODO: Atualizar seleção de placa do dropList
-
-            PlacaMonitoramento placaSelecionada = localAtual.getPlacas().get(0);
-            for (int j = 0; j < localAtual.getPlacas().size(); j++) {
-                if (localAtual.getPlacas().get(j).equals(adapterView.getItemAtPosition(i))) {
-                    placaSelecionada = localAtual.getPlacas().get(j);
-                }
-            }
-            if (!placaSelecionada.equals(placaAtual)) {
-                placaAtual = placaSelecionada;
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> adapterView) {
-
-        }
-    };
 
     private void atualizaGrandezas() {
         String[] configsGrandezas = localAtual.getGrandezas().split(";");
@@ -187,9 +137,10 @@ public class FragmentValoresAtuais extends Fragment {
 
     private void atualizaLocaisHttp() {
         try (Response locaisResponse = MpsHttpClient.instacia().doGet(MpsHttpServerInfo.PATH_LOCAIS)) {
-            String responseBodyStr = locaisResponse.body().string();
+            ResponseBody responseBody = locaisResponse.body();
+            String responseBodyStr = responseBody != null ? responseBody.string() : "vazio";
             int statusCode = locaisResponse.code();
-            if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
+            if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE && !responseBodyStr.equals("vazio")) {
                 JSONObject locaisJson = new JSONObject(responseBodyStr);
                 carregaLocais(locaisJson);
                 actAux.runOnUiThread(this::atualizaListaLocais);
@@ -206,21 +157,60 @@ public class FragmentValoresAtuais extends Fragment {
     }
 
     private void atualizaAdapters() {
-        ArrayAdapter<String> locaisAdapter = new ArrayAdapter(objetoPrincipal.getContext(), android.R.layout.simple_spinner_item, locais);
-        locaisAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spLocal.setAdapter(locaisAdapter);
+//        ArrayAdapter<String> locaisAdapter = new ArrayAdapter(objetoPrincipal.getContext(), android.R.layout.simple_spinner_item, locais);
+//        locaisAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spLocal.setAdapter(locaisAdapter);
+//        spLocal.setOnItemSelectedListener(selecaoLocal);
+//
+//        ArrayAdapter<String> placasAdapter = new ArrayAdapter(objetoPrincipal.getContext(), android.R.layout.simple_spinner_item, localAtual.getPlacas());
+//        placasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spPlaca.setAdapter(placasAdapter);
+//        spPlaca.setOnItemSelectedListener(selecaoPlaca);
+
+        LocalAdapter localAdapter = new LocalAdapter(objetoPrincipal.getContext(), locais);
+        spLocal.setAdapter(localAdapter);
         spLocal.setOnItemSelectedListener(selecaoLocal);
 
-        ArrayAdapter<String> placasAdapter = new ArrayAdapter(objetoPrincipal.getContext(), android.R.layout.simple_spinner_item, localAtual.getPlacas());
-        placasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spPlaca.setAdapter(placasAdapter);
-
+        PlacaAdapter placaAdapter = new PlacaAdapter(objetoPrincipal.getContext(), localAtual.getPlacas());
+        spPlaca.setAdapter(placaAdapter);
         spPlaca.setOnItemSelectedListener(selecaoPlaca);
     }
 
-    public void novoLocal(LocalMonitoramento novoLocal) {
-        //TODO: Atualizar controle de local e placa atual
-    }
+    private final AdapterView.OnItemSelectedListener selecaoLocal = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            LocalMonitoramento localSelecionado = (LocalMonitoramento) parent.getItemAtPosition(position);
+            if (!localSelecionado.equals(localAtual)){
+                localAtual = localSelecionado;
+                atualizaGrandezas();
+
+                placaAtual = localSelecionado.getPlacas().get(0);
+
+                PlacaAdapter placaAdapter = new PlacaAdapter(objetoPrincipal.getContext(), localAtual.getPlacas());
+                spPlaca.setAdapter(placaAdapter);
+                spPlaca.setOnItemSelectedListener(selecaoPlaca);
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+        }
+    };
+
+    private final AdapterView.OnItemSelectedListener selecaoPlaca = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            PlacaMonitoramento placaSelecionada = (PlacaMonitoramento) parent.getItemAtPosition(position);
+            if (!placaSelecionada.equals(placaAtual)) {
+                placaAtual = placaSelecionada;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
 
     public LocalMonitoramento getLocalAtual() {
         return localAtual;
@@ -228,14 +218,6 @@ public class FragmentValoresAtuais extends Fragment {
 
     public PlacaMonitoramento getPlacaAtual() {
         return placaAtual;
-    }
-
-    public String getUltimoLocal() {
-        return ultimoLocal;
-    }
-
-    public String getUltimaPlaca() {
-        return ultimaPlaca;
     }
 
     private void carregaLocais(JSONObject locaisJson) throws JSONException {

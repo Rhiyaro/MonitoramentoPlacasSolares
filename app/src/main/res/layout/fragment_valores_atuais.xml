@@ -22,9 +22,9 @@
 
         <Spinner
             android:id="@+id/seletorLocal"
-            android:layout_width="250dp"
-            android:layout_height="40dp"
-            android:dropDownWidth="wrap_content"
+            android:layout_width="150dp"
+            android:layout_height="48dp"
+            android:dropDownWidth="match_parent"
             android:spinnerMode="dropdown"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -33,7 +33,7 @@
 
         <Spinner
             android:id="@+id/seletorPlaca"
-            android:layout_width="250dp"
+            android:layout_width="150dp"
             android:layout_height="48dp"
             android:dropDownWidth="match_parent"
             android:spinnerMode="dropdown"
@@ -63,7 +63,7 @@
             android:layout_weight="1"
             app:layout_constraintBottom_toTopOf="@id/txtYGraf"
             app:layout_constraintEnd_toStartOf="@+id/tableLayout2"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0.3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -227,7 +227,7 @@
             android:alwaysDrawnWithCache="false"
             app:layout_constraintBottom_toTopOf="@id/txtYGraf"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0.3"
             app:layout_constraintStart_toEndOf="@+id/tableLayout"
             app:layout_constraintTop_toTopOf="parent">
 

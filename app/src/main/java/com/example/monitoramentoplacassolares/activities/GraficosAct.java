@@ -179,8 +179,9 @@ public class GraficosAct extends AppCompatActivity implements IAsyncHandler, Nav
     public void goAct(View v, Class act){
         fim = true;
         Intent intAct = new Intent(this, act);
+        intAct.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intAct);
-        this.finish();
+//        this.finish();
     }
 
     @Override

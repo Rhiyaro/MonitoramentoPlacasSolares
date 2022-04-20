@@ -364,7 +364,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             goAct(findViewById(id), DadosAct.class);
 
         } else if (id == R.id.nav_graficos) {
-            goAct(findViewById(id), GraficosAct.class);
+            //goAct(findViewById(id), GraficosAct.class);
+            Toast.makeText(this, "Não implementado", Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_notificacoes) {
             goAct(findViewById(id), ListaNotificacoes.class);
@@ -381,8 +382,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("rawtypes")
     public void goAct(View v, Class act) {
-
         Intent intAct = new Intent(this, act);
+        intAct.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intAct);
 //        this.finish();
     }
