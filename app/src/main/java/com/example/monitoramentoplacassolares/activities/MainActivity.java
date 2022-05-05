@@ -41,9 +41,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -258,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void adicionaDataPoints(JSONObject dados) {
-        Iterator<LocalMonitoramento> locaisIt = fragValAtuais.locais.iterator();
+        Iterator<LocalMonitoramento> locaisIt = fragValAtuais.ListaLocais.iterator();
         JSONObject dadosLocal;
         LocalMonitoramento localAux;
 

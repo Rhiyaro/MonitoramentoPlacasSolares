@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="@+id/include">
 
         <Spinner
-            android:id="@+id/seletorLocal"
+            android:id="@+id/seletorLocalMain"
             android:layout_width="150dp"
             android:layout_height="48dp"
             android:dropDownWidth="match_parent"
@@ -32,14 +32,14 @@
             tools:ignore="SpeakableTextPresentCheck" />
 
         <Spinner
-            android:id="@+id/seletorPlaca"
+            android:id="@+id/seletorPlacaMain"
             android:layout_width="150dp"
             android:layout_height="48dp"
             android:dropDownWidth="match_parent"
             android:spinnerMode="dropdown"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/seletorLocal"
+            app:layout_constraintTop_toBottomOf="@+id/seletorLocalMain"
             tools:ignore="SpeakableTextPresentCheck" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,16 +15,21 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.adapters.ListaNotificacaoAdapter;
+import com.example.monitoramentoplacassolares.adapters.LocalAdapter;
 import com.example.monitoramentoplacassolares.conexao.IAsyncHandler;
 import com.example.monitoramentoplacassolares.conexao.TarefaMensagem;
 import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
+import com.example.monitoramentoplacassolares.fragments.FragmentValoresAtuais;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpServerInfo;
+import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
@@ -48,6 +54,9 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
 
     private RecyclerView listaNotificacaoRV;
     private Button bt_refresh;
+
+    private Spinner spLocal;
+    private LocalMonitoramento localEscolhido;
 
     private List<JSONObject> notificacoes = Collections.synchronizedList(new ArrayList<>());
     private final Object esperaResposta = new Object();
@@ -74,11 +83,31 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
         navigationView.setNavigationItemSelectedListener(this);
 
         bt_refresh = findViewById(R.id.bt_refresh);
+        spLocal = findViewById(R.id.seletorLocalNotifs);
+
+        LocalAdapter localAdapter = new LocalAdapter(this, FragmentValoresAtuais.ListaLocais);
+        spLocal.setAdapter(localAdapter);
+        spLocal.setOnItemSelectedListener(selecaoLocal);
 
         listaNotificacaoRV = findViewById(R.id.lista_notif_rv);
         atualizaLista();
 
     }
+
+    private final AdapterView.OnItemSelectedListener selecaoLocal = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            LocalMonitoramento localSelecionado = (LocalMonitoramento) parent.getItemAtPosition(position);
+            if (!localSelecionado.equals(localEscolhido)){
+                localEscolhido = localSelecionado;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
 
     public void btAtualizaLista(View view) {
 //        MainActivity.executorServiceCached.submit(() -> {

@@ -7,7 +7,7 @@
         app:title="Conexão">
 
         <EditTextPreference
-            app:defaultValue="192.168.0.8"
+            app:defaultValue="200.9.149.134"
             app:key="ip"
             app:title="IP" />
 
@@ -16,6 +16,15 @@
             app:key="port"
             app:title="Porta" />
 
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Notificações"
+        app:icon="@drawable/simbolo_notificacao">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="recebe_avisos"
+            android:title="Receber notificações" />
     </PreferenceCategory>
 
 </PreferenceScreen>

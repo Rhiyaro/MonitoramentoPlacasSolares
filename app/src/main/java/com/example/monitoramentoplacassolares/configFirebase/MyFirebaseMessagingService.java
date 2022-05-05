@@ -12,6 +12,7 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
+import com.example.monitoramentoplacassolares.activities.LoginAct;
 import com.example.monitoramentoplacassolares.activities.MainActivity;
 import com.example.monitoramentoplacassolares.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -63,19 +64,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
-            String title = remoteMessage.getData().get("title");
-            String body = remoteMessage.getData().get("body");
+            String title = remoteMessage.getData().get("titulo");
+            String body = remoteMessage.getData().get("corpo");
 
             sendNotification(body, title);
 
-            if (/* Check if data needs to be processed by long running job */ true) {
+
+            //if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 //scheduleJob();
-            } else {
+            //} else {
                 // Handle message within 10 seconds
                 //handleNow();
 
-            }
+            //}
 
         }
 
@@ -95,7 +97,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String messageBody, String messageTitle) {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, LoginAct.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);

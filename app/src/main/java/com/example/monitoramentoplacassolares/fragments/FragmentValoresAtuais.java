@@ -52,14 +52,13 @@ public class FragmentValoresAtuais extends Fragment {
     public GraphView graf;
     public Viewport viewport;
 
-    //TODO: Trocar por RecyclerView
     private Spinner spLocal, spPlaca;
 
     private LocalMonitoramento localAtual;
     private PlacaMonitoramento placaAtual;
     public String grafAtual = "";
 
-    public ArrayList<LocalMonitoramento> locais = new ArrayList<>();
+    public static ArrayList<LocalMonitoramento> ListaLocais = new ArrayList<>();
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -67,8 +66,8 @@ public class FragmentValoresAtuais extends Fragment {
         objetoPrincipal = this;
 
         //Adiciona a lista de locais aos spinners de seleção
-        spLocal = inf.findViewById(R.id.seletorLocal);
-        spPlaca = inf.findViewById(R.id.seletorPlaca);
+        spLocal = inf.findViewById(R.id.seletorLocalMain);
+        spPlaca = inf.findViewById(R.id.seletorPlacaMain);
 
         MainActivity.executorServiceCached.submit(this::atualizaLocaisHttp);
 
@@ -167,7 +166,7 @@ public class FragmentValoresAtuais extends Fragment {
 //        spPlaca.setAdapter(placasAdapter);
 //        spPlaca.setOnItemSelectedListener(selecaoPlaca);
 
-        LocalAdapter localAdapter = new LocalAdapter(objetoPrincipal.getContext(), locais);
+        LocalAdapter localAdapter = new LocalAdapter(objetoPrincipal.getContext(), ListaLocais);
         spLocal.setAdapter(localAdapter);
         spLocal.setOnItemSelectedListener(selecaoLocal);
 
@@ -233,10 +232,10 @@ public class FragmentValoresAtuais extends Fragment {
             LocalMonitoramento local = new LocalMonitoramento(nomeLocal, codigoLocal,
                     grandezas, numPlacas);
 
-            locais.add(local);
+            ListaLocais.add(local);
         }
 
-        localAtual = locais.get(0);
+        localAtual = ListaLocais.get(0);
         placaAtual = localAtual.getPlacas().get(0);
     }
 }
