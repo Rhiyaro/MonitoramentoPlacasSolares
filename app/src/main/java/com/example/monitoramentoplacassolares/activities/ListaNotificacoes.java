@@ -39,9 +39,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandler, NavigationView.OnNavigationItemSelectedListener {
     public static final String TAG = "ListaNotificacoes";
@@ -147,8 +150,18 @@ public class ListaNotificacoes extends AppCompatActivity implements IAsyncHandle
 //
 //        MainActivity.runnableCliente.novaTarefa(tarefaMsg);
 
-        try (Response notifsResponse = MpsHttpClient.instacia().doGet(MpsHttpServerInfo.PATH_NOTIFICACOES)) {
-            String responseBodyStr = notifsResponse.body().string();
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("local", localEscolhido.getCodigo());
+
+        try (Response notifsResponse = MpsHttpClient.instacia()
+                .doGet(MpsHttpServerInfo.PATH_NOTIFICACOES, queryParams)) {
+            ResponseBody responseBody = notifsResponse.body();
+            String responseBodyStr = responseBody != null ? responseBody.string() : "vazio";
+
+            if (responseBodyStr.equals("vazio")) {
+                throw new HttpRequestException("Corpo de resposta vazio");
+            }
+
             Log.i(TAG, "atualizaNotificacoes: \n"+responseBodyStr);
             int statusCode = notifsResponse.code();
             if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {

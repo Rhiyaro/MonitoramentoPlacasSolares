@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.example.monitoramentoplacassolares.R;
@@ -62,6 +63,8 @@ import okhttp3.ResponseBody;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
     public static final String TAG = "MainActivity";
 
+    //TODO: Limpar códigos de teste
+
     public MyFirebaseMessagingService msgServ = new MyFirebaseMessagingService();
 
     private NavigationDrawer navDrawer;
@@ -110,12 +113,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         fragments = new Fragment[2];
         fragments[0] = new FragmentValoresAtuais();
-        fragments[1] = new Fragment();
+        //fragments[1] = new Fragment(); //Retirado para retirar a aba "Produção"
 
         fragValAtuais = (FragmentValoresAtuais) fragments[0];
 
         viewPager = findViewById(R.id.mainActViewPager);
-        viewPager.setAdapter(new MyFragmentPagerAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.tabTitles), fragments));
+        viewPager.setAdapter(new MyFragmentPagerAdapter(getSupportFragmentManager(),
+                getResources().getStringArray(R.array.tabTitles),
+                fragments));
 
         tabLayout.setupWithViewPager(viewPager);
 
@@ -176,7 +181,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setValoresJSON(dadosLocalAtual);
 
         // TODO: Melhorar controle dos gráficos -> otimizar métodos
-        // TODO: Gráficos bugaram após mudança na criação dos locais!!!
         boolean mudou = false;
         if (!fragValAtuais.getLocalAtual().getCodigo().equals(ultimoLocal) ||
                 !fragValAtuais.getPlacaAtual().getCodigo().equals(ultimaPlaca)) {
@@ -300,10 +304,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void atualizaGrafico(String serieEscolhida) {
-        /*
-        TODO: Continuar vendo como será feita essa parte e a adição dos pontos a cada placa
-                Será feito por R.string ou hardcoded ou no pedido de local
-         */
 
         fragValAtuais.graf.removeAllSeries();
 

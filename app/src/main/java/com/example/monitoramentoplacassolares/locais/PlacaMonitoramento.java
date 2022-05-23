@@ -18,7 +18,7 @@ public class PlacaMonitoramento {
     private final List<LineGraphSeries<DataPoint>> lineGraphSeries = new ArrayList<>();
     private final List<String> titulosSeries = new ArrayList<>();
 
-    private List<SeriePlaca> series = new ArrayList<>();
+    private final List<SeriePlaca> series = new ArrayList<>();
 
     private final LineGraphSeries<DataPoint> serieLumi = new LineGraphSeries<>();
     private final LineGraphSeries<DataPoint> serieTPlaca = new LineGraphSeries<>();
@@ -190,12 +190,12 @@ public class PlacaMonitoramento {
         return series;
     }
 
-    public class SeriePlaca {
-        private String titulo;
-        private String nome;
+    public static class SeriePlaca {
+        private final String titulo;
+        private final String nome;
 
-        private LineGraphSeries<DataPoint> serie;
-        //TODO: Modificar placa para usar classe SeriePlaca
+        private final LineGraphSeries<DataPoint> serie;
+
         public SeriePlaca(String titulo, String nome) {
             this.titulo = titulo;
             this.nome = nome;

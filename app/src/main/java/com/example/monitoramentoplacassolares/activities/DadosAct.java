@@ -1,8 +1,8 @@
 package com.example.monitoramentoplacassolares.activities;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -10,13 +10,16 @@ import androidx.annotation.NonNull;
 import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.adapters.AntigoDadosAdapter;
 import com.example.monitoramentoplacassolares.adapters.DadosDataAdapter;
-import com.example.monitoramentoplacassolares.adapters.ListaNotificacaoAdapter;
+import com.example.monitoramentoplacassolares.adapters.LocalAdapter;
+import com.example.monitoramentoplacassolares.adapters.MyFragmentStateAdapter;
 import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
+import com.example.monitoramentoplacassolares.fragments.FragmentValoresAtuais;
+import com.example.monitoramentoplacassolares.fragments.ListaDadosFragment;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpServerInfo;
+import com.example.monitoramentoplacassolares.locais.LocalMonitoramento;
 import com.google.android.material.navigation.NavigationView;
 
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -25,16 +28,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -45,7 +53,6 @@ import com.opencsv.CSVWriter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -61,12 +68,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSelectedListener, NavigationView.OnNavigationItemSelectedListener {
     public static final String TAG = "DadosAct";
 
+    //TODO: Limpar códigos antigos
+
     private Spinner spMes, spDia;
-    //TODO: Adaptar para HTTP
+
     private RecyclerView rcDados;
     private final String Dados = null;
     private boolean sair;
@@ -78,13 +88,20 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
     private TextView tvDataHoraInicio;
     private TextView tvDataHoraFim;
 
+    private Spinner spLocal;
+    private LocalMonitoramento localEscolhido;
+
     private int ano, mes, dia;
     private int hora, minuto;
+
+    private boolean visuGrafico = false;
 
     private List<JSONObject> listaDados = Collections.synchronizedList(new ArrayList<>());
     private DadosAct objetoPrincipal;
     private JSONObject dadoCabecalho = new JSONObject();
     private final Object esperaResposta = new Object();
+
+    private ListaDadosFragment listaDadosFragment;
 
     private NavigationDrawer navDrawer;
 
@@ -124,13 +141,28 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
         tvDataHoraFim.setOnClickListener(v -> mostrarSelecaoData(tvDataHoraFim));
         // end
 
-        rcDados = findViewById(R.id.rcDados);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        rcDados.setLayoutManager(layoutManager);
+        // Inicia seletor local
+        spLocal = findViewById(R.id.seletorLocalDados);
 
-        AntigoDadosAdapter mAdapter = new AntigoDadosAdapter(Dados);
-        rcDados.setAdapter(mAdapter);
+        LocalAdapter localAdapter = new LocalAdapter(this, FragmentValoresAtuais.ListaLocais);
+        spLocal.setAdapter(localAdapter);
+        spLocal.setOnItemSelectedListener(selecaoLocal);
+        // end
+
+//        rcDados = findViewById(R.id.rcDados);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+//        rcDados.setLayoutManager(layoutManager);
+        listaDadosFragment = new ListaDadosFragment();
+
+        List<Fragment> fragmentsToAdd = new ArrayList<>();
+        fragmentsToAdd.add(listaDadosFragment);
+
+        ViewPager2 viewPager = findViewById(R.id.vwPagerDados);
+        viewPager.setAdapter(new MyFragmentStateAdapter(getSupportFragmentManager(),
+                getLifecycle(), fragmentsToAdd));
     }
+
+
 
     private void mostrarSelecaoData(TextView tvDataHora) {
         DatePickerDialog.OnDateSetListener dateSetListener = (view, year, month, dayOfMonth) -> {
@@ -171,6 +203,21 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
                 true)
                 .show();
     }
+
+    private final AdapterView.OnItemSelectedListener selecaoLocal = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            LocalMonitoramento localSelecionado = (LocalMonitoramento) parent.getItemAtPosition(position);
+            if (!localSelecionado.equals(localEscolhido)){
+                localEscolhido = localSelecionado;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -248,38 +295,21 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     public void btRequestAction(View v) {
-        //TODO: Debuggar
-
         MainActivity.executorServiceCached.submit(() -> {
             pedeDados();
-            runOnUiThread(this::atualizaListaDados);
-            runOnUiThread(() -> criaCabecalho(dadoCabecalho));
+            runOnUiThread(() -> {
+                listaDadosFragment.atualizaListaDados();
+                listaDadosFragment.criaCabecalho(dadoCabecalho);
+            });
         });
-
-        /*String data;
-        data = spDia.getSelectedItem() + "-";
-        data += spMes.getSelectedItem();
-
-        //Cliente task = new Cliente(DadosAct.this);
-        //task.execute("DADOS DATA " + data);
-        JSONObject pacotePedido = new JSONObject();
-        try {
-            pacotePedido.put("acao", "dados data");
-            pacotePedido.put("data", data);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
-
-//        MainActivity.Cliente.setPacoteConfig(pacotePedido);
-//        MainActivity.executorServiceCached.submit(MainActivity.Cliente);
-//        TarefaMensagem tarefaMensagem = new TarefaMensagem(this, pacotePedido);
-//        MainActivity.runnableCliente.novaTarefa(tarefaMensagem);
     }
 
     private void pedeDados() {
-        //TODO: Adicionar seleção de local
+        //TODO: Checar seleção de local
+
+        //Adiciona os campos da requisição
         Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("local", "VR");
+        queryParams.put("local", localEscolhido.getCodigo());
         String dataInicio = tvDataHoraInicio.getText().toString().replace(" ", "+");
         queryParams.put("inicio", dataInicio);
         String dataFim = tvDataHoraFim.getText().toString().replace(" ", "+");
@@ -287,7 +317,12 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 
         try (Response dadosResponse =
                      MpsHttpClient.instacia().doGet(MpsHttpServerInfo.PATH_DADOS_DATA, queryParams)) {
-            String responseBodyStr = dadosResponse.body().string();
+            ResponseBody responseBody = dadosResponse.body();
+            String responseBodyStr = responseBody != null ? responseBody.string() : "vazio";
+
+            if (responseBodyStr.equals("vazio")) {
+                throw new HttpRequestException("Corpo de resposta vazio");
+            }
 
             int statusCode = dadosResponse.code();
             if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
@@ -300,8 +335,8 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
                 }
 
                 dadoCabecalho = dadosJson.getJSONObject(0);
-                //runOnUiThread(() -> criaCabecalho(dadoCabecalho));
-                carregaDados(dadosJson);
+
+                listaDadosFragment.carregaDados(dadosJson);
             } else {
                 Log.i(TAG, "pedeDados: Erro: Código de resposta inesperado: "
                         + statusCode + "\nCorpo mensagem: " + responseBodyStr);
@@ -350,8 +385,7 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
 
         int dps = 95;
         final float scale = getResources().getDisplayMetrics().density;
-        int pixels = (int) (dps * scale + 0.5f);
-        tvToAdd.getLayoutParams().width = pixels;
+        tvToAdd.getLayoutParams().width = (int) (dps * scale + 0.5f); // pixels
 
         tvToAdd.setTextColor(Color.BLACK);
         if (evenColumn) {
@@ -386,6 +420,21 @@ public class DadosAct extends AppCompatActivity implements AdapterView.OnItemSel
         intAct.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intAct);
 //        this.finish();
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void btMudaVisualizacao(View v) {
+        //TODO: Implementar troca para gráfico (duas abas e seleção de qual dado) com ViewPager
+        Button btMudaVisu = findViewById(R.id.btMudaVisualizacaoDados);
+        LinearLayout grafHead = findViewById(R.id.linLayoutGrafDadosHead);
+        visuGrafico = !visuGrafico;
+        if (visuGrafico) {
+            btMudaVisu.setText("Lista");
+            grafHead.setVisibility(View.VISIBLE);
+        } else {
+            btMudaVisu.setText("Gráfico");
+            grafHead.setVisibility(View.GONE);
+        }
     }
 
 

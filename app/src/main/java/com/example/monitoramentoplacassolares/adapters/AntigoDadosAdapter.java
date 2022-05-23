@@ -13,7 +13,6 @@ import org.json.JSONObject;
 public class AntigoDadosAdapter extends RecyclerView.Adapter<AntigoDadosAdapter.AntigoDadosViewHolder> {
     public static final String TAG = "AntigoDadosAdapter";
 
-    //TODO: Adaptar para JSONObjects
 
     private String[] Dados;
     private JSONObject dados;
@@ -53,7 +52,6 @@ public class AntigoDadosAdapter extends RecyclerView.Adapter<AntigoDadosAdapter.
 //                holder.textView[i].setText((dados[i]));
 //            }
 //        }
-        //TODO: MODIFICAR PARA JSONOBJECTS
         if(this.dados != null){
             //Iterator dadosIt = this.dados.optJSONArray()
         }

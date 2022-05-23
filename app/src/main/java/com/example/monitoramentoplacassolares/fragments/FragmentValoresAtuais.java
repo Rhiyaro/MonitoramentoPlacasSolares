@@ -114,32 +114,17 @@ public class FragmentValoresAtuais extends Fragment {
         return inf;
     }
 
-
-
-    private void atualizaGrandezas() {
-        String[] configsGrandezas = localAtual.getGrandezas().split(";");
-        if (configsGrandezas.length > 0) {
-            for (String config : configsGrandezas) {
-                if (config.equals("")) continue;
-                String grandeza = config.split("=")[0];
-                String unidade = config.split("=")[1];
-                mudaTxtGrandeza(grandeza, unidade);
-            }
-        }
-    }
-
-    private void mudaTxtGrandeza(String grandeza, String unidade) {
-        if ("I".equals(grandeza)) {
-            txtMedidaCorrente.setText(unidade);
-        }
-    }
-
     private void atualizaLocaisHttp() {
         try (Response locaisResponse = MpsHttpClient.instacia().doGet(MpsHttpServerInfo.PATH_LOCAIS)) {
             ResponseBody responseBody = locaisResponse.body();
             String responseBodyStr = responseBody != null ? responseBody.string() : "vazio";
+
+            if (responseBodyStr.equals("vazio")) {
+                throw new HttpRequestException("Corpo de resposta vazio");
+            }
+
             int statusCode = locaisResponse.code();
-            if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE && !responseBodyStr.equals("vazio")) {
+            if (statusCode == MpsHttpClient.HTTP_OK_RESPONSE) {
                 JSONObject locaisJson = new JSONObject(responseBodyStr);
                 carregaLocais(locaisJson);
                 actAux.runOnUiThread(this::atualizaListaLocais);
@@ -149,6 +134,27 @@ public class FragmentValoresAtuais extends Fragment {
         } catch (HttpRequestException | IOException | JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void carregaLocais(JSONObject locaisJson) throws JSONException {
+        JSONArray jsArrLocais = locaisJson.getJSONArray("locais");
+
+        for (int i = 0; i < jsArrLocais.length(); i++) {
+            JSONObject jsLocal = jsArrLocais.optJSONObject(i);
+            String nomeLocal = jsLocal.optString("local", "desconhecido"+i);
+            String codigoLocal = jsLocal.optString("codigo",
+                    nomeLocal.toLowerCase().replaceAll("\\W", "_"));
+            String grandezas = jsLocal.optString("grandezas", "");
+            int numPlacas = jsLocal.optInt("matrizes", 1);
+
+            LocalMonitoramento local = new LocalMonitoramento(nomeLocal, codigoLocal,
+                    grandezas, numPlacas);
+
+            ListaLocais.add(local);
+        }
+
+        localAtual = ListaLocais.get(0);
+        placaAtual = localAtual.getPlacas().get(0);
     }
 
     private void atualizaListaLocais() {
@@ -179,7 +185,7 @@ public class FragmentValoresAtuais extends Fragment {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             LocalMonitoramento localSelecionado = (LocalMonitoramento) parent.getItemAtPosition(position);
-            if (!localSelecionado.equals(localAtual)){
+            if (!localSelecionado.equals(localAtual)) {
                 localAtual = localSelecionado;
                 atualizaGrandezas();
 
@@ -211,31 +217,29 @@ public class FragmentValoresAtuais extends Fragment {
         }
     };
 
+    private void atualizaGrandezas() {
+        String[] configsGrandezas = localAtual.getGrandezas().split(";");
+        if (configsGrandezas.length > 0) {
+            for (String config : configsGrandezas) {
+                if (config.equals("")) continue;
+                String grandeza = config.split("=")[0];
+                String unidade = config.split("=")[1];
+                mudaTxtGrandeza(grandeza, unidade);
+            }
+        }
+    }
+
+    private void mudaTxtGrandeza(String grandeza, String unidade) {
+        if ("I".equals(grandeza)) {
+            txtMedidaCorrente.setText(unidade);
+        }
+    }
+
     public LocalMonitoramento getLocalAtual() {
         return localAtual;
     }
 
     public PlacaMonitoramento getPlacaAtual() {
         return placaAtual;
-    }
-
-    private void carregaLocais(JSONObject locaisJson) throws JSONException {
-        JSONArray jsArrLocais = locaisJson.getJSONArray("locais");
-
-        for (int i = 0; i < jsArrLocais.length(); i++) {
-            JSONObject jsLocal = jsArrLocais.optJSONObject(i);
-            String nomeLocal = jsLocal.optString("local");
-            String codigoLocal = nomeLocal.toLowerCase();
-            String grandezas = jsLocal.optString("grandezas", "");
-            int numPlacas = jsLocal.optInt("matrizes");
-
-            LocalMonitoramento local = new LocalMonitoramento(nomeLocal, codigoLocal,
-                    grandezas, numPlacas);
-
-            ListaLocais.add(local);
-        }
-
-        localAtual = ListaLocais.get(0);
-        placaAtual = localAtual.getPlacas().get(0);
     }
 }

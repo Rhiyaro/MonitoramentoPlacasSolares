@@ -22,6 +22,7 @@ import java.text.Normalizer;
 public class CadastroAct extends AppCompatActivity implements IAsyncHandler {
 
     //TODO: Adaptar para HTTP
+    //TODO: Mover para "dentro" do app
     private Cliente con;
     private EditText edtTxtLogin, edtTxtSenha, edtTxtSenha2;
 

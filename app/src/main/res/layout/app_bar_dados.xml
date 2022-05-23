@@ -34,59 +34,122 @@
 
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/seletoresDadosHorizontalLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
-        <TextView
-            android:id="@+id/txtSelecionaDataHoraInicioDados"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/link"
-            android:gravity="center"
-            android:hint="2000-02-11 08:15:00"
-            android:text="Início"
-            android:textColor="@android:color/black"
-            tools:ignore="HardcodedText" />
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/txtAteDados"
-            android:layout_width="40dp"
+            <Spinner
+                android:id="@+id/seletorLocalDados"
+                android:layout_width="150dp"
+                android:layout_height="48dp"
+                android:dropDownWidth="match_parent"
+                android:spinnerMode="dropdown"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btMudaVisualizacaoDados"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:onClick="btMudaVisualizacao"
+                android:text="Gráfico"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtSelecionaDataHoraInicioDados"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/link"
+                android:gravity="center"
+                android:hint="2000-02-11 08:15:00"
+                android:text="Início"
+                android:textColor="@android:color/black"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/txtAteDados"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:background="@color/colorPrimary"
+                android:gravity="center"
+                android:text="até"
+                android:textColor="@color/link"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/txtSelecionaDataHoraTerminoDados"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/link"
+                android:gravity="center"
+                android:hint="2000-02-11 08:15:00"
+                android:text="Fim"
+                android:textColor="@android:color/black"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/btRequest"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bkg_bt_pesq_db"
+                android:onClick="btRequestAction"
+                tools:ignore="SpeakableTextPresentCheck"
+                tools:layout_conversion_absoluteHeight="56dp"
+                tools:layout_conversion_absoluteWidth="58dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linLayoutGrafDadosHead"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimary"
-            android:gravity="center"
-            android:text="até"
-            android:textColor="@color/link"
-            tools:ignore="HardcodedText" />
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/txtSelecionaDataHoraTerminoDados"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/link"
-            android:gravity="center"
-            android:hint="2000-02-11 08:15:00"
-            android:text="Fim"
-            android:textColor="@android:color/black"
-            tools:ignore="HardcodedText" />
+            <Spinner
+                android:id="@+id/spDadoActDados"
+                android:layout_width="150dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:dropDownWidth="match_parent"
+                tools:ignore="SpeakableTextPresentCheck" />
 
-        <Button
-            android:id="@+id/btRequest"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bkg_bt_pesq_db"
-            android:onClick="btRequestAction"
-            tools:ignore="SpeakableTextPresentCheck"
-            tools:layout_conversion_absoluteHeight="56dp"
-            tools:layout_conversion_absoluteWidth="58dp" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <Spinner
+                android:id="@+id/spPlacaActDados"
+                android:layout_width="150dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                tools:ignore="SpeakableTextPresentCheck" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <View
@@ -94,46 +157,14 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        app:layout_constraintTop_toBottomOf="@id/seletoresDadosHorizontalLayout" />
 
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vwPagerDados"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:fillViewport="true"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TableRow
-                android:id="@+id/tblRow_Cabecalho"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <View
-                android:id="@+id/divider4"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@android:color/black" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rcDados"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout_conversion_absoluteHeight="598dp"
-                tools:layout_conversion_absoluteWidth="395dp">
-
-            </androidx.recyclerview.widget.RecyclerView>
-        </LinearLayout>
-    </HorizontalScrollView>
+        app:layout_constraintTop_toBottomOf="@id/divider2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
