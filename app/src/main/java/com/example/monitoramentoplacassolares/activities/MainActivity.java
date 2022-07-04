@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.example.monitoramentoplacassolares.R;
+import com.example.monitoramentoplacassolares.adapters.MyFragmentStateAdapter;
 import com.example.monitoramentoplacassolares.conexao.RunnableCliente;
 import com.example.monitoramentoplacassolares.configFirebase.MyFirebaseMessagingService;
 import com.example.monitoramentoplacassolares.excecoes.HttpRequestException;
@@ -36,6 +37,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -48,6 +50,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -117,12 +120,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         fragValAtuais = (FragmentValoresAtuais) fragments[0];
 
-        viewPager = findViewById(R.id.mainActViewPager);
-        viewPager.setAdapter(new MyFragmentPagerAdapter(getSupportFragmentManager(),
-                getResources().getStringArray(R.array.tabTitles),
-                fragments));
+        List<Fragment> fragsToAdd = new ArrayList<>();
+        fragsToAdd.add(fragValAtuais);
 
-        tabLayout.setupWithViewPager(viewPager);
+//        viewPager = findViewById(R.id.mainActViewPager);
+//        viewPager.setAdapter(new MyFragmentPagerAdapter(getSupportFragmentManager(),
+//                getResources().getStringArray(R.array.tabTitles),
+//                fragments));
+//
+//        tabLayout.setupWithViewPager(viewPager);
+
+        ViewPager2 viewPager2 = findViewById(R.id.mainActViewPager);
+        viewPager2.setAdapter(new MyFragmentStateAdapter(getSupportFragmentManager(),
+                getLifecycle(), fragsToAdd));
 
         // Init Toolbar e Drawer
 
