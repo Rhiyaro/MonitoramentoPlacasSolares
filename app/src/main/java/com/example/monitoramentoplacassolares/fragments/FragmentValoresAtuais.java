@@ -187,7 +187,7 @@ public class FragmentValoresAtuais extends Fragment {
             LocalMonitoramento localSelecionado = (LocalMonitoramento) parent.getItemAtPosition(position);
             if (!localSelecionado.equals(localAtual)) {
                 localAtual = localSelecionado;
-                atualizaGrandezas();
+                //atualizaGrandezas();
 
                 placaAtual = localSelecionado.getPlacas().get(0);
 

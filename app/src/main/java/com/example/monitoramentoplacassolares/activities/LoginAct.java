@@ -17,6 +17,7 @@ import androidx.preference.PreferenceManager;
 import com.example.monitoramentoplacassolares.R;
 import com.example.monitoramentoplacassolares.excecoes.HttpLoginException;
 import com.example.monitoramentoplacassolares.httpcomm.MpsHttpClient;
+import com.example.monitoramentoplacassolares.httpcomm.MpsHttpServerInfo;
 
 public class LoginAct extends AppCompatActivity {
     private static final String TAG = "LoginAct";
@@ -104,7 +105,15 @@ public class LoginAct extends AppCompatActivity {
     }
 
     private void checaResultadoLogin(String resultado) throws HttpLoginException {
-        switch (resultado) {
+        // FIXME: Added for compatibility
+        String teste_resultado = resultado;
+        if (teste_resultado.contains("token")) {
+            teste_resultado = LOGIN_OK;
+            // {"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsb2dpbjEiLCJpYXQiOjE2ODg5NTY5NDIsImV4cCI6MTY4OTA0MzM0Mn0.6AgLDPX2Kzy9sQ6IhCtGs_gIBHV8_-wxP2h3Mv3CwNU"}
+            MpsHttpServerInfo.bearerToken = resultado.split(":")[1];
+            MpsHttpServerInfo.bearerToken = MpsHttpServerInfo.bearerToken.split("\"")[1];
+        }
+        switch (teste_resultado) {
             case LOGIN_OK:
                 goMain();
                 break;

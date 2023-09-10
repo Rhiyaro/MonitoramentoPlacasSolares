@@ -99,6 +99,9 @@ public class MpsHttpClient {
             requestBuilder.addHeader("Cookie", cookie);
         }
 
+        // FIXME: Added for compatibility
+        requestBuilder.addHeader("BearerToken", MpsHttpServerInfo.bearerToken);
+
         return requestBuilder.build();
     }
 
@@ -128,6 +131,9 @@ public class MpsHttpClient {
             requestBuilder.addHeader("Cookie", cookie);
         }
 
+        // FIXME: Added for compatibility
+        requestBuilder.addHeader("BearerToken", MpsHttpServerInfo.bearerToken);
+
         return requestBuilder.build();
     }
 
@@ -150,7 +156,7 @@ public class MpsHttpClient {
         queryParams.put("login", login);
         queryParams.put("senha", senha);
 
-        try (Response loginResponse = sendGetRequest(newGetRequest("login", queryParams))) {
+        try (Response loginResponse = sendGetRequest(newGetRequest(MpsHttpServerInfo.PATH_LOGIN, queryParams))) {
             return Objects.requireNonNull(loginResponse.body()).string();
         } catch (ExecutionException e) {
             e.printStackTrace();
